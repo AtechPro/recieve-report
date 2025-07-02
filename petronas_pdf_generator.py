@@ -19,8 +19,8 @@ class PDF(FPDF):
         self.set_y(y_start + line_height * 4)
         # Received Report
         self.set_font('Arial', 'B', 7)
-        self.cell(0, 5, 'RECEIVED REPORT', ln=1, align='C')
-        self.ln(1)
+        # 'RECEIVED REPORT' as a table row
+        self.cell(190, 7, 'RECEIVED REPORT', border=1, ln=1, align='C')
 
     def table(self, data):
         self.set_font('Arial', '', 5)
@@ -30,7 +30,8 @@ class PDF(FPDF):
                 self.cell(col_widths[i], 4, str(item), border=1)
             self.ln(4)
 
-pdf = PDF()
+pdf = PDF(format='A4')  # Explicitly set A4 size (210 x 297 mm by default)
+print('FPDF units: millimeters (mm) by default for A4 size 210x297mm')
 pdf.add_page()
 
 # Table data (fill with your actual data)
