@@ -2,29 +2,21 @@ from fpdf import FPDF
 
 class PDF(FPDF):
     def header(self):
-        # Two-column header: logo (placeholder) and title
+        # Two-column header: logo (placeholder) and wrapped title (safe multi_cell usage)
         self.set_font('Arial', 'B', 8)
-        # Set column widths
         logo_width = 30
         title_width = 160
-        shared_height = 28  # Shared height for both logo and title
-
-        # Logo placeholder (left cell)
-        self.cell(logo_width, shared_height, '[LOGO]', border=1, align='C')
-
-        # Title (right cell, multi-line, vertically centered)
-        x = self.get_x()
-        y = self.get_y()
-        title = ('PROVISION FOR MECHANICAL VALVE IN SITU PACKING\n'
-                 'REPLACEMENT, MECHANICAL VALVE OVERHAULING, AUTOMATIC\n'
-                 "RECIRCULATORY VALVE (ARV) SERVICING, AND MOV'S GEARBOX\n"
-                 'SERVICING FOR PCFS TA2025')
-        # Draw a cell for the border, then print the text inside
-        self.multi_cell(title_width, shared_height / 4, title, border=0, align='C')
-        # Draw the border for the title cell
-        self.rect(x, y, title_width, shared_height)
-        self.ln(shared_height)
-
+        line_height = 5
+        # Save starting y
+        y_start = self.get_y()
+        # Logo placeholder (left cell, fixed height)
+        self.cell(logo_width, line_height * 4, '[LOGO]', border=1, align='C')
+        # Move to the right for the title
+        self.set_xy(self.get_x(), y_start)
+        title = 'PROVISION FOR MECHANICAL VALVE IN SITU PACKING\nREPLACEMENT, MECHANICAL VALVE OVERHAULING, AUTOMATIC\nRECIRCULATORY VALVE (ARV) SERVICING, AND MOV\'S GEARBOX\nSERVICING FOR PCFS TA2025'
+        self.multi_cell(title_width, line_height, title, border=1, align='C')
+        # Move cursor below the header
+        self.set_y(y_start + line_height * 4)
         # Received Report
         self.set_font('Arial', 'B', 7)
         self.cell(0, 5, 'RECEIVED REPORT', ln=1, align='C')
