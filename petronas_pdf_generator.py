@@ -1,12 +1,18 @@
 from fpdf import FPDF
+from fpdf.enums import XPos, YPos
 
 class PDF(FPDF):
+    FONT_FAMILY = 'helvetica'
+    FONT_SIZE = 6
+    HEADER_FONT_SIZE = 8
+    RECEIVED_FONT_SIZE = 7
+
     def header(self):
         # Two-column header: logo (placeholder) and wrapped title (safe multi_cell usage)
-        self.set_font('Arial', 'B', 8)
+        self.set_font(self.FONT_FAMILY, 'B', 8)
         logo_width = 30
         title_width = 160
-        line_height = 5
+        line_height = 8
         # Save starting y
         y_start = self.get_y()
         # Logo placeholder (left cell, fixed height)
@@ -18,34 +24,242 @@ class PDF(FPDF):
         # Move cursor below the header
         self.set_y(y_start + line_height * 4)
         # Received Report
-        self.set_font('Arial', 'B', 7)
+        self.set_font(self.FONT_FAMILY, 'B', self.RECEIVED_FONT_SIZE)
         # 'RECEIVED REPORT' as a table row
-        self.cell(190, 7, 'RECEIVED REPORT', border=1, ln=1, align='C')
+        self.cell(190, 5, 'RECEIVED REPORT', border=1, align='C')
+        self.ln()
 
-    def table(self, data):
-        self.set_font('Arial', '', 5)
-        col_widths = [15, 60, 15, 15, 15, 15, 15]  # 50% of previous widths
-        for row in data:
-            for i, item in enumerate(row):
-                self.cell(col_widths[i], 4, str(item), border=1)
-            self.ln(4)
+    def client_info(self):
+        self.set_font(self.FONT_FAMILY, '', self.FONT_SIZE)
+        # Define column widths (adjust as needed)
+        col_widths = [30, 80, 40, 20, 20, 20, 30, 10]
+        with self.table(col_widths=col_widths, line_height=4) as table:
+            # Row 1: CLIENT (colspan=1), PETRONAS... (colspan=7)
+            row = table.row()
+            row.cell('CLIENT')
+            row.cell('PETRONAS CHEMICALS FERTILISER SABAH SDN BHD', colspan=7) # data 
+            
+            # Row 2: PROJECT, VALVE..., DOC NO, Gear Box..., (colspan as needed)
+            row = table.row()
+            row.cell('PROJECT') 
+            row.cell('VALVE MAINTENANCE/REPAIR') #data
+            row.cell('DOC NO')
+            row.cell('Gear Box Servicing & Valve Packing Replacement', colspan=5) #data
+            
+            # Row 3: LOCATION, SIPITANG..., SIZE INLET, 0, RATING, 0, INLET TYPE, 20
+            row = table.row()
+            row.cell('LOCATION')
+            row.cell('SIPITANG SABAH') #data
+            row.cell('SIZE INLET')
+            row.cell('0') #data
+            row.cell('RATING')
+            row.cell('0') #data
+            row.cell('INLET TYPE')
+            row.cell('20') #data
+            
+            # Row 4: DATE IN, YES, SIZE OUTLET, 20, RATING, 300, OUTLET TYPE, 0
+            row = table.row()
+            row.cell('DATE IN')
+            row.cell('YES') #data
+            row.cell('SIZE OUTLET')
+            row.cell('20') #data
+            row.cell('RATING')
+            row.cell('300') #data
+            row.cell('OUTLET TYPE')
+            row.cell('0') #data
+            
+            # Row 5: WO, 81620164, MANUFACTURER, MOV, (rest empty)
+            row = table.row()
+            row.cell('WO')
+            row.cell('81620164') #data
+            row.cell('MANUFACTURER')
+            row.cell('MOV', colspan=5) #data
+            
+            # Row 6: TAG NO, 1/0/1900, TYPE OF VALVE, 14, (rest empty)
+            row = table.row()
+            row.cell('TAG NO')
+            row.cell('1/0/1900') #data
+            row.cell('TYPE OF VALVE')
+            row.cell('14', colspan=5) #data
+            
+            # Row 7: (empty), VALVE OPERATED TYPE, SAMBO, (rest empty)
+            row = table.row()
+            row.cell('', colspan=2) #data
+            row.cell('VALVE OPERATED TYPE')
+            row.cell('SAMBO', colspan=5) #data
+
+    def service_info(self):
+        self.set_font(self.FONT_FAMILY, '', self.FONT_SIZE)
+        # 8 columns: label, box, label, box, label, box, label, box
+        col_widths = [30, 20, 40, 20, 40, 20, 50, 30] # total 250
+        with self.table(col_widths=col_widths, line_height=4) as table:
+            row = table.row()
+            row.cell('INSITU TESTING')
+            row.cell('')  # empty cell for checkbox
+            row.cell('SERVICE & REPAIR')
+            row.cell('')  # empty cell for checkbox
+            row.cell('TESTING ONLY')
+            row.cell('')  # empty cell for checkbox
+            row.cell('REPLACE NEW VALVE')
+            row.cell('')  # empty cell for checkbox
+
+    def transportation_details(self):
+        self.set_font(self.FONT_FAMILY, '', self.FONT_SIZE)
+        col_widths = [30, 80, 40, 20, 20, 20, 30, 10]
+        with self.table(col_widths=col_widths, line_height=4) as table:
+            row = table.row()
+            row.cell('TRANSPORTATION DETAILS', colspan=8, align='C')
+
+            row = table.row()
+            row.cell('TRANSPORT MODE')
+            row.cell('') #data 
+            row.cell('PACKAGING')
+            row.cell('', colspan=5) #data
+
+            row = table.row()
+            row.cell('TRANSPORT BY')
+            row.cell('') #data
+            row.cell('RECIEVED BY')
+            row.cell('', colspan=5) #data
+
+            row = table.row()
+            row.cell('COMMENT ON TRANSPORTATION IF ANY', colspan=2)
+            row.cell('', colspan=6) #data
+
+    def received_info_and_condition(self):
+        self.set_font(self.FONT_FAMILY, '', self.FONT_SIZE)
+        col_widths = [47.5, 47.5, 47.5, 47.5]
+        box_height = 40  # or whatever height you want
+
+        # Save current position
+        x = self.get_x()
+        y = self.get_y()
+
+        # Draw the big box (spanning all columns)
+        self.rect(x, y, sum(col_widths), box_height)
+
+        # Place the label at the top-left inside the box, 1mm from top and left
+        self.set_xy(x , y )
+        self.set_font(self.FONT_FAMILY, 'B', self.FONT_SIZE)
+        self.cell(0, 5, 'AS RECEIVED VALVE:', align='L')
+        self.ln() # pictures data
+
+        # Move cursor to the bottom of the box
+        self.set_xy(x, y + box_height)
+        self.set_font(self.FONT_FAMILY, '', self.FONT_SIZE)
+
+        # Now continue with the table for the condition
+        with self.table(col_widths=col_widths, line_height=4) as table:
+            row = table.row()
+            row.cell('AS RECEIVED VALVE CONDITION', colspan=4, align='C')
+            # Data rows
+            row = table.row()
+            row.cell('INLET CONNECTION TYPE')
+            row.cell('20') #data
+            row.cell('OUTLET CONNECTION TYPE')
+            row.cell('0') #data
+
+            row = table.row()
+            row.cell('NAMEPLATE')
+            row.cell('M237-14MOV-002') #data
+            row.cell('TAG NUMBER/PLATE')
+            row.cell('0') #data
+
+            row = table.row()
+            row.cell('INLET CONNECTION CONDITION')
+            row.cell('300') #data
+            row.cell('OUTLET CONNECTION CONDITION')
+            row.cell('0') #data
+
+            row = table.row()
+            row.cell('CONNECTION MAJOR DEFECT/DAMAGE')
+            row.cell('0') #data
+            row.cell('')
+            row.cell('')
+
+            row = table.row()
+            row.cell('VALVE BODY CONDITION')
+            row.cell('0') #data
+            row.cell('MAJOR DEFECT ON BODY')
+            row.cell('0') #data
+
+    def valve_condition(self, extra_height=8):
+        self.set_font(self.FONT_FAMILY, 'B', self.FONT_SIZE)
+        col_widths = [190]
+        with self.table(col_widths=col_widths, line_height=4) as table:
+            row = table.row()
+            row.cell('OVERALL VALVE CONDITION', colspan=1, align='C')
+        # Add extra space after the table
+        self.cell(190, extra_height, '', border=1, new_x=XPos.LMARGIN, new_y=YPos.NEXT) #data
+        with self.table(col_widths=col_widths, line_height=4) as table:
+            row = table.row()
+            row.cell('DETAILED PICTURE', colspan=1, align='C')
+    
+    def detailed_picture(self):
+        self.set_font(self.FONT_FAMILY, '', self.FONT_SIZE)
+        col_widths = [47.5, 47.5, 47.5, 47.5]
+        with self.table(col_widths=col_widths, line_height=30) as table:
+            row = table.row()
+            row.cell('INLET CONNECTION')
+            row.cell('') # pictures
+            row.cell('OUTLET CONNECTION')
+            row.cell('') # pictures
+            row = table.row()
+            row.cell('DEFECT CONNECTION  (IF ANY)')
+            row.cell('') # pictures
+            row.cell('DEFECT ON BODY (IF ANY)')
+            row.cell('') # pictures
+    
+    def signature_block(self, date_value=""):
+        self.set_font(self.FONT_FAMILY, 'B', self.FONT_SIZE)
+        col_widths = [63.33, 63.33, 63.33]
+        table_width = sum(col_widths)
+        x_start = self.get_x()
+        y_start = self.get_y()
+
+        # 1. Draw header row as a table
+        with self.table(col_widths=col_widths, line_height=5) as table:
+            row = table.row()
+            row.cell('PREPARED BY', align='C')
+            row.cell('CLIENT REPRESENTATIVE', align='C')
+            row.cell('APPROVED BY', align='C')
+
+        # 2. Draw the big signature area rectangle (no horizontal lines inside)
+        sig_height = 40  # Adjust as needed
+        y_sig = self.get_y()
+        self.rect(x_start, y_sig, table_width, sig_height)
+
+        # 3. Draw vertical lines to divide columns
+        for i in range(1, len(col_widths)):
+            x = x_start + sum(col_widths[:i])
+            self.line(x, y_sig, x, y_sig + sig_height)
+
+        # 4. Place NAME: and DATE: labels near the bottom of each column
+        label_x_offsets = [x_start + 2, x_start + col_widths[0] + 2, x_start + col_widths[0] + col_widths[1] + 2]
+        label_y_name = y_sig + sig_height - 15  # 15mm from the bottom
+        label_y_date = y_sig + sig_height - 8   # 8mm from the bottom
+
+        for x in label_x_offsets:
+            self.set_xy(x, label_y_name)
+            self.cell(0, 5, "NAME:")
+            self.set_xy(x, label_y_date)
+            self.cell(0, 5, "DATE:")
+
+        # Move cursor to the bottom of the signature block for next content
+        self.set_y(y_sig + sig_height)
 
 pdf = PDF(format='A4')  # Explicitly set A4 size (210 x 297 mm by default)
 print('FPDF units: millimeters (mm) by default for A4 size 210x297mm')
 pdf.add_page()
 
-# Table data (fill with your actual data)
-data = [
-    ['CLIENT', 'PETRONAS CHEMICALS FERTILISER SABAH SDN BHD'],
-    ['PROJECT', 'VALVE MAINTENANCE/REPAIR', 'DOC NO', '', '', '', ''],
-    ['LOCATION', 'SIPITANG SABAH', 'SIZE INLET', '0', 'RATING', '0', 'INLET TYPE'],
-    ['DATE IN', '1/0/1900', 'SIZE OUTLET', '8', 'RATING', '600', 'OUTLET TYPE'],
-    ['WO', '81799204', 'MANUFACTURER', 'GATE VALVE', '', '', ''],
-    ['TAG NO', '1/0/1900', 'TYPE OF VALVE', '52', '', '', ''],
-    ['', '', 'VALVE OPERATED TYPE', 'PK VALVE', '', '', ''],
-    ['INSITU TESTING', 'SERVICE & REPAIR', '', 'TESTING ONLY', 'REPLACE NEW VALVE', '', ''],
-]
+# Call the client_info method to display the client information
+pdf.client_info()
+pdf.service_info()
+pdf.transportation_details()
+pdf.received_info_and_condition()
+pdf.valve_condition()
+pdf.detailed_picture()
+pdf.signature_block()
 
-pdf.table(data)
 
 pdf.output('generated_report.pdf')
