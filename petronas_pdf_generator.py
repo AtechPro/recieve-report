@@ -13,7 +13,7 @@ class PDF(FPDF):
         self.set_font(self.FONT_FAMILY, 'B', 8)
         logo_width = 30
         title_width = 160
-        line_height = 8
+        line_height = 8  # Reduced from 8 to 5 for closer spacing
         # Save starting y
         y_start = self.get_y()
         # Logo placeholder (left cell, fixed height)
@@ -236,18 +236,21 @@ class PDF(FPDF):
     def detailed_picture(self):
         self.set_font(self.FONT_FAMILY, '', self.FONT_SIZE)
         col_widths = [47.5, 47.5, 47.5, 47.5]
+        # Calculate image size with padding (leave some margin)
+        img_width = col_widths[1] - 10  # 10mm padding total (5mm each side)
+        
         with self.table(col_widths=col_widths, line_height=30) as table:
             row = table.row()
             row.cell('INLET CONNECTION')
-            row.cell(img='image.png')  # Insert image in cell
+            row.cell(img='image.png', img_fill_width=False)
             row.cell('OUTLET CONNECTION')
-            row.cell(img='image.png')  # Insert image in cell
+            row.cell(img='image.png', img_fill_width=False)
             
             row = table.row()
             row.cell('DEFECT CONNECTION  (IF ANY)')
-            row.cell(img='image.png')  # Insert image in cell
+            row.cell(img='image.png', img_fill_width=False)
             row.cell('DEFECT ON BODY (IF ANY)')
-            row.cell(img='image.png')  # Insert image in cell
+            row.cell(img='image.png', img_fill_width=False)
 
     def signature_block(self, date_value=""):
         self.set_font(self.FONT_FAMILY, 'B', self.FONT_SIZE)
