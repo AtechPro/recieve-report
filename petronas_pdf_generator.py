@@ -25,8 +25,6 @@ class PDF(FPDF):
         # Move cursor below the header
         self.set_y(y_start + line_height * 4)
 
-        # Define colors for headings
-        blue = (0, 0, 255)
         grey = (128, 128, 128)
         # Create a FontFace style for table headings
         headings_style = FontFace(emphasis="B",  fill_color=grey) # Changed emphasis to "B" for bold
@@ -89,13 +87,14 @@ class PDF(FPDF):
             # Row 6: TAG NO, 1/0/1900, TYPE OF VALVE, 14, (rest empty)
             row = table.row()
             row.cell('TAG NO')
-            row.cell('1/0/1900') #data
+            row.cell('M237-19MOV-002') #data
             row.cell('TYPE OF VALVE')
             row.cell('14', colspan=5) #data
 
             # Row 7: (empty), VALVE OPERATED TYPE, SAMBO, (rest empty)
             row = table.row()
-            row.cell('', colspan=2) #data
+            row.cell('')
+            row.cell('') #data
             row.cell('VALVE OPERATED TYPE')
             row.cell('SAMBO', colspan=5) #data
 
@@ -117,9 +116,6 @@ class PDF(FPDF):
     def transportation_details(self):
         self.set_font(self.FONT_FAMILY, '', self.FONT_SIZE)
         col_widths = [30, 80, 40, 20, 20, 20, 30, 10]
-
-        # Define colors for headings
-        blue = (0, 0, 255)
         grey = (128, 128, 128)
         headings_style = FontFace(emphasis="B",  fill_color=grey)
 
@@ -130,23 +126,24 @@ class PDF(FPDF):
 
             row = table.row()
             row.cell('TRANSPORT MODE')
-            row.cell('') #data
+            row.cell('lorry') #data
             row.cell('PACKAGING')
-            row.cell('', colspan=5) #data
+            row.cell('wooden box', colspan=5) #data
 
             row = table.row()
             row.cell('TRANSPORT BY')
-            row.cell('') #data
+            row.cell('petronas') #data
             row.cell('RECIEVED BY')
-            row.cell('', colspan=5) #data
+            row.cell('petronas', colspan=5) #data
 
             row = table.row()
             row.cell('COMMENT ON TRANSPORTATION IF ANY', colspan=2)
-            row.cell('', colspan=6) #data
+            row.cell('broken on the wooden box', colspan=6) #data
 
     def received_info_and_condition(self):
         self.set_font(self.FONT_FAMILY, '', self.FONT_SIZE)
-        col_widths = [47.5, 47.5, 47.5, 47.5]
+        # Adjust to 3 equal columns for images
+        col_widths = [63.33, 63.33, 63.33]  # 190/3 for equal image spaces
         box_height = 40  # or whatever height you want
 
         # Save current position
@@ -156,20 +153,29 @@ class PDF(FPDF):
         # Draw the big box (spanning all columns)
         self.rect(x, y, sum(col_widths), box_height)
 
-        # Place the label at the top-left inside the box, 1mm from top and left
-        self.set_xy(x , y )
+        # Place the label at the top-left inside the box
+        self.set_xy(x, y)
         self.set_font(self.FONT_FAMILY, 'B', self.FONT_SIZE)
         self.cell(0, 5, 'AS RECEIVED VALVE:', align='L')
-        self.ln() # pictures data
+        
+        # Calculate dimensions for images
+        image_width = 55  # Width for each image
+        image_height = 30  # Height for each image
+        margin = 4  # Margin between images
+        y_offset = 8  # Space from title to images
+        
+        # Place three images side by side
+        for i in range(3):
+            image_x = x + margin + (i * (image_width + margin))
+            self.image('image.png', x=image_x, y=y + y_offset, w=image_width, h=image_height)
 
         # Move cursor to the bottom of the box
         self.set_xy(x, y + box_height)
         self.set_font(self.FONT_FAMILY, '', self.FONT_SIZE)
-
-        # Define colors for headings
-        blue = (0, 0, 255)
         grey = (128, 128, 128)
         headings_style = FontFace(emphasis="B",  fill_color=grey)
+
+        col_widths = [47.5, 47.5, 47.5, 47.5]
 
         # Now continue with the table for the condition
         with self.table(col_widths=col_widths, line_height=4, headings_style=headings_style) as table:
@@ -221,7 +227,7 @@ class PDF(FPDF):
             # Removed is_heading=True
             row.cell('OVERALL VALVE CONDITION', colspan=1, align='C')
         # Add extra space after the table
-        self.cell(190, extra_height, '', border=1, new_x=XPos.LMARGIN, new_y=YPos.NEXT) #data
+        self.cell(190, extra_height, 'Little Scratch on the Valves Body, No Major Defect', border=1, new_x=XPos.LMARGIN, new_y=YPos.NEXT, align='C') #data
         with self.table(col_widths=col_widths, line_height=4, headings_style=headings_style) as table:
             row = table.row()
             # Removed is_heading=True
@@ -233,14 +239,15 @@ class PDF(FPDF):
         with self.table(col_widths=col_widths, line_height=30) as table:
             row = table.row()
             row.cell('INLET CONNECTION')
-            row.cell('') # pictures
+            row.cell(img='image.png')  # Insert image in cell
             row.cell('OUTLET CONNECTION')
-            row.cell('') # pictures
+            row.cell(img='image.png')  # Insert image in cell
+            
             row = table.row()
             row.cell('DEFECT CONNECTION  (IF ANY)')
-            row.cell('') # pictures
+            row.cell(img='image.png')  # Insert image in cell
             row.cell('DEFECT ON BODY (IF ANY)')
-            row.cell('') # pictures
+            row.cell(img='image.png')  # Insert image in cell
 
     def signature_block(self, date_value=""):
         self.set_font(self.FONT_FAMILY, 'B', self.FONT_SIZE)
@@ -248,9 +255,6 @@ class PDF(FPDF):
         table_width = sum(col_widths)
         x_start = self.get_x()
         y_start = self.get_y()
-
-        # Define colors for headings
-        blue = (0, 0, 255)
         grey = (128, 128, 128)
         headings_style = FontFace(emphasis="B",  fill_color=grey)
 
