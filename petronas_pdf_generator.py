@@ -296,32 +296,51 @@ class PDF(FPDF):
     def detailed_picture(self):
         self.set_font(self.FONT_FAMILY, '', self.FONT_SIZE)
         col_widths = [47.5, 47.5, 47.5, 47.5]
-        img_width = col_widths[1] - 10
-        
-        with self.table(col_widths=col_widths, line_height=35) as table:
+        row_height = 35
+        margin = 1  # mm gap from cell borders
+        image_width = col_widths[1] - 2 * margin
+        image_height = row_height - 2 * margin
+
+        # Draw the table and get the starting x/y
+        x_start = self.get_x()
+        y_start = self.get_y()
+
+        with self.table(col_widths=col_widths, line_height=row_height) as table:
             row = table.row()
             row.cell('INLET CONNECTION')
-            if os.path.exists('goodvalve.png'):
-                row.cell(img='goodvalve.png', img_fill_width=False)
-            else:
-                row.cell('', align='C')
+            row.cell('')  # image cell
             row.cell('OUTLET CONNECTION')
-            if os.path.exists('badvalve.png'):
-                row.cell(img='badvalve.png', img_fill_width=False)
-            else:
-                row.cell('', align='C')
+            row.cell('')  # image cell
 
             row = table.row()
             row.cell('DEFECT CONNECTION  (IF ANY)')
-            if os.path.exists('badvalve.png'):
-                row.cell(img='badvalve.png', img_fill_width=False)
-            else:
-                row.cell('', align='C')
+            row.cell('')  # image cell
             row.cell('DEFECT ON BODY (IF ANY)')
-            if os.path.exists('goodvalve.png'):
-                row.cell(img='goodvalve.png', img_fill_width=False)
-            else:
-                row.cell('', align='C')
+            row.cell('')  # image cell
+
+        # Now manually place images with margin inside the correct cells
+        # First row images
+        if os.path.exists('goodvalve.png'):
+            self.image('goodvalve.png',
+                       x=x_start + col_widths[0] + margin,
+                       y=y_start + margin,
+                       w=image_width, h=image_height)
+        if os.path.exists('badvalve.png'):
+            self.image('badvalve.png',
+                       x=x_start + col_widths[0] + col_widths[1] + col_widths[2] + margin,
+                       y=y_start + margin,
+                       w=image_width, h=image_height)
+        # Second row images
+        if os.path.exists('badvalve.png'):
+            self.image('badvalve.png',
+                       x=x_start + col_widths[0] + margin,
+                       y=y_start + row_height + margin,
+                       w=image_width, h=image_height)
+        if os.path.exists('goodvalve.png'):
+            self.image('goodvalve.png',
+                       x=x_start + col_widths[0] + col_widths[1] + col_widths[2] + margin,
+                       y=y_start + row_height + margin,
+                       w=image_width, h=image_height)
 
     def signature_block(self, date_value=""):
         self.set_font(self.FONT_FAMILY, 'B', self.FONT_SIZE)
