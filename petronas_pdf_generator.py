@@ -3,9 +3,85 @@ from fpdf.enums import XPos, YPos
 from fpdf.fonts import FontFace
 import json
 
-def load_valve_data():
-    with open('valve_data.json', 'r') as file:
-        return json.load(file)
+def get_record_by_no(no_value):
+    with open('extracted_data.json', 'r') as file:
+        data = json.load(file)
+    for record in data['data']:
+        if record.get('No') == str(no_value):
+            return record
+    raise ValueError(f"No record with No = {no_value}")
+
+def load_valve_data(no_value, user_data=None):
+    """Load valve data from both valve_data.json (user-defined) and extracted_data.json (actual records)"""
+    
+    # Load user-defined data
+    if user_data is None:
+        try:
+            with open('valve_data.json', 'r') as file:
+                user_data = json.load(file)
+        except FileNotFoundError:
+            # Create default user data if file doesn't exist
+            user_data = {
+                'client_info': {
+                    'client': 'PETRONAS CHEMICALS FERTILISER SABAH SDN BHD',
+                    'project': 'VALVE MAINTENANCE PROJECT 2025',
+                    'location': 'Sipitang'
+                }
+            }
+    
+    # Fetch the record by No
+    record = get_record_by_no(no_value)
+    
+    def clean_value(value):
+        """Clean NaN values and convert to empty string"""
+        if value is None or value == 'nan' or value == 'NaT':
+            return ''
+        return str(value)
+    
+    # Combine user-defined data with extracted data
+    mapped_data = {
+        'client_info': {
+            'client': user_data.get('client_info', {}).get('client', 'PETRONAS CHEMICALS FERTILISER SABAH SDN BHD'),
+            'project': user_data.get('client_info', {}).get('project', 'VALVE MAINTENANCE PROJECT 2025'),
+            'doc_info': clean_value(record.get('Service Type')),
+            'location': user_data.get('client_info', {}).get('location', 'Sipitang'),
+            'size_inlet': clean_value(record.get('Inlet (Size)')),
+            'inlet_rating': clean_value(record.get('Inlet (Rating)')),
+            'inlet_type': clean_value(record.get('Inlet (Type)')),
+            'date_in': clean_value(record.get('Date Recieved')),
+            'size_outlet': clean_value(record.get('Outlet (Size)')),
+            'outlet_rating': clean_value(record.get('Outlet (Rating)')),
+            'outlet_type': clean_value(record.get('Outlet (Type)')),
+            'wo_number': clean_value(record.get('WO ')),
+            'manufacturer': clean_value(record.get('Manufacturer')),
+            'tag_no': clean_value(record.get('Tag Number (Valve No)')),
+            'valve_type': clean_value(record.get('Type of Valve')),
+            'valve_operated_type': clean_value(record.get('Valve Operated Type'))
+        },
+        'transportation_details': {
+            'transport_mode': clean_value(record.get('Transport Mode')),
+            'packaging': clean_value(record.get('Packaging ')),
+            'transport_by': clean_value(record.get('Transport By')),
+            'received_by': clean_value(record.get('Received By')),
+            'transport_comment': clean_value(record.get('TRANSPORTATION (COMMENT)'))
+        },
+        'received_valve_condition': {
+            'inlet_connection_type': clean_value(record.get('Inlet (Type)')),
+            'outlet_connection_type': clean_value(record.get('Outlet (Type)')),
+            'nameplate': clean_value(record.get('Name Plate')),
+            'tag_number': clean_value(record.get('Tag Number (Valve No)')),
+            'inlet_connection_condition': clean_value(record.get('Inlet Connection Condition')),
+            'outlet_connection_condition': clean_value(record.get('Outlet Connection Condition')),
+            'connection_major_defect': clean_value(record.get(' Connection Major Damage')),
+            'valve_body_condition': clean_value(record.get('Valve Body Condition')),
+            'major_defect_body': clean_value(record.get('Major Defect on Body'))
+        },
+        'overall_condition': {
+            'description': clean_value(record.get('Overall Valve Condition'))
+        }
+    }
+    
+    return mapped_data
 
 class PDF(FPDF):
     FONT_FAMILY = 'helvetica'
@@ -34,7 +110,7 @@ class PDF(FPDF):
         headings_style = FontFace(emphasis="B", fill_color=grey)
 
         self.set_font(self.FONT_FAMILY, 'B', self.RECEIVED_FONT_SIZE)
-        col_widths = 190
+        col_widths = [190]
         with self.table(col_widths=col_widths, line_height=5, headings_style=headings_style) as table:
             row = table.row()
             row.cell('RECEIVED REPORT', align='C')
@@ -42,7 +118,7 @@ class PDF(FPDF):
     def client_info(self):
         data = self.valve_data['client_info']
         self.set_font(self.FONT_FAMILY, '', self.FONT_SIZE)
-        col_widths = (30, 80, 40, 10, 20, 10, 25, 35)
+        col_widths = [30, 80, 40, 10, 20, 10, 25, 35]
         with self.table(col_widths=col_widths, line_height=4) as table:
             row = table.row()
             row.cell('CLIENT')
@@ -94,7 +170,7 @@ class PDF(FPDF):
 
     def service_info(self):
         self.set_font(self.FONT_FAMILY, '', self.FONT_SIZE)
-        col_widths = (30, 20, 40, 20, 40, 20, 50, 30)
+        col_widths = [30, 20, 40, 20, 40, 20, 50, 30]
         with self.table(col_widths=col_widths, line_height=4) as table:
             row = table.row()
             row.cell('INSITU TESTING')
@@ -109,7 +185,7 @@ class PDF(FPDF):
     def transportation_details(self):
         data = self.valve_data['transportation_details']
         self.set_font(self.FONT_FAMILY, '', self.FONT_SIZE)
-        col_widths = (30, 80, 40, 20, 20, 20, 30, 10)
+        col_widths = [30, 80, 40, 20, 20, 20, 30, 10]
         grey = (128, 128, 128)
         headings_style = FontFace(emphasis="B", fill_color=grey)
 
@@ -136,7 +212,7 @@ class PDF(FPDF):
     def received_info_and_condition(self):
         data = self.valve_data['received_valve_condition']
         self.set_font(self.FONT_FAMILY, '', self.FONT_SIZE)
-        col_widths = (63.33, 63.33, 63.33)
+        col_widths = [63.33, 63.33, 63.33]
         box_height = 40
 
         x = self.get_x()
@@ -162,7 +238,7 @@ class PDF(FPDF):
         grey = (128, 128, 128)
         headings_style = FontFace(emphasis="B", fill_color=grey)
 
-        col_widths = (47.5, 47.5, 47.5, 47.5)
+        col_widths = [47.5, 47.5, 47.5, 47.5]
 
         with self.table(col_widths=col_widths, line_height=4, headings_style=headings_style) as table:
             row = table.row()
@@ -201,7 +277,7 @@ class PDF(FPDF):
     def valve_condition(self, extra_height=8):
         data = self.valve_data['overall_condition']
         self.set_font(self.FONT_FAMILY, 'B', self.FONT_SIZE)
-        col_widths = 190
+        col_widths = [190]
 
         grey = (128, 128, 128)
         headings_style = FontFace(emphasis="B", fill_color=grey)
@@ -217,10 +293,10 @@ class PDF(FPDF):
 
     def detailed_picture(self):
         self.set_font(self.FONT_FAMILY, '', self.FONT_SIZE)
-        col_widths = (47.5, 47.5, 47.5, 47.5)
+        col_widths = [47.5, 47.5, 47.5, 47.5]
         img_width = col_widths[1] - 10
         
-        with self.table(col_widths=col_widths, line_height=30) as table:
+        with self.table(col_widths=col_widths, line_height=35) as table:
             row = table.row()
             row.cell('INLET CONNECTION')
             row.cell(img='image.png', img_fill_width=False)
@@ -235,7 +311,7 @@ class PDF(FPDF):
 
     def signature_block(self, date_value=""):
         self.set_font(self.FONT_FAMILY, 'B', self.FONT_SIZE)
-        col_widths = (63.33, 63.33, 63.33)
+        col_widths = [63.33, 63.33, 63.33]
         table_width = sum(col_widths)
         x_start = self.get_x()
         y_start = self.get_y()
@@ -248,7 +324,7 @@ class PDF(FPDF):
             row.cell('CLIENT REPRESENTATIVE', align='C')
             row.cell('APPROVED BY', align='C')
 
-        sig_height = 40
+        sig_height = 30
         y_sig = self.get_y()
         self.rect(x_start, y_sig, table_width, sig_height)
 
@@ -268,8 +344,8 @@ class PDF(FPDF):
 
         self.set_y(y_sig + sig_height)
 
-def generate_pdf():
-    valve_data = load_valve_data()
+def generate_pdf(no_value, user_data=None):
+    valve_data = load_valve_data(no_value, user_data)
     pdf = PDF(valve_data, format='A4')
     print('FPDF units: millimeters (mm) by default for A4 size 210x297mm')
     pdf.add_page()
@@ -282,8 +358,9 @@ def generate_pdf():
     pdf.detailed_picture()
     pdf.signature_block()
 
-    pdf.output('generated_report.pdf')
-    print('PDF report "generated_report.pdf" created successfully.')
+    output_filename = f'generated_report_No_{no_value}.pdf'
+    pdf.output(output_filename)
+    print(f'PDF report "{output_filename}" created successfully for No = {no_value}.')
 
 if __name__ == "__main__":
-    generate_pdf()
+    generate_pdf(389)
