@@ -2,6 +2,7 @@ from fpdf import FPDF
 from fpdf.enums import XPos, YPos
 from fpdf.fonts import FontFace
 import json
+import os
 
 def get_record_by_no(no_value):
     with open('extracted_data.json', 'r') as file:
@@ -300,15 +301,27 @@ class PDF(FPDF):
         with self.table(col_widths=col_widths, line_height=35) as table:
             row = table.row()
             row.cell('INLET CONNECTION')
-            row.cell(img='goodvalve.png', img_fill_width=False)
+            if os.path.exists('goodvalve.png'):
+                row.cell(img='goodvalve.png', img_fill_width=False)
+            else:
+                row.cell('', align='C')
             row.cell('OUTLET CONNECTION')
-            row.cell(img='badvalve.png', img_fill_width=False)
-            
+            if os.path.exists('badvalve.png'):
+                row.cell(img='badvalve.png', img_fill_width=False)
+            else:
+                row.cell('', align='C')
+
             row = table.row()
             row.cell('DEFECT CONNECTION  (IF ANY)')
-            row.cell(img='badvalve.png', img_fill_width=False)
+            if os.path.exists('badvalve.png'):
+                row.cell(img='badvalve.png', img_fill_width=False)
+            else:
+                row.cell('', align='C')
             row.cell('DEFECT ON BODY (IF ANY)')
-            row.cell(img='goodvalve.png', img_fill_width=False)
+            if os.path.exists('goodvalve.png'):
+                row.cell(img='goodvalve.png', img_fill_width=False)
+            else:
+                row.cell('', align='C')
 
     def signature_block(self, date_value=""):
         self.set_font(self.FONT_FAMILY, 'B', self.FONT_SIZE)
