@@ -49,7 +49,7 @@ def load_valve_data(no_value, user_data=None):
             'size_inlet': clean_value(record.get('Inlet (Size)')),
             'inlet_rating': clean_value(record.get('Inlet (Rating)')),
             'inlet_type': clean_value(record.get('Inlet (Type)')),
-            'date_in': clean_value(record.get('Date Recieved')),
+            'date_in': clean_value(user_data.get('client_info', {}).get('date_in')) or clean_value(record.get('Date Recieved')),
             'size_outlet': clean_value(record.get('Outlet (Size)')),
             'outlet_rating': clean_value(record.get('Outlet (Rating)')),
             'outlet_type': clean_value(record.get('Outlet (Type)')),
