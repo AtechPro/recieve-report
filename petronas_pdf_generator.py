@@ -229,9 +229,10 @@ class PDF(FPDF):
         margin = 4
         y_offset = 8
         
-        for i in range(3):
+        image_files = ['goodvalve.png', 'badvalve.png', 'image.png']
+        for i, image_file in enumerate(image_files):
             image_x = x + margin + (i * (image_width + margin))
-            self.image('image.png', x=image_x, y=y + y_offset, w=image_width, h=image_height)
+            self.image(image_file, x=image_x, y=y + y_offset, w=image_width, h=image_height)
 
         self.set_xy(x, y + box_height)
         self.set_font(self.FONT_FAMILY, '', self.FONT_SIZE)
@@ -299,15 +300,15 @@ class PDF(FPDF):
         with self.table(col_widths=col_widths, line_height=35) as table:
             row = table.row()
             row.cell('INLET CONNECTION')
-            row.cell(img='image.png', img_fill_width=False)
+            row.cell(img='goodvalve.png', img_fill_width=False)
             row.cell('OUTLET CONNECTION')
-            row.cell(img='image.png', img_fill_width=False)
+            row.cell(img='badvalve.png', img_fill_width=False)
             
             row = table.row()
             row.cell('DEFECT CONNECTION  (IF ANY)')
-            row.cell(img='image.png', img_fill_width=False)
+            row.cell(img='badvalve.png', img_fill_width=False)
             row.cell('DEFECT ON BODY (IF ANY)')
-            row.cell(img='image.png', img_fill_width=False)
+            row.cell(img='goodvalve.png', img_fill_width=False)
 
     def signature_block(self, date_value=""):
         self.set_font(self.FONT_FAMILY, 'B', self.FONT_SIZE)
