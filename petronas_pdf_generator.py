@@ -34,7 +34,7 @@ class PDF(FPDF):
         headings_style = FontFace(emphasis="B", fill_color=grey)
 
         self.set_font(self.FONT_FAMILY, 'B', self.RECEIVED_FONT_SIZE)
-        col_widths = [190]
+        col_widths = 190
         with self.table(col_widths=col_widths, line_height=5, headings_style=headings_style) as table:
             row = table.row()
             row.cell('RECEIVED REPORT', align='C')
@@ -42,7 +42,7 @@ class PDF(FPDF):
     def client_info(self):
         data = self.valve_data['client_info']
         self.set_font(self.FONT_FAMILY, '', self.FONT_SIZE)
-        col_widths = [30, 80, 40, 10, 20, 10, 25, 35]
+        col_widths = (30, 80, 40, 10, 20, 10, 25, 35)
         with self.table(col_widths=col_widths, line_height=4) as table:
             row = table.row()
             row.cell('CLIENT')
@@ -94,7 +94,7 @@ class PDF(FPDF):
 
     def service_info(self):
         self.set_font(self.FONT_FAMILY, '', self.FONT_SIZE)
-        col_widths = [30, 20, 40, 20, 40, 20, 50, 30]
+        col_widths = (30, 20, 40, 20, 40, 20, 50, 30)
         with self.table(col_widths=col_widths, line_height=4) as table:
             row = table.row()
             row.cell('INSITU TESTING')
@@ -109,7 +109,7 @@ class PDF(FPDF):
     def transportation_details(self):
         data = self.valve_data['transportation_details']
         self.set_font(self.FONT_FAMILY, '', self.FONT_SIZE)
-        col_widths = [30, 80, 40, 20, 20, 20, 30, 10]
+        col_widths = (30, 80, 40, 20, 20, 20, 30, 10)
         grey = (128, 128, 128)
         headings_style = FontFace(emphasis="B", fill_color=grey)
 
@@ -136,7 +136,7 @@ class PDF(FPDF):
     def received_info_and_condition(self):
         data = self.valve_data['received_valve_condition']
         self.set_font(self.FONT_FAMILY, '', self.FONT_SIZE)
-        col_widths = [63.33, 63.33, 63.33]
+        col_widths = (63.33, 63.33, 63.33)
         box_height = 40
 
         x = self.get_x()
@@ -162,7 +162,7 @@ class PDF(FPDF):
         grey = (128, 128, 128)
         headings_style = FontFace(emphasis="B", fill_color=grey)
 
-        col_widths = [47.5, 47.5, 47.5, 47.5]
+        col_widths = (47.5, 47.5, 47.5, 47.5)
 
         with self.table(col_widths=col_widths, line_height=4, headings_style=headings_style) as table:
             row = table.row()
@@ -201,7 +201,7 @@ class PDF(FPDF):
     def valve_condition(self, extra_height=8):
         data = self.valve_data['overall_condition']
         self.set_font(self.FONT_FAMILY, 'B', self.FONT_SIZE)
-        col_widths = [190]
+        col_widths = 190
 
         grey = (128, 128, 128)
         headings_style = FontFace(emphasis="B", fill_color=grey)
@@ -217,7 +217,7 @@ class PDF(FPDF):
 
     def detailed_picture(self):
         self.set_font(self.FONT_FAMILY, '', self.FONT_SIZE)
-        col_widths = [47.5, 47.5, 47.5, 47.5]
+        col_widths = (47.5, 47.5, 47.5, 47.5)
         img_width = col_widths[1] - 10
         
         with self.table(col_widths=col_widths, line_height=30) as table:
@@ -235,7 +235,7 @@ class PDF(FPDF):
 
     def signature_block(self, date_value=""):
         self.set_font(self.FONT_FAMILY, 'B', self.FONT_SIZE)
-        col_widths = [63.33, 63.33, 63.33]
+        col_widths = (63.33, 63.33, 63.33)
         table_width = sum(col_widths)
         x_start = self.get_x()
         y_start = self.get_y()
