@@ -1,18 +1,21 @@
-from flask import Flask, request, jsonify, render_template
+from flask import Flask, request, jsonify, render_template, send_file, send_from_directory
 import os
 from werkzeug.utils import secure_filename
 from petronas_pdf_generator import generate_pdf
 import subprocess
 import json
+import glob
 
 app = Flask(__name__)
 
 # Configure upload folder
 UPLOAD_FOLDER = 'static/temp_images'
+PDF_FOLDER = 'generated_pdfs'
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
 
 # Create upload folder if it doesn't exist
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+os.makedirs(PDF_FOLDER, exist_ok=True)
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
@@ -61,8 +64,16 @@ def generate():
         return jsonify({'error': 'Missing required field: no'}), 400
 
     try:
-        generate_pdf(no, user_data, image_files, received_valve_images)
-        return jsonify({'message': f'PDF generated for No = {no}.'}), 200
+        pdf_filename = generate_pdf(no, user_data, image_files, received_valve_images)
+        pdf_path = os.path.join(PDF_FOLDER, pdf_filename)
+        
+        return jsonify({
+            'message': f'PDF generated successfully for No = {no}.',
+            'pdf_filename': pdf_filename,
+            'pdf_path': pdf_path,
+            'download_url': f'/download-pdf/{pdf_filename}',
+            'view_url': f'/view-pdf/{pdf_filename}'
+        }), 200
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
@@ -116,5 +127,39 @@ def available_no():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
+@app.route('/download-pdf/<filename>')
+def download_pdf(filename):
+    """Download a specific PDF file"""
+    try:
+        return send_from_directory(PDF_FOLDER, filename, as_attachment=True)
+    except Exception as e:
+        return jsonify({'error': f'File not found: {filename}'}), 404
+
+@app.route('/view-pdf/<filename>')
+def view_pdf(filename):
+    """View a specific PDF file in browser"""
+    try:
+        return send_from_directory(PDF_FOLDER, filename)
+    except Exception as e:
+        return jsonify({'error': f'File not found: {filename}'}), 404
+
+@app.route('/list-pdfs', methods=['GET'])
+def list_pdfs():
+    """List all available PDF files"""
+    try:
+        pdf_files = glob.glob(os.path.join(PDF_FOLDER, '*.pdf'))
+        pdf_list = []
+        for pdf_file in pdf_files:
+            filename = os.path.basename(pdf_file)
+            pdf_list.append({
+                'filename': filename,
+                'download_url': f'/download-pdf/{filename}',
+                'view_url': f'/view-pdf/{filename}',
+                'size': os.path.getsize(pdf_file)
+            })
+        return jsonify({'pdfs': pdf_list})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
 if __name__ == '__main__':
-    app.run(debug=True) 
+    app.run(debug=True, port=5300, host='0.0.0.0') 

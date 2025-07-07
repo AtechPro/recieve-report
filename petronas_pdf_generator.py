@@ -459,6 +459,12 @@ def generate_pdf(no_value, user_data=None, image_files=None, received_valve_imag
     pdf.detailed_picture(image_files)
     pdf.signature_block()
 
+    # Create generated_pdfs directory if it doesn't exist
+    os.makedirs('generated_pdfs', exist_ok=True)
+    
     output_filename = f'generated_report_No_{no_value}.pdf'
-    pdf.output(output_filename)
+    output_path = os.path.join('generated_pdfs', output_filename)
+    pdf.output(output_path)
     print(f'PDF report "{output_filename}" created successfully for No = {no_value}.')
+    
+    return output_filename

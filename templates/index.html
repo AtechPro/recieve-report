@@ -5,184 +5,522 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Valve Report Generator</title>
     <style>
+        :root {
+            --deep-teal: #167E66;
+            --muted-green: #8CB8AC;
+            --pure-white: #FFFFFF;
+            --dark-teal: #20735F;
+            --medium-teal: #2CA184;
+            --very-dark-teal: #235647;
+            --almost-white: #FEFEFE;
+            --light-mint: #FAFCFB;
+            --light-gray: #F5F5F5;
+            --light-gray-2: #f0f0f0;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
         body {
-            font-family: Arial, sans-serif;
-            max-width: 800px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--light-mint) 0%, var(--almost-white) 100%);
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            color: var(--very-dark-teal);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1000px;
             margin: 0 auto;
             padding: 20px;
         }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 30px 0;
+            background: linear-gradient(135deg, var(--deep-teal) 0%, var(--dark-teal) 100%);
+            color: var(--pure-white);
+            border-radius: 15px;
+            box-shadow: 0 8px 32px rgba(22, 126, 102, 0.15);
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 2.5rem;
+            font-weight: 300;
+            letter-spacing: 1px;
+        }
+
+        .header p {
+            margin: 10px 0 0 0;
+            opacity: 0.9;
+            font-size: 1.1rem;
+        }
+
         .upload-section {
-            border: 1px solid #ccc;
-            padding: 20px;
+            background: var(--pure-white);
+            border-radius: 12px;
+            padding: 30px;
+            margin: 25px 0;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            border: 1px solid rgba(140, 184, 172, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .upload-section:hover {
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+            transform: translateY(-2px);
+        }
+
+        .upload-section h2 {
+            color: var(--deep-teal);
+            margin: 0 0 20px 0;
+            font-size: 1.5rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .upload-section h2::before {
+            content: '';
+            width: 4px;
+            height: 24px;
+            background: var(--medium-teal);
+            border-radius: 2px;
+        }
+
+        .upload-section p {
+            color: #666;
+            margin-bottom: 20px;
+            font-size: 0.95rem;
+        }
+
+        .radio-group {
+            display: flex;
+            gap: 30px;
             margin: 20px 0;
-            border-radius: 5px;
         }
+
+        .radio-option {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 15px 20px;
+            background: var(--light-gray);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .radio-option:hover {
+            background: var(--light-gray-2);
+        }
+
+        .radio-option input[type="radio"] {
+            width: 18px;
+            height: 18px;
+            accent-color: var(--medium-teal);
+        }
+
+        .radio-option input[type="radio"]:checked + label {
+            color: var(--deep-teal);
+            font-weight: 600;
+        }
+
+        .radio-option:has(input[type="radio"]:checked) {
+            background: rgba(44, 161, 132, 0.1);
+            border-color: var(--medium-teal);
+        }
+
+        .file-upload-area {
+            border: 2px dashed var(--muted-green);
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            background: var(--light-mint);
+            transition: all 0.3s ease;
+            margin: 15px 0;
+        }
+
+        .file-upload-area:hover {
+            border-color: var(--medium-teal);
+            background: rgba(44, 161, 132, 0.05);
+        }
+
+        .file-upload-area input[type="file"] {
+            width: 100%;
+            padding: 10px;
+            border: none;
+            background: transparent;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group label {
+            font-weight: 600;
+            color: var(--deep-teal);
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+        }
+
+        .form-group input[type="text"] {
+            padding: 12px 16px;
+            border: 2px solid var(--light-gray-2);
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            background: var(--pure-white);
+        }
+
+        .form-group input[type="text"]:focus {
+            outline: none;
+            border-color: var(--medium-teal);
+            box-shadow: 0 0 0 3px rgba(44, 161, 132, 0.1);
+        }
+
+        .form-group input[type="text"]::placeholder {
+            color: #999;
+        }
+
         .image-upload {
-            margin: 10px 0;
+            background: var(--light-gray);
+            padding: 20px;
+            border-radius: 8px;
+            margin: 15px 0;
+            border: 1px solid rgba(140, 184, 172, 0.3);
         }
+
+        .image-upload label {
+            font-weight: 600;
+            color: var(--deep-teal);
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        .image-upload input[type="file"] {
+            width: 100%;
+            padding: 10px;
+            border: 2px dashed var(--muted-green);
+            border-radius: 6px;
+            background: var(--pure-white);
+            transition: all 0.3s ease;
+        }
+
+        .image-upload input[type="file"]:hover {
+            border-color: var(--medium-teal);
+        }
+
         .image-preview {
             max-width: 200px;
             max-height: 150px;
             margin: 10px 0;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            border: 2px solid var(--muted-green);
         }
-        button {
-            background-color: #007bff;
-            color: white;
-            padding: 10px 20px;
+
+        .btn {
+            background: linear-gradient(135deg, var(--medium-teal) 0%, var(--deep-teal) 100%);
+            color: var(--pure-white);
+            padding: 14px 28px;
             border: none;
-            border-radius: 5px;
+            border-radius: 8px;
             cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(44, 161, 132, 0.3);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
-        button:hover {
-            background-color: #0056b3;
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(44, 161, 132, 0.4);
         }
-        input[type="file"] {
-            margin: 5px 0;
+
+        .btn:active {
+            transform: translateY(0);
         }
-        input[type="text"] {
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            font-size: 14px;
+
+        .btn-secondary {
+            background: linear-gradient(135deg, var(--muted-green) 0%, var(--dark-teal) 100%);
+            box-shadow: 0 4px 15px rgba(140, 184, 172, 0.3);
         }
-        input[type="text"]:focus {
-            outline: none;
-            border-color: #007bff;
-            box-shadow: 0 0 5px rgba(0,123,255,0.3);
+
+        .btn-secondary:hover {
+            box-shadow: 0 6px 20px rgba(140, 184, 172, 0.4);
         }
+
         .status {
-            margin: 10px 0;
-            padding: 10px;
-            border-radius: 5px;
+            margin: 15px 0;
+            padding: 15px 20px;
+            border-radius: 8px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
+
+        .status::before {
+            content: '';
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+
         .success {
-            background-color: #d4edda;
-            color: #155724;
+            background: rgba(44, 161, 132, 0.1);
+            color: var(--deep-teal);
+            border: 1px solid rgba(44, 161, 132, 0.3);
         }
+
+        .success::before {
+            background: var(--medium-teal);
+        }
+
         .error {
-            background-color: #f8d7da;
-            color: #721c24;
+            background: rgba(220, 53, 69, 0.1);
+            color: #dc3545;
+            border: 1px solid rgba(220, 53, 69, 0.3);
+        }
+
+        .error::before {
+            background: #dc3545;
+        }
+
+        .info {
+            background: rgba(23, 162, 184, 0.1);
+            color: #17a2b8;
+            border: 1px solid rgba(23, 162, 184, 0.3);
+        }
+
+        .info::before {
+            background: #17a2b8;
+        }
+
+        .valve-selector {
+            background: var(--pure-white);
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            border: 1px solid rgba(140, 184, 172, 0.2);
+        }
+
+        .valve-selector input[list] {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid var(--light-gray-2);
+            border-radius: 8px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .valve-selector input[list]:focus {
+            outline: none;
+            border-color: var(--medium-teal);
+            box-shadow: 0 0 0 3px rgba(44, 161, 132, 0.1);
+        }
+
+        .section-divider {
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--muted-green), transparent);
+            margin: 30px 0;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .radio-group {
+                flex-direction: column;
+                gap: 15px;
+            }
         }
     </style>
 </head>
 <body>
-    <h1>Valve Report Generator</h1>
-    
-    <div class="upload-section">
-        <h2>Excel Data Source</h2>
-        <p>Choose how you want to provide the Excel data:</p>
+    <div class="container">
+        <div class="header">
+            <h1>Valve Report Generator</h1>
+            <p>Professional PDF Report Generation System</p>
+        </div>
         
-        <div style="margin: 15px 0;">
-            <input type="radio" id="upload_new" name="excel_option" value="upload" checked onchange="toggleExcelOption()">
-            <label for="upload_new">Upload new Excel file</label>
-            <div id="upload_section" style="margin-left: 25px; margin-top: 10px;">
+        <div class="upload-section">
+            <h2>Excel Data Source</h2>
+            <p>Choose how you want to provide the Excel data for your valve report:</p>
+            
+            <div class="radio-group">
+                <div class="radio-option">
+                    <input type="radio" id="upload_new" name="excel_option" value="upload" checked onchange="toggleExcelOption()">
+                    <label for="upload_new">Upload New Excel File</label>
+                </div>
+                <div class="radio-option">
+                    <input type="radio" id="use_existing" name="excel_option" value="existing" onchange="toggleExcelOption()">
+                    <label for="use_existing">Use Existing Data</label>
+                </div>
+            </div>
+            
+            <div id="upload_section" class="file-upload-area">
                 <input type="file" id="excel_file" accept=".xlsx,.xls" onchange="uploadExcel()">
-                <p style="font-size: 12px; color: #666; margin: 5px 0;">(Accepted formats: .xlsx, .xls)</p>
+                <p style="font-size: 12px; color: #666; margin: 10px 0 0 0;">Accepted formats: .xlsx, .xls</p>
+            </div>
+            
+            <div id="excel_status"></div>
+        </div>
+
+        <div class="upload-section">
+            <h2>Client Information</h2>
+            <p>Customize the client information that appears in your PDF report. Leave fields blank to use default values.</p>
+            
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="client_name">Client Name</label>
+                    <input type="text" id="client_name" placeholder="PETRONAS CHEMICALS FERTILISER SABAH SDN BHD">
+                </div>
+                <div class="form-group">
+                    <label for="project_name">Project Name</label>
+                    <input type="text" id="project_name" placeholder="VALVE MAINTENANCE PROJECT 2025">
+                </div>
+                <div class="form-group">
+                    <label for="location">Location</label>
+                    <input type="text" id="location" placeholder="Sipitang">
+                </div>
+                <div class="form-group">
+                    <label for="date_in">Date In (dd/mm/yyyy)</label>
+                    <input type="text" id="date_in" placeholder="01/01/2025">
+                </div>
             </div>
         </div>
-        
-        <div style="margin: 15px 0;">
-            <input type="radio" id="use_existing" name="excel_option" value="existing" onchange="toggleExcelOption()">
-            <label for="use_existing">Use existing data (no new Excel upload)</label>
-        </div>
-        
-        <div id="excel_status"></div>
-    </div>
 
-    <div class="upload-section">
-        <h2>Client Information (Optional)</h2>
-        <p>You can customize the client information that appears in the PDF report. Leave blank to use default values.</p>
-        
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
-            <div>
-                <label for="client_name">Client Name:</label><br>
-                <input type="text" id="client_name" placeholder="PETRONAS CHEMICALS FERTILISER SABAH SDN BHD" style="width: 100%; padding: 8px; margin: 5px 0;">
+        <div class="upload-section">
+            <h2>AS RECEIVED VALVE Images</h2>
+            <p>Upload up to 3 images for the "AS RECEIVED VALVE" section. You can upload fewer than 3 images if needed.</p>
+            
+            <div class="image-upload">
+                <label for="received_valve_1">AS RECEIVED VALVE Image 1</label>
+                <input type="file" id="received_valve_1" accept="image/*" onchange="uploadReceivedValveImage(1)">
+                <div id="received_valve_1_status"></div>
+                <img id="received_valve_1_preview" class="image-preview" style="display: none;">
             </div>
-            <div>
-                <label for="project_name">Project Name:</label><br>
-                <input type="text" id="project_name" placeholder="VALVE MAINTENANCE PROJECT 2025" style="width: 100%; padding: 8px; margin: 5px 0;">
+
+            <div class="image-upload">
+                <label for="received_valve_2">AS RECEIVED VALVE Image 2</label>
+                <input type="file" id="received_valve_2" accept="image/*" onchange="uploadReceivedValveImage(2)">
+                <div id="received_valve_2_status"></div>
+                <img id="received_valve_2_preview" class="image-preview" style="display: none;">
             </div>
-            <div>
-                <label for="location">Location:</label><br>
-                <input type="text" id="location" placeholder="Sipitang" style="width: 100%; padding: 8px; margin: 5px 0;">
-            </div>
-            <div>
-                <label for="date_in">Date In (dd/mm/yyyy):</label><br>
-                <input type="text" id="date_in" placeholder="01/01/2025" style="width: 100%; padding: 8px; margin: 5px 0;">
+
+            <div class="image-upload">
+                <label for="received_valve_3">AS RECEIVED VALVE Image 3</label>
+                <input type="file" id="received_valve_3" accept="image/*" onchange="uploadReceivedValveImage(3)">
+                <div id="received_valve_3_status"></div>
+                <img id="received_valve_3_preview" class="image-preview" style="display: none;">
             </div>
         </div>
-    </div>
 
-    <div class="upload-section">
-        <h2>AS RECEIVED VALVE Images (Optional)</h2>
-        <p>Upload up to 3 images for the "AS RECEIVED VALVE" section. You can upload fewer than 3 images if needed.</p>
-        
-        <div class="image-upload">
-            <label for="received_valve_1">AS RECEIVED VALVE Image 1:</label><br>
-            <input type="file" id="received_valve_1" accept="image/*" onchange="uploadReceivedValveImage(1)">
-            <div id="received_valve_1_status"></div>
-            <img id="received_valve_1_preview" class="image-preview" style="display: none;">
+        <div class="upload-section">
+            <h2>Detailed Images</h2>
+            <p>Upload images for different sections. If no image is uploaded for a section, the cell will remain empty.</p>
+            
+            <div class="image-upload">
+                <label for="inlet_connection">Inlet Connection Image</label>
+                <input type="file" id="inlet_connection" accept="image/*" onchange="uploadImage('inlet_connection')">
+                <div id="inlet_connection_status"></div>
+                <img id="inlet_connection_preview" class="image-preview" style="display: none;">
+            </div>
+
+            <div class="image-upload">
+                <label for="outlet_connection">Outlet Connection Image</label>
+                <input type="file" id="outlet_connection" accept="image/*" onchange="uploadImage('outlet_connection')">
+                <div id="outlet_connection_status"></div>
+                <img id="outlet_connection_preview" class="image-preview" style="display: none;">
+            </div>
+
+            <div class="image-upload">
+                <label for="defect_connection">Defect Connection Image</label>
+                <input type="file" id="defect_connection" accept="image/*" onchange="uploadImage('defect_connection')">
+                <div id="defect_connection_status"></div>
+                <img id="defect_connection_preview" class="image-preview" style="display: none;">
+            </div>
+
+            <div class="image-upload">
+                <label for="defect_body">Defect on Body Image</label>
+                <input type="file" id="defect_body" accept="image/*" onchange="uploadImage('defect_body')">
+                <div id="defect_body_status"></div>
+                <img id="defect_body_preview" class="image-preview" style="display: none;">
+            </div>
         </div>
 
-        <div class="image-upload">
-            <label for="received_valve_2">AS RECEIVED VALVE Image 2:</label><br>
-            <input type="file" id="received_valve_2" accept="image/*" onchange="uploadReceivedValveImage(2)">
-            <div id="received_valve_2_status"></div>
-            <img id="received_valve_2_preview" class="image-preview" style="display: none;">
+        <div class="upload-section">
+            <h2>Generate PDF Report</h2>
+            <div class="valve-selector">
+                <label for="valve_no">Select Valve Number</label>
+                <input list="valve_no_list" id="valve_no" name="valve_no" placeholder="Choose a valve number...">
+                <datalist id="valve_no_list"></datalist>
+            </div>
+            <button class="btn" onclick="generatePDF()">Generate PDF Report</button>
+            <div id="pdf_status"></div>
         </div>
 
-        <div class="image-upload">
-            <label for="received_valve_3">AS RECEIVED VALVE Image 3:</label><br>
-            <input type="file" id="received_valve_3" accept="image/*" onchange="uploadReceivedValveImage(3)">
-            <div id="received_valve_3_status"></div>
-            <img id="received_valve_3_preview" class="image-preview" style="display: none;">
-        </div>
-    </div>
-
-    <div class="upload-section">
-        <h2>Detailed Images (Optional)</h2>
-        <p>Upload images for different sections. If no image is uploaded for a section, the cell will remain empty.</p>
-        
-        <div class="image-upload">
-            <label for="inlet_connection">Inlet Connection Image:</label><br>
-            <input type="file" id="inlet_connection" accept="image/*" onchange="uploadImage('inlet_connection')">
-            <div id="inlet_connection_status"></div>
-            <img id="inlet_connection_preview" class="image-preview" style="display: none;">
+        <div class="upload-section" id="pdf_viewer_section" style="display: none;">
+            <h2>Generated PDF</h2>
+            <div id="pdf_actions" style="margin-bottom: 20px;">
+                <button class="btn" id="download_btn" onclick="downloadPDF()" style="margin-right: 10px;">
+                    📥 Download PDF
+                </button>
+                <button class="btn btn-secondary" id="view_btn" onclick="viewPDF()">
+                    👁️ View PDF
+                </button>
+            </div>
+            <div id="pdf_viewer_container">
+                <iframe id="pdf_viewer" width="100%" height="600" style="border: 1px solid var(--muted-green); border-radius: 8px;"></iframe>
+            </div>
         </div>
 
-        <div class="image-upload">
-            <label for="outlet_connection">Outlet Connection Image:</label><br>
-            <input type="file" id="outlet_connection" accept="image/*" onchange="uploadImage('outlet_connection')">
-            <div id="outlet_connection_status"></div>
-            <img id="outlet_connection_preview" class="image-preview" style="display: none;">
+        <div class="upload-section">
+            <h2>Available PDF Reports</h2>
+            <p>View and download previously generated PDF reports:</p>
+            <button class="btn btn-secondary" onclick="loadAvailablePDFs()" style="margin-bottom: 20px;">
+                🔄 Refresh PDF List
+            </button>
+            <div id="pdf_list_container">
+                <div id="pdf_list_loading" style="text-align: center; padding: 20px; color: var(--deep-teal);">
+                    Loading available PDFs...
+                </div>
+            </div>
         </div>
-
-        <div class="image-upload">
-            <label for="defect_connection">Defect Connection Image:</label><br>
-            <input type="file" id="defect_connection" accept="image/*" onchange="uploadImage('defect_connection')">
-            <div id="defect_connection_status"></div>
-            <img id="defect_connection_preview" class="image-preview" style="display: none;">
-        </div>
-
-        <div class="image-upload">
-            <label for="defect_body">Defect on Body Image:</label><br>
-            <input type="file" id="defect_body" accept="image/*" onchange="uploadImage('defect_body')">
-            <div id="defect_body_status"></div>
-            <img id="defect_body_preview" class="image-preview" style="display: none;">
-        </div>
-    </div>
-
-    <div class="upload-section">
-        <h2>Generate PDF Report</h2>
-        <label for="valve_no">Valve Number:</label><br>
-        <input list="valve_no_list" id="valve_no" name="valve_no">
-        <datalist id="valve_no_list"></datalist><br><br>
-        <button onclick="generatePDF()">Generate PDF Report</button>
-        <div id="pdf_status"></div>
     </div>
 
     <script>
         let uploadedImages = {};
         let receivedValveImages = [];
+        let currentPDFData = null;
 
         function uploadExcel() {
             const uploadOption = document.getElementById('upload_new');
@@ -351,6 +689,9 @@
                 received_valve_images: receivedValveImages.filter(img => img) // Filter out empty slots
             };
 
+            // Show loading state
+            showStatus('pdf_status', 'Generating PDF... Please wait.', 'info');
+
             fetch('/generate', {
                 method: 'POST',
                 headers: {
@@ -362,6 +703,17 @@
             .then(data => {
                 if (data.message) {
                     showStatus('pdf_status', data.message, 'success');
+                    currentPDFData = data;
+                    
+                    // Show PDF viewer section
+                    document.getElementById('pdf_viewer_section').style.display = 'block';
+                    
+                    // Load PDF in viewer
+                    const pdfViewer = document.getElementById('pdf_viewer');
+                    pdfViewer.src = data.view_url;
+                    
+                    // Scroll to PDF viewer
+                    document.getElementById('pdf_viewer_section').scrollIntoView({ behavior: 'smooth' });
                 } else {
                     showStatus('pdf_status', data.error, 'error');
                 }
@@ -369,6 +721,67 @@
             .catch(error => {
                 showStatus('pdf_status', 'Generation failed: ' + error.message, 'error');
             });
+        }
+
+        function downloadPDF() {
+            if (currentPDFData && currentPDFData.download_url) {
+                window.open(currentPDFData.download_url, '_blank');
+            } else {
+                alert('No PDF available for download.');
+            }
+        }
+
+        function viewPDF() {
+            if (currentPDFData && currentPDFData.view_url) {
+                window.open(currentPDFData.view_url, '_blank');
+            } else {
+                alert('No PDF available for viewing.');
+            }
+        }
+
+        function loadAvailablePDFs() {
+            const container = document.getElementById('pdf_list_container');
+            const loading = document.getElementById('pdf_list_loading');
+            
+            loading.style.display = 'block';
+            container.innerHTML = '<div id="pdf_list_loading" style="text-align: center; padding: 20px; color: var(--deep-teal);">Loading available PDFs...</div>';
+
+            fetch('/list-pdfs')
+                .then(response => response.json())
+                .then(data => {
+                    loading.style.display = 'none';
+                    
+                    if (data.pdfs && data.pdfs.length > 0) {
+                        let html = '<div style="display: grid; gap: 15px;">';
+                        data.pdfs.forEach(pdf => {
+                            const fileSize = (pdf.size / 1024).toFixed(1); // Convert to KB
+                            html += `
+                                <div style="background: var(--light-gray); padding: 15px; border-radius: 8px; border: 1px solid var(--muted-green);">
+                                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                                        <strong style="color: var(--deep-teal);">${pdf.filename}</strong>
+                                        <span style="color: #666; font-size: 0.9rem;">${fileSize} KB</span>
+                                    </div>
+                                    <div style="display: flex; gap: 10px;">
+                                        <button class="btn" onclick="window.open('${pdf.download_url}', '_blank')" style="padding: 8px 16px; font-size: 0.9rem;">
+                                            📥 Download
+                                        </button>
+                                        <button class="btn btn-secondary" onclick="window.open('${pdf.view_url}', '_blank')" style="padding: 8px 16px; font-size: 0.9rem;">
+                                            👁️ View
+                                        </button>
+                                    </div>
+                                </div>
+                            `;
+                        });
+                        html += '</div>';
+                        container.innerHTML = html;
+                    } else {
+                        container.innerHTML = '<div style="text-align: center; padding: 20px; color: #666;">No PDF reports available yet. Generate your first report above!</div>';
+                    }
+                })
+                .catch(error => {
+                    loading.style.display = 'none';
+                    container.innerHTML = '<div style="text-align: center; padding: 20px; color: #dc3545;">Error loading PDFs: ' + error.message + '</div>';
+                });
         }
 
         function showStatus(elementId, message, type) {
@@ -392,7 +805,11 @@
                     }
                 });
         }
-        window.onload = loadAvailableNumbers;
+        
+        window.onload = function() {
+            loadAvailableNumbers();
+            loadAvailablePDFs();
+        };
     </script>
 </body>
 </html> 
