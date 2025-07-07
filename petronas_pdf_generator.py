@@ -293,7 +293,7 @@ class PDF(FPDF):
             row = table.row()
             row.cell('DETAILED PICTURE', colspan=1, align='C')
 
-    def detailed_picture(self):
+    def detailed_picture(self, image_files=None):
         self.set_font(self.FONT_FAMILY, '', self.FONT_SIZE)
         col_widths = [47.5, 47.5, 47.5, 47.5]
         row_height = 35
@@ -318,29 +318,42 @@ class PDF(FPDF):
             row.cell('DEFECT ON BODY (IF ANY)')
             row.cell('')  # image cell
 
-        # Now manually place images with margin inside the correct cells
-        # First row images
-        if os.path.exists('goodvalve.png'):
-            self.image('goodvalve.png',
-                       x=x_start + col_widths[0] + margin,
-                       y=y_start + margin,
-                       w=image_width, h=image_height)
-        if os.path.exists('badvalve.png'):
-            self.image('badvalve.png',
-                       x=x_start + col_widths[0] + col_widths[1] + col_widths[2] + margin,
-                       y=y_start + margin,
-                       w=image_width, h=image_height)
-        # Second row images
-        if os.path.exists('badvalve.png'):
-            self.image('badvalve.png',
-                       x=x_start + col_widths[0] + margin,
-                       y=y_start + row_height + margin,
-                       w=image_width, h=image_height)
-        if os.path.exists('goodvalve.png'):
-            self.image('goodvalve.png',
-                       x=x_start + col_widths[0] + col_widths[1] + col_widths[2] + margin,
-                       y=y_start + row_height + margin,
-                       w=image_width, h=image_height)
+        # Define image positions and their corresponding keys
+        image_positions = {
+            'inlet_connection': {
+                'x': x_start + col_widths[0] + margin,
+                'y': y_start + margin,
+                'w': image_width,
+                'h': image_height
+            },
+            'outlet_connection': {
+                'x': x_start + col_widths[0] + col_widths[1] + col_widths[2] + margin,
+                'y': y_start + margin,
+                'w': image_width,
+                'h': image_height
+            },
+            'defect_connection': {
+                'x': x_start + col_widths[0] + margin,
+                'y': y_start + row_height + margin,
+                'w': image_width,
+                'h': image_height
+            },
+            'defect_body': {
+                'x': x_start + col_widths[0] + col_widths[1] + col_widths[2] + margin,
+                'y': y_start + row_height + margin,
+                'w': image_width,
+                'h': image_height
+            }
+        }
+
+        # Debug print for image_files
+        print('DEBUG: image_files received in detailed_picture:', image_files)
+        if image_files:
+            for image_key, image_path in image_files.items():
+                print(f'DEBUG: Checking {image_key}: {image_path}, exists: {os.path.exists(image_path)}')
+                if image_key in image_positions and os.path.exists(image_path):
+                    pos = image_positions[image_key]
+                    self.image(image_path, x=pos['x'], y=pos['y'], w=pos['w'], h=pos['h'])
 
     def signature_block(self, date_value=""):
         self.set_font(self.FONT_FAMILY, 'B', self.FONT_SIZE)
@@ -377,7 +390,7 @@ class PDF(FPDF):
 
         self.set_y(y_sig + sig_height)
 
-def generate_pdf(no_value, user_data=None):
+def generate_pdf(no_value, user_data=None, image_files=None):
     valve_data = load_valve_data(no_value, user_data)
     pdf = PDF(valve_data, format='A4')
     print('FPDF units: millimeters (mm) by default for A4 size 210x297mm')
@@ -388,7 +401,7 @@ def generate_pdf(no_value, user_data=None):
     pdf.transportation_details()
     pdf.received_info_and_condition()
     pdf.valve_condition()
-    pdf.detailed_picture()
+    pdf.detailed_picture(image_files)
     pdf.signature_block()
 
     output_filename = f'generated_report_No_{no_value}.pdf'

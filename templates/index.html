@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Valve Report Generator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .upload-section {
+            border: 1px solid #ccc;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+        .image-upload {
+            margin: 10px 0;
+        }
+        .image-preview {
+            max-width: 200px;
+            max-height: 150px;
+            margin: 10px 0;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        input[type="file"] {
+            margin: 5px 0;
+        }
+        .status {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+    </style>
+</head>
+<body>
+    <h1>Valve Report Generator</h1>
+    
+    <div class="upload-section">
+        <h2>Upload Excel File</h2>
+        <p>
+            You can upload a new Excel file, or use the existing one if already uploaded.<br>
+            (Accepted formats: .xlsx, .xls)
+        </p>
+        <input type="file" id="excel_file" accept=".xlsx,.xls" onchange="uploadExcel()">
+        <button onclick="useExistingData()">Use existing data (no new Excel upload)</button>
+        <div id="excel_status"></div>
+    </div>
+
+    <div class="upload-section">
+        <h2>Upload Images (Optional)</h2>
+        <p>Upload images for different sections. If no image is uploaded for a section, the cell will remain empty.</p>
+        
+        <div class="image-upload">
+            <label for="inlet_connection">Inlet Connection Image:</label><br>
+            <input type="file" id="inlet_connection" accept="image/*" onchange="uploadImage('inlet_connection')">
+            <div id="inlet_connection_status"></div>
+            <img id="inlet_connection_preview" class="image-preview" style="display: none;">
+        </div>
+
+        <div class="image-upload">
+            <label for="outlet_connection">Outlet Connection Image:</label><br>
+            <input type="file" id="outlet_connection" accept="image/*" onchange="uploadImage('outlet_connection')">
+            <div id="outlet_connection_status"></div>
+            <img id="outlet_connection_preview" class="image-preview" style="display: none;">
+        </div>
+
+        <div class="image-upload">
+            <label for="defect_connection">Defect Connection Image:</label><br>
+            <input type="file" id="defect_connection" accept="image/*" onchange="uploadImage('defect_connection')">
+            <div id="defect_connection_status"></div>
+            <img id="defect_connection_preview" class="image-preview" style="display: none;">
+        </div>
+
+        <div class="image-upload">
+            <label for="defect_body">Defect on Body Image:</label><br>
+            <input type="file" id="defect_body" accept="image/*" onchange="uploadImage('defect_body')">
+            <div id="defect_body_status"></div>
+            <img id="defect_body_preview" class="image-preview" style="display: none;">
+        </div>
+    </div>
+
+    <div class="upload-section">
+        <h2>Generate PDF Report</h2>
+        <label for="valve_no">Valve Number:</label><br>
+        <input type="number" id="valve_no" value="389" min="1"><br><br>
+        <button onclick="generatePDF()">Generate PDF Report</button>
+        <div id="pdf_status"></div>
+    </div>
+
+    <script>
+        let uploadedImages = {};
+
+        function uploadExcel() {
+            const fileInput = document.getElementById('excel_file');
+            const file = fileInput.files[0];
+
+            if (!file) {
+                showStatus('excel_status', 'Please select an Excel file.', 'error');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('excel', file);
+
+            fetch('/upload-excel', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.message) {
+                    showStatus('excel_status', data.message, 'success');
+                } else {
+                    showStatus('excel_status', data.error, 'error');
+                }
+            })
+            .catch(error => {
+                showStatus('excel_status', 'Upload failed: ' + error.message, 'error');
+            });
+        }
+
+        function useExistingData() {
+            showStatus('excel_status', 'Using existing extracted data. You can now generate the PDF.', 'success');
+        }
+
+        function uploadImage(imageType) {
+            const fileInput = document.getElementById(imageType);
+            const file = fileInput.files[0];
+            
+            if (!file) {
+                showStatus(imageType + '_status', 'Please select a file first.', 'error');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('image', file);
+            formData.append('image_type', imageType);
+
+            fetch('/upload-image', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.message) {
+                    showStatus(imageType + '_status', data.message, 'success');
+                    uploadedImages[imageType] = data.filepath;
+                    
+                    // Show preview
+                    const preview = document.getElementById(imageType + '_preview');
+                    preview.src = URL.createObjectURL(file);
+                    preview.style.display = 'block';
+                } else {
+                    showStatus(imageType + '_status', data.error, 'error');
+                }
+            })
+            .catch(error => {
+                showStatus(imageType + '_status', 'Upload failed: ' + error.message, 'error');
+            });
+        }
+
+        function generatePDF() {
+            const valveNo = document.getElementById('valve_no').value;
+            
+            const requestData = {
+                no: parseInt(valveNo),
+                user_data: null,
+                image_files: uploadedImages
+            };
+
+            fetch('/generate', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(requestData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.message) {
+                    showStatus('pdf_status', data.message, 'success');
+                } else {
+                    showStatus('pdf_status', data.error, 'error');
+                }
+            })
+            .catch(error => {
+                showStatus('pdf_status', 'Generation failed: ' + error.message, 'error');
+            });
+        }
+
+        function showStatus(elementId, message, type) {
+            const element = document.getElementById(elementId);
+            element.textContent = message;
+            element.className = 'status ' + type;
+        }
+    </script>
+</body>
+</html> 
