@@ -1,1 +1,9 @@
 venv/
+*pdf
+*.json
+*.db
+vscode/
+vs_code/
+__pycache__ 
+idx/
+.idx/

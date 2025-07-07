@@ -8,3 +8,4 @@ vs_code/
 __pycache__ 
 idx/
 .idx/
+static/temp_images/
