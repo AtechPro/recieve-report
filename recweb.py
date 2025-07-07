@@ -3,6 +3,7 @@ import os
 from werkzeug.utils import secure_filename
 from petronas_pdf_generator import generate_pdf
 import subprocess
+import json
 
 app = Flask(__name__)
 
@@ -53,13 +54,14 @@ def generate():
     data = request.get_json()
     no = data.get('no')
     user_data = data.get('user_data', None)
-    image_files = data.get('image_files', None)  # Dictionary of image_type: filepath
+    image_files = data.get('image_files', None)
+    received_valve_images = data.get('received_valve_images', None)
     
     if not no:
         return jsonify({'error': 'Missing required field: no'}), 400
 
     try:
-        generate_pdf(no, user_data, image_files)
+        generate_pdf(no, user_data, image_files, received_valve_images)
         return jsonify({'message': f'PDF generated for No = {no}.'}), 200
     except Exception as e:
         return jsonify({'error': str(e)}), 500
@@ -103,6 +105,16 @@ def upload_excel():
         'filepath': filepath,
         'extract_output': extract_output
     }), 200
+
+@app.route('/available-no', methods=['GET'])
+def available_no():
+    try:
+        with open('extracted_data.json', 'r', encoding='utf-8') as f:
+            data = json.load(f)
+        numbers = [record.get('No') for record in data.get('data', []) if record.get('No')]
+        return jsonify({'numbers': numbers})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
 if __name__ == '__main__':
     app.run(debug=True) 

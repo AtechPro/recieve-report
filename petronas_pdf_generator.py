@@ -26,7 +26,8 @@ def load_valve_data(no_value, user_data=None):
                 'client_info': {
                     'client': 'PETRONAS CHEMICALS FERTILISER SABAH SDN BHD',
                     'project': 'VALVE MAINTENANCE PROJECT 2025',
-                    'location': 'Sipitang'
+                    'location': 'Sipitang',
+                    'date_in': '01/01/2025'  # User can modify this date in dd/mm/yyyy format
                 }
             }
     
@@ -49,7 +50,7 @@ def load_valve_data(no_value, user_data=None):
             'size_inlet': clean_value(record.get('Inlet (Size)')),
             'inlet_rating': clean_value(record.get('Inlet (Rating)')),
             'inlet_type': clean_value(record.get('Inlet (Type)')),
-            'date_in': clean_value(user_data.get('client_info', {}).get('date_in')) or clean_value(record.get('Date Recieved')),
+            'date_in': clean_value(user_data.get('client_info', {}).get('date_in', '')),
             'size_outlet': clean_value(record.get('Outlet (Size)')),
             'outlet_rating': clean_value(record.get('Outlet (Rating)')),
             'outlet_type': clean_value(record.get('Outlet (Type)')),
@@ -119,7 +120,7 @@ class PDF(FPDF):
     def client_info(self):
         data = self.valve_data['client_info']
         self.set_font(self.FONT_FAMILY, '', self.FONT_SIZE)
-        col_widths = [30, 80, 40, 10, 20, 10, 25, 35]
+        col_widths = [30, 80, 40, 14, 20, 20, 23, 23]
         with self.table(col_widths=col_widths, line_height=4) as table:
             row = table.row()
             row.cell('CLIENT')
@@ -210,7 +211,7 @@ class PDF(FPDF):
             row.cell('COMMENT ON TRANSPORTATION IF ANY', colspan=2)
             row.cell(data['transport_comment'], colspan=6)
 
-    def received_info_and_condition(self):
+    def received_info_and_condition(self, received_valve_images=None):
         data = self.valve_data['received_valve_condition']
         self.set_font(self.FONT_FAMILY, '', self.FONT_SIZE)
         col_widths = [63.33, 63.33, 63.33]
@@ -230,10 +231,18 @@ class PDF(FPDF):
         margin = 4
         y_offset = 8
         
-        image_files = ['goodvalve.png', 'badvalve.png', 'image.png']
-        for i, image_file in enumerate(image_files):
-            image_x = x + margin + (i * (image_width + margin))
-            self.image(image_file, x=image_x, y=y + y_offset, w=image_width, h=image_height)
+        # Use uploaded images if provided, otherwise use default images
+        if received_valve_images and len(received_valve_images) > 0:
+            image_files = received_valve_images
+        else:
+            image_files = []
+        
+        # Display up to 3 images
+        for i in range(min(3, len(image_files))):
+            image_file = image_files[i]
+            if image_file and os.path.exists(image_file):
+                image_x = x + margin + (i * (image_width + margin))
+                self.image(image_file, x=image_x, y=y + y_offset, w=image_width, h=image_height)
 
         self.set_xy(x, y + box_height)
         self.set_font(self.FONT_FAMILY, '', self.FONT_SIZE)
@@ -390,7 +399,7 @@ class PDF(FPDF):
 
         self.set_y(y_sig + sig_height)
 
-def generate_pdf(no_value, user_data=None, image_files=None):
+def generate_pdf(no_value, user_data=None, image_files=None, received_valve_images=None):
     valve_data = load_valve_data(no_value, user_data)
     pdf = PDF(valve_data, format='A4')
     print('FPDF units: millimeters (mm) by default for A4 size 210x297mm')
@@ -399,7 +408,7 @@ def generate_pdf(no_value, user_data=None, image_files=None):
     pdf.client_info()
     pdf.service_info()
     pdf.transportation_details()
-    pdf.received_info_and_condition()
+    pdf.received_info_and_condition(received_valve_images)
     pdf.valve_condition()
     pdf.detailed_picture(image_files)
     pdf.signature_block()
@@ -407,6 +416,3 @@ def generate_pdf(no_value, user_data=None, image_files=None):
     output_filename = f'generated_report_No_{no_value}.pdf'
     pdf.output(output_filename)
     print(f'PDF report "{output_filename}" created successfully for No = {no_value}.')
-
-if __name__ == "__main__":
-    generate_pdf(389)

@@ -39,6 +39,16 @@
         input[type="file"] {
             margin: 5px 0;
         }
+        input[type="text"] {
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #007bff;
+            box-shadow: 0 0 5px rgba(0,123,255,0.3);
+        }
         .status {
             margin: 10px 0;
             padding: 10px;
@@ -69,7 +79,57 @@
     </div>
 
     <div class="upload-section">
-        <h2>Upload Images (Optional)</h2>
+        <h2>Client Information (Optional)</h2>
+        <p>You can customize the client information that appears in the PDF report. Leave blank to use default values.</p>
+        
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+            <div>
+                <label for="client_name">Client Name:</label><br>
+                <input type="text" id="client_name" placeholder="PETRONAS CHEMICALS FERTILISER SABAH SDN BHD" style="width: 100%; padding: 8px; margin: 5px 0;">
+            </div>
+            <div>
+                <label for="project_name">Project Name:</label><br>
+                <input type="text" id="project_name" placeholder="VALVE MAINTENANCE PROJECT 2025" style="width: 100%; padding: 8px; margin: 5px 0;">
+            </div>
+            <div>
+                <label for="location">Location:</label><br>
+                <input type="text" id="location" placeholder="Sipitang" style="width: 100%; padding: 8px; margin: 5px 0;">
+            </div>
+            <div>
+                <label for="date_in">Date In (dd/mm/yyyy):</label><br>
+                <input type="text" id="date_in" placeholder="01/01/2025" style="width: 100%; padding: 8px; margin: 5px 0;">
+            </div>
+        </div>
+    </div>
+
+    <div class="upload-section">
+        <h2>AS RECEIVED VALVE Images (Optional)</h2>
+        <p>Upload up to 3 images for the "AS RECEIVED VALVE" section. You can upload fewer than 3 images if needed.</p>
+        
+        <div class="image-upload">
+            <label for="received_valve_1">AS RECEIVED VALVE Image 1:</label><br>
+            <input type="file" id="received_valve_1" accept="image/*" onchange="uploadReceivedValveImage(1)">
+            <div id="received_valve_1_status"></div>
+            <img id="received_valve_1_preview" class="image-preview" style="display: none;">
+        </div>
+
+        <div class="image-upload">
+            <label for="received_valve_2">AS RECEIVED VALVE Image 2:</label><br>
+            <input type="file" id="received_valve_2" accept="image/*" onchange="uploadReceivedValveImage(2)">
+            <div id="received_valve_2_status"></div>
+            <img id="received_valve_2_preview" class="image-preview" style="display: none;">
+        </div>
+
+        <div class="image-upload">
+            <label for="received_valve_3">AS RECEIVED VALVE Image 3:</label><br>
+            <input type="file" id="received_valve_3" accept="image/*" onchange="uploadReceivedValveImage(3)">
+            <div id="received_valve_3_status"></div>
+            <img id="received_valve_3_preview" class="image-preview" style="display: none;">
+        </div>
+    </div>
+
+    <div class="upload-section">
+        <h2>Detailed Images (Optional)</h2>
         <p>Upload images for different sections. If no image is uploaded for a section, the cell will remain empty.</p>
         
         <div class="image-upload">
@@ -104,13 +164,15 @@
     <div class="upload-section">
         <h2>Generate PDF Report</h2>
         <label for="valve_no">Valve Number:</label><br>
-        <input type="number" id="valve_no" value="389" min="1"><br><br>
+        <input list="valve_no_list" id="valve_no" name="valve_no">
+        <datalist id="valve_no_list"></datalist><br><br>
         <button onclick="generatePDF()">Generate PDF Report</button>
         <div id="pdf_status"></div>
     </div>
 
     <script>
         let uploadedImages = {};
+        let receivedValveImages = [];
 
         function uploadExcel() {
             const fileInput = document.getElementById('excel_file');
@@ -181,13 +243,72 @@
             });
         }
 
+        function uploadReceivedValveImage(imageNumber) {
+            const fileInput = document.getElementById('received_valve_' + imageNumber);
+            const file = fileInput.files[0];
+            
+            if (!file) {
+                showStatus('received_valve_' + imageNumber + '_status', 'Please select a file first.', 'error');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('image', file);
+            formData.append('image_type', 'received_valve_' + imageNumber);
+
+            fetch('/upload-image', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.message) {
+                    showStatus('received_valve_' + imageNumber + '_status', data.message, 'success');
+                    
+                    // Store the image in the array at the correct position (0-based index)
+                    const index = imageNumber - 1;
+                    receivedValveImages[index] = data.filepath;
+                    
+                    // Show preview
+                    const preview = document.getElementById('received_valve_' + imageNumber + '_preview');
+                    preview.src = URL.createObjectURL(file);
+                    preview.style.display = 'block';
+                } else {
+                    showStatus('received_valve_' + imageNumber + '_status', data.error, 'error');
+                }
+            })
+            .catch(error => {
+                showStatus('received_valve_' + imageNumber + '_status', 'Upload failed: ' + error.message, 'error');
+            });
+        }
+
         function generatePDF() {
             const valveNo = document.getElementById('valve_no').value;
             
+            // Collect client information
+            const clientName = document.getElementById('client_name').value.trim();
+            const projectName = document.getElementById('project_name').value.trim();
+            const location = document.getElementById('location').value.trim();
+            const dateIn = document.getElementById('date_in').value.trim();
+            
+            // Create user_data object only if any field is filled
+            let user_data = null;
+            if (clientName || projectName || location || dateIn) {
+                user_data = {
+                    client_info: {}
+                };
+                
+                if (clientName) user_data.client_info.client = clientName;
+                if (projectName) user_data.client_info.project = projectName;
+                if (location) user_data.client_info.location = location;
+                if (dateIn) user_data.client_info.date_in = dateIn;
+            }
+            
             const requestData = {
                 no: parseInt(valveNo),
-                user_data: null,
-                image_files: uploadedImages
+                user_data: user_data,
+                image_files: uploadedImages,
+                received_valve_images: receivedValveImages.filter(img => img) // Filter out empty slots
             };
 
             fetch('/generate', {
@@ -215,6 +336,23 @@
             element.textContent = message;
             element.className = 'status ' + type;
         }
+
+        function loadAvailableNumbers() {
+            fetch('/available-no')
+                .then(response => response.json())
+                .then(data => {
+                    const datalist = document.getElementById('valve_no_list');
+                    datalist.innerHTML = '';
+                    if (data.numbers && data.numbers.length > 0) {
+                        data.numbers.forEach(no => {
+                            const option = document.createElement('option');
+                            option.value = no;
+                            datalist.appendChild(option);
+                        });
+                    }
+                });
+        }
+        window.onload = loadAvailableNumbers;
     </script>
 </body>
 </html> 
