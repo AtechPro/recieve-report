@@ -20,6 +20,39 @@ os.makedirs(PDF_FOLDER, exist_ok=True)
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
+def cleanup_temp_images(image_files, received_valve_images):
+    """Clean up temporary images after PDF generation"""
+    try:
+        # Clean up detailed images
+        if image_files:
+            for image_type, filepath in image_files.items():
+                if os.path.exists(filepath):
+                    os.remove(filepath)
+                    print(f"Cleaned up: {filepath}")
+        
+        # Clean up received valve images
+        if received_valve_images:
+            for filepath in received_valve_images:
+                if filepath and os.path.exists(filepath):
+                    os.remove(filepath)
+                    print(f"Cleaned up: {filepath}")
+                    
+    except Exception as e:
+        print(f"Error during cleanup: {e}")
+
+def cleanup_all_temp_images():
+    """Clean up all temporary images in the temp_images folder"""
+    try:
+        temp_files = glob.glob(os.path.join(UPLOAD_FOLDER, '*'))
+        for file_path in temp_files:
+            if os.path.isfile(file_path):
+                os.remove(file_path)
+                print(f"Cleaned up: {file_path}")
+        return True
+    except Exception as e:
+        print(f"Error during cleanup: {e}")
+        return False
+
 @app.route('/')
 def index():
     return render_template('index.html')
@@ -67,6 +100,9 @@ def generate():
         pdf_filename = generate_pdf(identifier, user_data, image_files, received_valve_images)
         pdf_path = os.path.join(PDF_FOLDER, pdf_filename)
         
+        # Clean up temporary images after PDF generation
+        cleanup_temp_images(image_files, received_valve_images)
+        
         return jsonify({
             'message': f'PDF generated successfully for identifier = {identifier}.',
             'pdf_filename': pdf_filename,
@@ -104,6 +140,12 @@ def upload_excel():
             capture_output=True, text=True, check=True
         )
         extract_output = result.stdout
+        
+        # Clean up the Excel file after successful extraction
+        if os.path.exists(filepath):
+            os.remove(filepath)
+            print(f"Cleaned up Excel file: {filepath}")
+            
     except subprocess.CalledProcessError as e:
         return jsonify({
             'error': 'Excel uploaded, but extraction failed.',
@@ -113,7 +155,6 @@ def upload_excel():
     return jsonify({
         'message': 'Excel file uploaded and extracted successfully',
         'filename': filename,
-        'filepath': filepath,
         'extract_output': extract_output
     }), 200
 
@@ -159,6 +200,32 @@ def list_pdfs():
                 'size': os.path.getsize(pdf_file)
             })
         return jsonify({'pdfs': pdf_list})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/cleanup-temp', methods=['POST'])
+def cleanup_temp():
+    """Clean up all temporary files (images and Excel)"""
+    try:
+        # Clean up temp images
+        images_cleaned = cleanup_all_temp_images()
+        
+        # Clean up temp Excel files
+        excel_folder = 'static/temp_excel'
+        excel_files_cleaned = 0
+        if os.path.exists(excel_folder):
+            excel_files = glob.glob(os.path.join(excel_folder, '*'))
+            for file_path in excel_files:
+                if os.path.isfile(file_path):
+                    os.remove(file_path)
+                    excel_files_cleaned += 1
+                    print(f"Cleaned up Excel: {file_path}")
+        
+        return jsonify({
+            'message': f'Cleanup completed successfully',
+            'images_cleaned': images_cleaned,
+            'excel_files_cleaned': excel_files_cleaned
+        }), 200
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 

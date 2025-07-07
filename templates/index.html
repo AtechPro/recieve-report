@@ -424,6 +424,103 @@
                         Use the calendar above or "Today" button to set the date
                     </small>
                 </div>
+                <div class="form-group">
+                    <label for="transport_mode">Transport Mode</label>
+                    <input type="text" id="transport_mode" placeholder="e.g. Truck, Ship, etc.">
+                </div>
+                <div class="form-group">
+                    <label for="transport_by">Transport By</label>
+                    <input type="text" id="transport_by" placeholder="e.g. Company Name or Person">
+                </div>
+                <div class="form-group">
+                    <label for="packaging">Packaging</label>
+                    <input type="text" id="packaging" placeholder="e.g. Wooden Box, Pallet, etc.">
+                </div>
+                <div class="form-group">
+                    <label for="received_by">Received By</label>
+                    <input type="text" id="received_by" placeholder="e.g. Name of Receiver">
+                </div>
+                <div class="form-group">
+                    <label for="transport_comment">Transportation Comment</label>
+                    <input type="text" id="transport_comment" placeholder="Any comment on transportation">
+                </div>
+                <div class="form-group">
+                    <label for="inlet_type">Inlet (Type)</label>
+                    <select id="inlet_type">
+                        <option value="">Select</option>
+                        <option value="BOLTED">BOLTED</option>
+                        <option value="THREADED">THREADED</option>
+                        <option value="BUTT WELD">BUTT WELD</option>
+                        <option value="SOCKET WELD">SOCKET WELD</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="outlet_type">Outlet (Type)</label>
+                    <select id="outlet_type">
+                        <option value="">Select</option>
+                        <option value="BOLTED">BOLTED</option>
+                        <option value="THREADED">THREADED</option>
+                        <option value="BUTT WELD">BUTT WELD</option>
+                        <option value="SOCKET WELD">SOCKET WELD</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="inlet_connection_condition">Inlet Connection Condition</label>
+                    <select id="inlet_connection_condition" onchange="toggleOtherInput('inlet_connection_condition')">
+                        <option value="">Select</option>
+                        <option value="Good">Good</option>
+                        <option value="Minor Damage">Minor Damage</option>
+                        <option value="Major Damage">Major Damage</option>
+                        <option value="Other">Other</option>
+                    </select>
+                    <input type="text" id="inlet_connection_condition_other" placeholder="Please specify" style="display:none; margin-top:6px;" />
+                </div>
+                <div class="form-group">
+                    <label for="outlet_connection_condition">Outlet Connection Condition</label>
+                    <select id="outlet_connection_condition" onchange="toggleOtherInput('outlet_connection_condition')">
+                        <option value="">Select</option>
+                        <option value="Good">Good</option>
+                        <option value="Minor Damage">Minor Damage</option>
+                        <option value="Major Damage">Major Damage</option>
+                        <option value="Other">Other</option>
+                    </select>
+                    <input type="text" id="outlet_connection_condition_other" placeholder="Please specify" style="display:none; margin-top:6px;" />
+                </div>
+                <div class="form-group">
+                    <label for="connection_major_damage">Connection Major Damage</label>
+                    <select id="connection_major_damage" onchange="toggleOtherInput('connection_major_damage')">
+                        <option value="">Select</option>
+                        <option value="None">None</option>
+                        <option value="Yes">Yes</option>
+                        <option value="No">No</option>
+                        <option value="Other">Other</option>
+                    </select>
+                    <input type="text" id="connection_major_damage_other" placeholder="Please specify" style="display:none; margin-top:6px;" />
+                </div>
+                <div class="form-group">
+                    <label for="valve_body_condition">Valve Body Condition</label>
+                    <select id="valve_body_condition" onchange="toggleOtherInput('valve_body_condition')">
+                        <option value="">Select</option>
+                        <option value="Good">Good</option>
+                        <option value="Minor Defect">Minor Defect</option>
+                        <option value="Major Defect">Major Defect</option>
+                        <option value="Other">Other</option>
+                    </select>
+                    <input type="text" id="valve_body_condition_other" placeholder="Please specify" style="display:none; margin-top:6px;" />
+                </div>
+                <div class="form-group">
+                    <label for="major_defect_on_body">Major Defect on Body</label>
+                    <input type="text" id="major_defect_on_body" placeholder="Describe any major defect">
+                </div>
+                <div class="form-group">
+                    <label for="overall_valve_condition">Overall Valve Condition</label>
+                    <select id="overall_valve_condition">
+                        <option value="">Select</option>
+                        <option value="Good">Good</option>
+                        <option value="Fair">Fair</option>
+                        <option value="Poor">Poor</option>
+                    </select>
+                </div>
             </div>
         </div>
 
@@ -436,21 +533,21 @@
             
                     <div class="image-upload">
             <label for="received_valve_1">AS RECEIVED VALVE Image 1</label>
-            <input type="file" id="received_valve_1" accept="image/*" capture="environment" onchange="uploadReceivedValveImage(1)">
+            <input type="file" id="received_valve_1" accept="image/*" onchange="uploadReceivedValveImage(1)">
             <div id="received_valve_1_status"></div>
             <img id="received_valve_1_preview" class="image-preview" style="display: none;">
         </div>
 
         <div class="image-upload">
             <label for="received_valve_2">AS RECEIVED VALVE Image 2</label>
-            <input type="file" id="received_valve_2" accept="image/*" capture="environment" onchange="uploadReceivedValveImage(2)">
+            <input type="file" id="received_valve_2" accept="image/*" onchange="uploadReceivedValveImage(2)">
             <div id="received_valve_2_status"></div>
             <img id="received_valve_2_preview" class="image-preview" style="display: none;">
         </div>
 
         <div class="image-upload">
             <label for="received_valve_3">AS RECEIVED VALVE Image 3</label>
-            <input type="file" id="received_valve_3" accept="image/*" capture="environment" onchange="uploadReceivedValveImage(3)">
+            <input type="file" id="received_valve_3" accept="image/*" onchange="uploadReceivedValveImage(3)">
             <div id="received_valve_3_status"></div>
             <img id="received_valve_3_preview" class="image-preview" style="display: none;">
         </div>
@@ -465,28 +562,28 @@
             
                     <div class="image-upload">
             <label for="inlet_connection">Inlet Connection Image</label>
-            <input type="file" id="inlet_connection" accept="image/*" capture="environment" onchange="uploadImage('inlet_connection')">
+            <input type="file" id="inlet_connection" accept="image/*" onchange="uploadImage('inlet_connection')">
             <div id="inlet_connection_status"></div>
             <img id="inlet_connection_preview" class="image-preview" style="display: none;">
         </div>
 
         <div class="image-upload">
             <label for="outlet_connection">Outlet Connection Image</label>
-            <input type="file" id="outlet_connection" accept="image/*" capture="environment" onchange="uploadImage('outlet_connection')">
+            <input type="file" id="outlet_connection" accept="image/*" onchange="uploadImage('outlet_connection')">
             <div id="outlet_connection_status"></div>
             <img id="outlet_connection_preview" class="image-preview" style="display: none;">
         </div>
 
         <div class="image-upload">
             <label for="defect_connection">Defect Connection Image</label>
-            <input type="file" id="defect_connection" accept="image/*" capture="environment" onchange="uploadImage('defect_connection')">
+            <input type="file" id="defect_connection" accept="image/*" onchange="uploadImage('defect_connection')">
             <div id="defect_connection_status"></div>
             <img id="defect_connection_preview" class="image-preview" style="display: none;">
         </div>
 
         <div class="image-upload">
             <label for="defect_body">Defect on Body Image</label>
-            <input type="file" id="defect_body" accept="image/*" capture="environment" onchange="uploadImage('defect_body')">
+            <input type="file" id="defect_body" accept="image/*" onchange="uploadImage('defect_body')">
             <div id="defect_body_status"></div>
             <img id="defect_body_preview" class="image-preview" style="display: none;">
         </div>
@@ -526,9 +623,14 @@
         <div class="upload-section">
             <h2>Available PDF Reports</h2>
             <p>View and download previously generated PDF reports:</p>
-            <button class="btn btn-secondary" onclick="loadAvailablePDFs()" style="margin-bottom: 20px;">
-                🔄 Refresh PDF List
-            </button>
+            <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+                <button class="btn btn-secondary" onclick="loadAvailablePDFs()">
+                    🔄 Refresh PDF List
+                </button>
+                <button class="btn" onclick="cleanupTempFiles()" style="background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);">
+                    🗑️ Cleanup Temp Files
+                </button>
+            </div>
             <div id="pdf_list_container">
                 <div id="pdf_list_loading" style="text-align: center; padding: 20px; color: var(--deep-teal);">
                     Loading available PDFs...
@@ -697,18 +799,50 @@
             const projectName = document.getElementById('project_name').value.trim();
             const location = document.getElementById('location').value.trim();
             const dateIn = document.getElementById('date_in').value.trim();
-            
+            // Collect new user input fields
+            const transportMode = document.getElementById('transport_mode').value.trim();
+            const transportBy = document.getElementById('transport_by').value.trim();
+            const packaging = document.getElementById('packaging').value.trim();
+            const receivedBy = document.getElementById('received_by').value.trim();
+            const transportComment = document.getElementById('transport_comment').value.trim();
+            const inletType = document.getElementById('inlet_type').value.trim();
+            const outletType = document.getElementById('outlet_type').value.trim();
+            const inletConnectionCondition = document.getElementById('inlet_connection_condition').value;
+            const outletConnectionCondition = document.getElementById('outlet_connection_condition').value;
+            const connectionMajorDamage = document.getElementById('connection_major_damage').value;
+            const valveBodyCondition = document.getElementById('valve_body_condition').value;
+            const majorDefectOnBody = document.getElementById('major_defect_on_body').value.trim();
+            const overallValveCondition = document.getElementById('overall_valve_condition').value;
             // Create user_data object only if any field is filled
             let user_data = null;
-            if (clientName || projectName || location || dateIn) {
+            if (
+                clientName || projectName || location || dateIn ||
+                transportMode || transportBy || packaging || receivedBy ||
+                inletType || outletType || inletConnectionCondition || outletConnectionCondition ||
+                connectionMajorDamage || valveBodyCondition || majorDefectOnBody || overallValveCondition ||
+                transportComment
+            ) {
                 user_data = {
                     client_info: {}
                 };
-                
                 if (clientName) user_data.client_info.client = clientName;
                 if (projectName) user_data.client_info.project = projectName;
                 if (location) user_data.client_info.location = location;
                 if (dateIn) user_data.client_info.date_in = dateIn;
+                // New fields
+                if (transportMode) user_data.client_info.transport_mode = transportMode;
+                if (transportBy) user_data.client_info.transport_by = transportBy;
+                if (packaging) user_data.client_info.packaging = packaging;
+                if (receivedBy) user_data.client_info.received_by = receivedBy;
+                if (inletType) user_data.client_info.inlet_type = inletType;
+                if (outletType) user_data.client_info.outlet_type = outletType;
+                if (inletConnectionCondition) user_data.client_info.inlet_connection_condition = inletConnectionCondition;
+                if (outletConnectionCondition) user_data.client_info.outlet_connection_condition = outletConnectionCondition;
+                if (connectionMajorDamage) user_data.client_info.connection_major_damage = connectionMajorDamage;
+                if (valveBodyCondition) user_data.client_info.valve_body_condition = valveBodyCondition;
+                if (majorDefectOnBody) user_data.client_info.major_defect_on_body = majorDefectOnBody;
+                if (overallValveCondition) user_data.client_info.overall_valve_condition = overallValveCondition;
+                if (transportComment) user_data.client_info.transport_comment = transportComment;
             }
             
             const requestData = {
@@ -901,6 +1035,47 @@
                 if (date && !isNaN(date.getTime())) {
                     calendarInput.value = date.toISOString().split('T')[0];
                 }
+            }
+        }
+
+        function cleanupTempFiles() {
+            if (!confirm('Are you sure you want to clean up all temporary files? This will remove all uploaded images and Excel files.')) {
+                return;
+            }
+
+            fetch('/cleanup-temp', {
+                method: 'POST'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.message) {
+                    alert('Cleanup completed successfully!');
+                    // Clear any uploaded image previews
+                    const previews = document.querySelectorAll('.image-preview');
+                    previews.forEach(preview => {
+                        preview.style.display = 'none';
+                        preview.src = '';
+                    });
+                    // Clear uploaded images arrays
+                    uploadedImages = {};
+                    receivedValveImages = [];
+                } else {
+                    alert('Cleanup failed: ' + data.error);
+                }
+            })
+            .catch(error => {
+                alert('Cleanup failed: ' + error.message);
+            });
+        }
+        
+        function toggleOtherInput(selectId) {
+            const select = document.getElementById(selectId);
+            const otherInput = document.getElementById(selectId + '_other');
+            if (select.value === 'Other') {
+                otherInput.style.display = 'block';
+            } else {
+                otherInput.style.display = 'none';
+                otherInput.value = '';
             }
         }
         

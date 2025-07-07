@@ -63,11 +63,11 @@ def load_valve_data(identifier, user_data=None):
             'location': user_data.get('client_info', {}).get('location', 'Sipitang'),
             'size_inlet': clean_value(record.get('Inlet (Size)')),
             'inlet_rating': clean_value(record.get('Inlet (Rating)')),
-            'inlet_type': clean_value(record.get('Inlet (Type)')),
+            'inlet_type': user_data.get('client_info', {}).get('inlet_type', clean_value(record.get('Inlet (Type)'))),
             'date_in': clean_value(user_data.get('client_info', {}).get('date_in', '')),
             'size_outlet': clean_value(record.get('Outlet (Size)')),
             'outlet_rating': clean_value(record.get('Outlet (Rating)')),
-            'outlet_type': clean_value(record.get('Outlet (Type)')),
+            'outlet_type': user_data.get('client_info', {}).get('outlet_type', clean_value(record.get('Outlet (Type)'))),
             'wo_number': clean_value(record.get('WO ')),
             'manufacturer': clean_value(record.get('Manufacturer')),
             'tag_no': clean_value(record.get('Tag Number (Valve No)')),
@@ -75,25 +75,25 @@ def load_valve_data(identifier, user_data=None):
             'valve_operated_type': clean_value(record.get('Valve Operated Type'))
         },
         'transportation_details': {
-            'transport_mode': clean_value(record.get('Transport Mode')),
-            'packaging': clean_value(record.get('Packaging ')),
-            'transport_by': clean_value(record.get('Transport By')),
-            'received_by': clean_value(record.get('Received By')),
-            'transport_comment': clean_value(record.get('TRANSPORTATION (COMMENT)'))
+            'transport_mode': user_data.get('client_info', {}).get('transport_mode', clean_value(record.get('Transport Mode'))),
+            'packaging': user_data.get('client_info', {}).get('packaging', clean_value(record.get('Packaging '))),
+            'transport_by': user_data.get('client_info', {}).get('transport_by', clean_value(record.get('Transport By'))),
+            'received_by': user_data.get('client_info', {}).get('received_by', clean_value(record.get('Received By'))),
+            'transport_comment': user_data.get('client_info', {}).get('transport_comment', clean_value(record.get('TRANSPORTATION (COMMENT)')))
         },
         'received_valve_condition': {
-            'inlet_connection_type': clean_value(record.get('Inlet (Type)')),
-            'outlet_connection_type': clean_value(record.get('Outlet (Type)')),
+            'inlet_connection_type': user_data.get('client_info', {}).get('inlet_type', clean_value(record.get('Inlet (Type)'))),
+            'outlet_connection_type': user_data.get('client_info', {}).get('outlet_type', clean_value(record.get('Outlet (Type)'))),
             'nameplate': clean_value(record.get('Name Plate')),
             'tag_number': clean_value(record.get('Tag Number (Valve No)')),
-            'inlet_connection_condition': clean_value(record.get('Inlet Connection Condition')),
-            'outlet_connection_condition': clean_value(record.get('Outlet Connection Condition')),
-            'connection_major_defect': clean_value(record.get(' Connection Major Damage')),
-            'valve_body_condition': clean_value(record.get('Valve Body Condition')),
-            'major_defect_body': clean_value(record.get('Major Defect on Body'))
+            'inlet_connection_condition': user_data.get('client_info', {}).get('inlet_connection_condition', clean_value(record.get('Inlet Connection Condition'))),
+            'outlet_connection_condition': user_data.get('client_info', {}).get('outlet_connection_condition', clean_value(record.get('Outlet Connection Condition'))),
+            'connection_major_defect': user_data.get('client_info', {}).get('connection_major_damage', clean_value(record.get(' Connection Major Damage'))),
+            'valve_body_condition': user_data.get('client_info', {}).get('valve_body_condition', clean_value(record.get('Valve Body Condition'))),
+            'major_defect_body': user_data.get('client_info', {}).get('major_defect_on_body', clean_value(record.get('Major Defect on Body')))
         },
         'overall_condition': {
-            'description': clean_value(record.get('Overall Valve Condition'))
+            'description': user_data.get('client_info', {}).get('overall_valve_condition', clean_value(record.get('Overall Valve Condition')))
         }
     }
     
