@@ -68,13 +68,23 @@
     <h1>Valve Report Generator</h1>
     
     <div class="upload-section">
-        <h2>Upload Excel File</h2>
-        <p>
-            You can upload a new Excel file, or use the existing one if already uploaded.<br>
-            (Accepted formats: .xlsx, .xls)
-        </p>
-        <input type="file" id="excel_file" accept=".xlsx,.xls" onchange="uploadExcel()">
-        <button onclick="useExistingData()">Use existing data (no new Excel upload)</button>
+        <h2>Excel Data Source</h2>
+        <p>Choose how you want to provide the Excel data:</p>
+        
+        <div style="margin: 15px 0;">
+            <input type="radio" id="upload_new" name="excel_option" value="upload" checked onchange="toggleExcelOption()">
+            <label for="upload_new">Upload new Excel file</label>
+            <div id="upload_section" style="margin-left: 25px; margin-top: 10px;">
+                <input type="file" id="excel_file" accept=".xlsx,.xls" onchange="uploadExcel()">
+                <p style="font-size: 12px; color: #666; margin: 5px 0;">(Accepted formats: .xlsx, .xls)</p>
+            </div>
+        </div>
+        
+        <div style="margin: 15px 0;">
+            <input type="radio" id="use_existing" name="excel_option" value="existing" onchange="toggleExcelOption()">
+            <label for="use_existing">Use existing data (no new Excel upload)</label>
+        </div>
+        
         <div id="excel_status"></div>
     </div>
 
@@ -175,6 +185,12 @@
         let receivedValveImages = [];
 
         function uploadExcel() {
+            const uploadOption = document.getElementById('upload_new');
+            if (!uploadOption.checked) {
+                showStatus('excel_status', 'Please select "Upload new Excel file" option first.', 'error');
+                return;
+            }
+            
             const fileInput = document.getElementById('excel_file');
             const file = fileInput.files[0];
 
@@ -201,6 +217,21 @@
             .catch(error => {
                 showStatus('excel_status', 'Upload failed: ' + error.message, 'error');
             });
+        }
+
+        function toggleExcelOption() {
+            const uploadOption = document.getElementById('upload_new');
+            const uploadSection = document.getElementById('upload_section');
+            
+            if (uploadOption.checked) {
+                uploadSection.style.display = 'block';
+                // Clear any previous status
+                showStatus('excel_status', '', '');
+            } else {
+                uploadSection.style.display = 'none';
+                // Automatically use existing data when this option is selected
+                useExistingData();
+            }
         }
 
         function useExistingData() {
@@ -284,6 +315,15 @@
 
         function generatePDF() {
             const valveNo = document.getElementById('valve_no').value;
+            
+            // Check which Excel option is selected
+            const uploadOption = document.getElementById('upload_new');
+            const useExistingOption = document.getElementById('use_existing');
+            
+            if (!uploadOption.checked && !useExistingOption.checked) {
+                showStatus('pdf_status', 'Please select an Excel data source option.', 'error');
+                return;
+            }
             
             // Collect client information
             const clientName = document.getElementById('client_name').value.trim();

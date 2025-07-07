@@ -3,6 +3,7 @@ from fpdf.enums import XPos, YPos
 from fpdf.fonts import FontFace
 import json
 import os
+from PIL import Image
 
 def get_record_by_no(no_value):
     with open('extracted_data.json', 'r') as file:
@@ -96,14 +97,59 @@ class PDF(FPDF):
         self.valve_data = data
 
     def header(self):
-        # Two-column header: logo (placeholder) and wrapped title
+        # Two-column header: logo and wrapped title
         self.set_font(self.FONT_FAMILY, 'B', 8)
         logo_width = 30
         title_width = 160
         line_height = 8
         y_start = self.get_y()
-        self.cell(logo_width, line_height * 4, '[LOGO]', border=1, align='C')
-        self.set_xy(self.get_x(), y_start)
+        
+        # Logo area dimensions
+        logo_area_width = logo_width
+        logo_area_height = line_height * 4
+        
+        # Calculate logo position to center it in the allocated area
+        logo_x = self.get_x()
+        logo_y = y_start
+        
+        # Try to load and display the logo with aspect ratio preservation
+        logo_path = 'petronas.png'
+        if os.path.exists(logo_path):
+            # Get image dimensions to calculate aspect ratio
+            from PIL import Image
+            try:
+                with Image.open(logo_path) as img:
+                    img_width, img_height = img.size
+                    aspect_ratio = img_width / img_height
+                    
+                    # Calculate dimensions that fit within the allocated area
+                    if aspect_ratio > 1:  # Landscape
+                        logo_display_width = logo_area_width - 2  # Leave small margin
+                        logo_display_height = logo_display_width / aspect_ratio
+                    else:  # Portrait or square
+                        logo_display_height = logo_area_height - 2  # Leave small margin
+                        logo_display_width = logo_display_height * aspect_ratio
+                    
+                    # Center the logo in the allocated area
+                    logo_x_offset = logo_x + (logo_area_width - logo_display_width) / 2
+                    logo_y_offset = logo_y + (logo_area_height - logo_display_height) / 2
+                    
+                    # Draw the logo
+                    self.image(logo_path, x=logo_x_offset, y=logo_y_offset, w=logo_display_width, h=logo_display_height)
+                    
+            except Exception as e:
+                print(f"Error loading logo: {e}")
+                # Fallback to placeholder if logo loading fails
+                self.cell(logo_width, line_height * 4, '[LOGO]', border=1, align='C')
+        else:
+            # Fallback to placeholder if logo file doesn't exist
+            self.cell(logo_width, line_height * 4, '[LOGO]', border=1, align='C')
+        
+        # Draw border around logo area for visual reference
+        self.rect(logo_x, logo_y, logo_area_width, logo_area_height)
+        
+        # Title section
+        self.set_xy(logo_x + logo_area_width, y_start)
         title = 'PROVISION FOR MECHANICAL VALVE IN SITU PACKING\nREPLACEMENT, MECHANICAL VALVE OVERHAULING, AUTOMATIC\nRECIRCULATORY VALVE (ARV) SERVICING, AND MOV\'S GEARBOX\nSERVICING FOR PCFS TA2025'
         self.multi_cell(title_width, line_height, title, border=1, align='C')
         self.set_y(y_start + line_height * 4)
