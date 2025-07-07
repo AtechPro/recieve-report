@@ -413,7 +413,16 @@
                 </div>
                 <div class="form-group">
                     <label for="date_in">Date In (dd/mm/yyyy)</label>
-                    <input type="text" id="date_in" placeholder="01/01/2025">
+                    <div style="display: flex; gap: 10px; align-items: center;">
+                        <input type="date" id="date_in_calendar" style="flex: 1; padding: 12px 16px; border: 2px solid var(--light-gray-2); border-radius: 8px; font-size: 14px; transition: all 0.3s ease; background: var(--pure-white);" onchange="updateDateInput()">
+                        <button type="button" class="btn" style="padding: 8px 12px; font-size: 12px; white-space: nowrap;" onclick="setCurrentDate()">
+                            📅 Today
+                        </button>
+                    </div>
+                    <input type="text" id="date_in" placeholder="07/08/2025" style="margin-top: 8px;" onchange="updateCalendarFromText()">
+                    <small style="color: #666; font-size: 0.8rem; margin-top: 4px; display: block;">
+                        Use the calendar above or "Today" button to set the date
+                    </small>
                 </div>
             </div>
         </div>
@@ -485,12 +494,17 @@
 
         <div class="upload-section">
             <h2>Generate PDF Report</h2>
+            
+            <!-- Search by WO -->
             <div class="valve-selector">
-                <label for="valve_no">Select Valve Number</label>
-                <input list="valve_no_list" id="valve_no" name="valve_no" placeholder="Choose a valve number...">
-                <datalist id="valve_no_list"></datalist>
+                <label for="valve_wo">Search by Work Order (WO)</label>
+                <input list="valve_wo_list" id="valve_wo" name="valve_wo" placeholder="Enter work order number (WO)...">
+                <datalist id="valve_wo_list"></datalist>
             </div>
-            <button class="btn" onclick="generatePDF()">Generate PDF Report</button>
+            
+            <div style="margin-top: 20px;">
+                <button class="btn" onclick="generatePDF()">Generate PDF Report</button>
+            </div>
             <div id="pdf_status"></div>
         </div>
 
@@ -658,7 +672,7 @@
         }
 
         function generatePDF() {
-            const valveNo = document.getElementById('valve_no').value;
+            const valveWO = document.getElementById('valve_wo').value;
             
             // Check which Excel option is selected
             const uploadOption = document.getElementById('upload_new');
@@ -668,6 +682,15 @@
                 showStatus('pdf_status', 'Please select an Excel data source option.', 'error');
                 return;
             }
+            
+            // Check if WO identifier is provided
+            if (!valveWO) {
+                showStatus('pdf_status', 'Please enter a Work Order (WO) number.', 'error');
+                return;
+            }
+            
+            // Use the WO identifier
+            const identifier = valveWO;
             
             // Collect client information
             const clientName = document.getElementById('client_name').value.trim();
@@ -689,7 +712,7 @@
             }
             
             const requestData = {
-                no: parseInt(valveNo),
+                identifier: identifier,
                 user_data: user_data,
                 image_files: uploadedImages,
                 received_valve_images: receivedValveImages.filter(img => img) // Filter out empty slots
@@ -800,21 +823,93 @@
             fetch('/available-no')
                 .then(response => response.json())
                 .then(data => {
-                    const datalist = document.getElementById('valve_no_list');
-                    datalist.innerHTML = '';
-                    if (data.numbers && data.numbers.length > 0) {
-                        data.numbers.forEach(no => {
+                    // Populate WO datalist
+                    const woDatalist = document.getElementById('valve_wo_list');
+                    woDatalist.innerHTML = '';
+                    if (data.wo_numbers && data.wo_numbers.length > 0) {
+                        data.wo_numbers.forEach(wo => {
                             const option = document.createElement('option');
-                            option.value = no;
-                            datalist.appendChild(option);
+                            option.value = wo;
+                            woDatalist.appendChild(option);
                         });
                     }
                 });
         }
         
+        function setCurrentDate() {
+            const today = new Date();
+            const day = String(today.getDate()).padStart(2, '0');
+            const month = String(today.getMonth() + 1).padStart(2, '0');
+            const year = today.getFullYear();
+            const formattedDate = `${day}/${month}/${year}`;
+            
+            document.getElementById('date_in').value = formattedDate;
+            document.getElementById('date_in_calendar').value = today.toISOString().split('T')[0];
+        }
+
+        function updateDateInput() {
+            const calendarInput = document.getElementById('date_in_calendar');
+            const textInput = document.getElementById('date_in');
+            
+            if (calendarInput.value) {
+                const date = new Date(calendarInput.value);
+                const day = String(date.getDate()).padStart(2, '0');
+                const month = String(date.getMonth() + 1).padStart(2, '0');
+                const year = date.getFullYear();
+                const formattedDate = `${day}/${month}/${year}`;
+                
+                textInput.value = formattedDate;
+            }
+        }
+
+        function formatDateForDisplay(dateString) {
+            if (!dateString) return '';
+            
+            // Handle dd/mm/yyyy format
+            if (dateString.includes('/')) {
+                const parts = dateString.split('/');
+                if (parts.length === 3) {
+                    const day = parts[0];
+                    const month = parts[1];
+                    const year = parts[2];
+                    return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+                }
+            }
+            
+            return dateString;
+        }
+
+        function parseDateFromDDMMYYYY(dateString) {
+            if (!dateString || !dateString.includes('/')) return null;
+            
+            const parts = dateString.split('/');
+            if (parts.length === 3) {
+                const day = parseInt(parts[0]);
+                const month = parseInt(parts[1]) - 1; // Month is 0-based in JavaScript
+                const year = parseInt(parts[2]);
+                return new Date(year, month, day);
+            }
+            return null;
+        }
+
+        function updateCalendarFromText() {
+            const textInput = document.getElementById('date_in');
+            const calendarInput = document.getElementById('date_in_calendar');
+            
+            if (textInput.value) {
+                const date = parseDateFromDDMMYYYY(textInput.value);
+                if (date && !isNaN(date.getTime())) {
+                    calendarInput.value = date.toISOString().split('T')[0];
+                }
+            }
+        }
+        
         window.onload = function() {
             loadAvailableNumbers();
             loadAvailablePDFs();
+            
+            // Set current date by default
+            setCurrentDate();
         };
     </script>
 </body>

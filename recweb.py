@@ -55,20 +55,20 @@ def upload_image():
 @app.route('/generate', methods=['POST'])
 def generate():
     data = request.get_json()
-    no = data.get('no')
+    identifier = data.get('identifier')
     user_data = data.get('user_data', None)
     image_files = data.get('image_files', None)
     received_valve_images = data.get('received_valve_images', None)
     
-    if not no:
-        return jsonify({'error': 'Missing required field: no'}), 400
+    if not identifier:
+        return jsonify({'error': 'Missing required field: identifier (No or WO)'}), 400
 
     try:
-        pdf_filename = generate_pdf(no, user_data, image_files, received_valve_images)
+        pdf_filename = generate_pdf(identifier, user_data, image_files, received_valve_images)
         pdf_path = os.path.join(PDF_FOLDER, pdf_filename)
         
         return jsonify({
-            'message': f'PDF generated successfully for No = {no}.',
+            'message': f'PDF generated successfully for identifier = {identifier}.',
             'pdf_filename': pdf_filename,
             'pdf_path': pdf_path,
             'download_url': f'/download-pdf/{pdf_filename}',
@@ -123,7 +123,8 @@ def available_no():
         with open('extracted_data.json', 'r', encoding='utf-8') as f:
             data = json.load(f)
         numbers = [record.get('No') for record in data.get('data', []) if record.get('No')]
-        return jsonify({'numbers': numbers})
+        wo_numbers = [record.get('WO ') for record in data.get('data', []) if record.get('WO ')]
+        return jsonify({'numbers': numbers, 'wo_numbers': wo_numbers})
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 

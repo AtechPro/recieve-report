@@ -5,15 +5,28 @@ import json
 import os
 from PIL import Image
 
-def get_record_by_no(no_value):
+def get_record_by_no_or_wo(identifier):
+    """Get record by No or WO (Work Order) number"""
     with open('extracted_data.json', 'r') as file:
         data = json.load(file)
+    
+    # First try to find by No
     for record in data['data']:
-        if record.get('No') == str(no_value):
+        if record.get('No') == str(identifier):
             return record
-    raise ValueError(f"No record with No = {no_value}")
+    
+    # If not found by No, try to find by WO
+    for record in data['data']:
+        if record.get('WO ') == str(identifier):
+            return record
+    
+    raise ValueError(f"No record found with No = {identifier} or WO = {identifier}")
 
-def load_valve_data(no_value, user_data=None):
+def get_record_by_no(no_value):
+    """Backward compatibility function - use get_record_by_no_or_wo instead"""
+    return get_record_by_no_or_wo(no_value)
+
+def load_valve_data(identifier, user_data=None):
     """Load valve data from both valve_data.json (user-defined) and extracted_data.json (actual records)"""
     
     # Load user-defined data
@@ -32,8 +45,8 @@ def load_valve_data(no_value, user_data=None):
                 }
             }
     
-    # Fetch the record by No
-    record = get_record_by_no(no_value)
+    # Fetch the record by No or WO
+    record = get_record_by_no_or_wo(identifier)
     
     def clean_value(value):
         """Clean NaN values and convert to empty string"""
@@ -445,8 +458,8 @@ class PDF(FPDF):
 
         self.set_y(y_sig + sig_height)
 
-def generate_pdf(no_value, user_data=None, image_files=None, received_valve_images=None):
-    valve_data = load_valve_data(no_value, user_data)
+def generate_pdf(identifier, user_data=None, image_files=None, received_valve_images=None):
+    valve_data = load_valve_data(identifier, user_data)
     pdf = PDF(valve_data, format='A4')
     print('FPDF units: millimeters (mm) by default for A4 size 210x297mm')
     pdf.add_page()
@@ -462,9 +475,16 @@ def generate_pdf(no_value, user_data=None, image_files=None, received_valve_imag
     # Create generated_pdfs directory if it doesn't exist
     os.makedirs('generated_pdfs', exist_ok=True)
     
-    output_filename = f'generated_report_No_{no_value}.pdf'
+    # Determine if identifier is a No or WO for filename
+    record = get_record_by_no_or_wo(identifier)
+    if record.get('No') == str(identifier):
+        output_filename = f'generated_report_No_{identifier}.pdf'
+        print(f'PDF report "{output_filename}" created successfully for No = {identifier}.')
+    else:
+        output_filename = f'generated_report_WO_{identifier}.pdf'
+        print(f'PDF report "{output_filename}" created successfully for WO = {identifier}.')
+    
     output_path = os.path.join('generated_pdfs', output_filename)
     pdf.output(output_path)
-    print(f'PDF report "{output_filename}" created successfully for No = {no_value}.')
     
     return output_filename
