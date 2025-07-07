@@ -421,60 +421,66 @@
         <div class="upload-section">
             <h2>AS RECEIVED VALVE Images</h2>
             <p>Upload up to 3 images for the "AS RECEIVED VALVE" section. You can upload fewer than 3 images if needed.</p>
+            <p style="font-size: 0.9rem; color: var(--medium-teal); background: rgba(44, 161, 132, 0.1); padding: 10px; border-radius: 6px; border-left: 3px solid var(--medium-teal);">
+                📱 <strong>Mobile Users:</strong> Tap any image field to open your camera and take photos directly!
+            </p>
             
-            <div class="image-upload">
-                <label for="received_valve_1">AS RECEIVED VALVE Image 1</label>
-                <input type="file" id="received_valve_1" accept="image/*" onchange="uploadReceivedValveImage(1)">
-                <div id="received_valve_1_status"></div>
-                <img id="received_valve_1_preview" class="image-preview" style="display: none;">
-            </div>
+                    <div class="image-upload">
+            <label for="received_valve_1">AS RECEIVED VALVE Image 1</label>
+            <input type="file" id="received_valve_1" accept="image/*" capture="environment" onchange="uploadReceivedValveImage(1)">
+            <div id="received_valve_1_status"></div>
+            <img id="received_valve_1_preview" class="image-preview" style="display: none;">
+        </div>
 
-            <div class="image-upload">
-                <label for="received_valve_2">AS RECEIVED VALVE Image 2</label>
-                <input type="file" id="received_valve_2" accept="image/*" onchange="uploadReceivedValveImage(2)">
-                <div id="received_valve_2_status"></div>
-                <img id="received_valve_2_preview" class="image-preview" style="display: none;">
-            </div>
+        <div class="image-upload">
+            <label for="received_valve_2">AS RECEIVED VALVE Image 2</label>
+            <input type="file" id="received_valve_2" accept="image/*" capture="environment" onchange="uploadReceivedValveImage(2)">
+            <div id="received_valve_2_status"></div>
+            <img id="received_valve_2_preview" class="image-preview" style="display: none;">
+        </div>
 
-            <div class="image-upload">
-                <label for="received_valve_3">AS RECEIVED VALVE Image 3</label>
-                <input type="file" id="received_valve_3" accept="image/*" onchange="uploadReceivedValveImage(3)">
-                <div id="received_valve_3_status"></div>
-                <img id="received_valve_3_preview" class="image-preview" style="display: none;">
-            </div>
+        <div class="image-upload">
+            <label for="received_valve_3">AS RECEIVED VALVE Image 3</label>
+            <input type="file" id="received_valve_3" accept="image/*" capture="environment" onchange="uploadReceivedValveImage(3)">
+            <div id="received_valve_3_status"></div>
+            <img id="received_valve_3_preview" class="image-preview" style="display: none;">
+        </div>
         </div>
 
         <div class="upload-section">
             <h2>Detailed Images</h2>
             <p>Upload images for different sections. If no image is uploaded for a section, the cell will remain empty.</p>
+            <p style="font-size: 0.9rem; color: var(--medium-teal); background: rgba(44, 161, 132, 0.1); padding: 10px; border-radius: 6px; border-left: 3px solid var(--medium-teal);">
+                📱 <strong>Mobile Users:</strong> Tap any image field to open your camera and take photos directly!
+            </p>
             
-            <div class="image-upload">
-                <label for="inlet_connection">Inlet Connection Image</label>
-                <input type="file" id="inlet_connection" accept="image/*" onchange="uploadImage('inlet_connection')">
-                <div id="inlet_connection_status"></div>
-                <img id="inlet_connection_preview" class="image-preview" style="display: none;">
-            </div>
+                    <div class="image-upload">
+            <label for="inlet_connection">Inlet Connection Image</label>
+            <input type="file" id="inlet_connection" accept="image/*" capture="environment" onchange="uploadImage('inlet_connection')">
+            <div id="inlet_connection_status"></div>
+            <img id="inlet_connection_preview" class="image-preview" style="display: none;">
+        </div>
 
-            <div class="image-upload">
-                <label for="outlet_connection">Outlet Connection Image</label>
-                <input type="file" id="outlet_connection" accept="image/*" onchange="uploadImage('outlet_connection')">
-                <div id="outlet_connection_status"></div>
-                <img id="outlet_connection_preview" class="image-preview" style="display: none;">
-            </div>
+        <div class="image-upload">
+            <label for="outlet_connection">Outlet Connection Image</label>
+            <input type="file" id="outlet_connection" accept="image/*" capture="environment" onchange="uploadImage('outlet_connection')">
+            <div id="outlet_connection_status"></div>
+            <img id="outlet_connection_preview" class="image-preview" style="display: none;">
+        </div>
 
-            <div class="image-upload">
-                <label for="defect_connection">Defect Connection Image</label>
-                <input type="file" id="defect_connection" accept="image/*" onchange="uploadImage('defect_connection')">
-                <div id="defect_connection_status"></div>
-                <img id="defect_connection_preview" class="image-preview" style="display: none;">
-            </div>
+        <div class="image-upload">
+            <label for="defect_connection">Defect Connection Image</label>
+            <input type="file" id="defect_connection" accept="image/*" capture="environment" onchange="uploadImage('defect_connection')">
+            <div id="defect_connection_status"></div>
+            <img id="defect_connection_preview" class="image-preview" style="display: none;">
+        </div>
 
-            <div class="image-upload">
-                <label for="defect_body">Defect on Body Image</label>
-                <input type="file" id="defect_body" accept="image/*" onchange="uploadImage('defect_body')">
-                <div id="defect_body_status"></div>
-                <img id="defect_body_preview" class="image-preview" style="display: none;">
-            </div>
+        <div class="image-upload">
+            <label for="defect_body">Defect on Body Image</label>
+            <input type="file" id="defect_body" accept="image/*" capture="environment" onchange="uploadImage('defect_body')">
+            <div id="defect_body_status"></div>
+            <img id="defect_body_preview" class="image-preview" style="display: none;">
+        </div>
         </div>
 
         <div class="upload-section">
