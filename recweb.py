@@ -1,7 +1,7 @@
 from flask import Flask, request, jsonify, render_template, send_file, send_from_directory
 import os
 from werkzeug.utils import secure_filename
-from petronas_pdf_generator import generate_pdf
+from recievedreport import generate_pdf
 import subprocess
 import json
 import glob
