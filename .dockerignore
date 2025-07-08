@@ -7,3 +7,4 @@ vs_code/
 __pycache__ 
 idx/
 .idx/
+pdftest.py

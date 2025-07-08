@@ -446,23 +446,27 @@
                 </div>
                 <div class="form-group">
                     <label for="inlet_type">Inlet (Type)</label>
-                    <select id="inlet_type">
+                    <select id="inlet_type" onchange="toggleOtherInput('inlet_type')">
                         <option value="">Select</option>
                         <option value="BOLTED">BOLTED</option>
                         <option value="THREADED">THREADED</option>
                         <option value="BUTT WELD">BUTT WELD</option>
                         <option value="SOCKET WELD">SOCKET WELD</option>
+                        <option value="Other">Other</option>
                     </select>
+                    <input type="text" id="inlet_type_other" placeholder="Please specify" style="display:none; margin-top:6px;" />
                 </div>
                 <div class="form-group">
                     <label for="outlet_type">Outlet (Type)</label>
-                    <select id="outlet_type">
+                    <select id="outlet_type" onchange="toggleOtherInput('outlet_type')">
                         <option value="">Select</option>
                         <option value="BOLTED">BOLTED</option>
                         <option value="THREADED">THREADED</option>
                         <option value="BUTT WELD">BUTT WELD</option>
                         <option value="SOCKET WELD">SOCKET WELD</option>
+                        <option value="Other">Other</option>
                     </select>
+                    <input type="text" id="outlet_type_other" placeholder="Please specify" style="display:none; margin-top:6px;" />
                 </div>
                 <div class="form-group">
                     <label for="inlet_connection_condition">Inlet Connection Condition</label>
@@ -501,25 +505,31 @@
                     <label for="valve_body_condition">Valve Body Condition</label>
                     <select id="valve_body_condition" onchange="toggleOtherInput('valve_body_condition')">
                         <option value="">Select</option>
-                        <option value="Good">Good</option>
-                        <option value="Minor Defect">Minor Defect</option>
-                        <option value="Major Defect">Major Defect</option>
+                        <option value="SCRACTHES">SCRACTHES</option>
+                        <option value="NO SCRACTHES">NO SCRACTHES</option>
                         <option value="Other">Other</option>
                     </select>
                     <input type="text" id="valve_body_condition_other" placeholder="Please specify" style="display:none; margin-top:6px;" />
                 </div>
                 <div class="form-group">
                     <label for="major_defect_on_body">Major Defect on Body</label>
-                    <input type="text" id="major_defect_on_body" placeholder="Describe any major defect">
+                    <select id="major_defect_on_body" onchange="toggleOtherInput('major_defect_on_body')">
+                        <option value="">Select</option>
+                        <option value="YES">YES</option>
+                        <option value="NO">NO</option>
+                        <option value="Other">Other</option>
+                    </select>
+                    <input type="text" id="major_defect_on_body_other" placeholder="Please specify" style="display:none; margin-top:6px;" />
                 </div>
                 <div class="form-group">
                     <label for="overall_valve_condition">Overall Valve Condition</label>
-                    <select id="overall_valve_condition">
+                    <select id="overall_valve_condition" onchange="toggleOtherInput('overall_valve_condition')">
                         <option value="">Select</option>
-                        <option value="Good">Good</option>
-                        <option value="Fair">Fair</option>
-                        <option value="Poor">Poor</option>
+                        <option value="ACCEPTABLE">ACCEPTABLE</option>
+                        <option value="NOT ACCEPTABLE">NOT ACCEPTABLE</option>
+                        <option value="Other">Other</option>
                     </select>
+                    <input type="text" id="overall_valve_condition_other" placeholder="Please specify" style="display:none; margin-top:6px;" />
                 </div>
             </div>
         </div>
@@ -597,6 +607,50 @@
                 <label for="valve_wo">Search by Work Order (WO)</label>
                 <input list="valve_wo_list" id="valve_wo" name="valve_wo" placeholder="Enter work order number (WO)...">
                 <datalist id="valve_wo_list"></datalist>
+            </div>
+            
+            <!-- Stamp Selection -->
+            <div class="valve-selector" style="margin-top: 20px;">
+                <label for="stamp_selection">Stamp & Prepared By</label>
+                <select id="stamp_selection" style="width: 100%; padding: 12px 16px; border: 2px solid var(--light-gray-2); border-radius: 8px; font-size: 16px; transition: all 0.3s ease;">
+                    <option value="SAO">Sao Lip Zhou</option>
+                    <!-- Add more options here as needed -->
+                </select>
+            </div>
+            
+            <!-- Service Selection -->
+            <div class="valve-selector" style="margin-top: 20px;">
+                <label>Service Options (Select multiple)</label>
+                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-top: 10px;">
+                    <div style="display: flex; align-items: center; gap: 10px; padding: 10px; background: var(--light-gray); border-radius: 6px;">
+                        <input type="checkbox" id="insitu_testing" name="service_options" value="insitu_testing">
+                        <label for="insitu_testing" style="margin: 0; cursor: pointer;">SERVICE & REPAIR</label>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 10px; padding: 10px; background: var(--light-gray); border-radius: 6px;">
+                        <input type="checkbox" id="service_repair" name="service_options" value="service_repair">
+                        <label for="service_repair" style="margin: 0; cursor: pointer;">TESTING ONLY</label>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 10px; padding: 10px; background: var(--light-gray); border-radius: 6px;">
+                        <input type="checkbox" id="testing_only" name="service_options" value="testing_only">
+                        <label for="testing_only" style="margin: 0; cursor: pointer;">REPLACE NEW VALVE</label>
+                    </div>
+
+                </div>
+            </div>
+            
+            <!-- Date Selection -->
+            <div class="valve-selector" style="margin-top: 20px;">
+                <label for="stamp_date">Stamp Date (dd/mm/yyyy)</label>
+                <div style="display: flex; gap: 10px; align-items: center;">
+                    <input type="date" id="stamp_date_calendar" style="flex: 1; padding: 12px 16px; border: 2px solid var(--light-gray-2); border-radius: 8px; font-size: 14px; transition: all 0.3s ease; background: var(--pure-white);" onchange="updateStampDateInput()">
+                    <button type="button" class="btn" style="padding: 8px 12px; font-size: 12px; white-space: nowrap;" onclick="setCurrentStampDate()">
+                        📅 Today
+                    </button>
+                </div>
+                <input type="text" id="stamp_date" placeholder="07/08/2025" style="margin-top: 8px;" onchange="updateCalendarFromStampDate()">
+                <small style="color: #666; font-size: 0.8rem; margin-top: 4px; display: block;">
+                    Use the calendar above or "Today" button to set the stamp date
+                </small>
             </div>
             
             <div style="margin-top: 20px;">
@@ -805,14 +859,38 @@
             const packaging = document.getElementById('packaging').value.trim();
             const receivedBy = document.getElementById('received_by').value.trim();
             const transportComment = document.getElementById('transport_comment').value.trim();
-            const inletType = document.getElementById('inlet_type').value.trim();
-            const outletType = document.getElementById('outlet_type').value.trim();
-            const inletConnectionCondition = document.getElementById('inlet_connection_condition').value;
-            const outletConnectionCondition = document.getElementById('outlet_connection_condition').value;
-            const connectionMajorDamage = document.getElementById('connection_major_damage').value;
-            const valveBodyCondition = document.getElementById('valve_body_condition').value;
-            const majorDefectOnBody = document.getElementById('major_defect_on_body').value.trim();
-            const overallValveCondition = document.getElementById('overall_valve_condition').value;
+            let inletType = document.getElementById('inlet_type').value;
+            if (inletType === "Other") {
+                inletType = document.getElementById('inlet_type_other').value.trim();
+            }
+            let outletType = document.getElementById('outlet_type').value;
+            if (outletType === "Other") {
+                outletType = document.getElementById('outlet_type_other').value.trim();
+            }
+            let inletConnectionCondition = document.getElementById('inlet_connection_condition').value;
+            if (inletConnectionCondition === "Other") {
+                inletConnectionCondition = document.getElementById('inlet_connection_condition_other').value.trim();
+            }
+            let outletConnectionCondition = document.getElementById('outlet_connection_condition').value;
+            if (outletConnectionCondition === "Other") {
+                outletConnectionCondition = document.getElementById('outlet_connection_condition_other').value.trim();
+            }
+            let connectionMajorDamage = document.getElementById('connection_major_damage').value;
+            if (connectionMajorDamage === "Other") {
+                connectionMajorDamage = document.getElementById('connection_major_damage_other').value.trim();
+            }
+            let valveBodyCondition = document.getElementById('valve_body_condition').value;
+            if (valveBodyCondition === "Other") {
+                valveBodyCondition = document.getElementById('valve_body_condition_other').value.trim();
+            }
+            let majorDefectOnBody = document.getElementById('major_defect_on_body').value;
+            if (majorDefectOnBody === "Other") {
+                majorDefectOnBody = document.getElementById('major_defect_on_body_other').value.trim();
+            }
+            let overallValveCondition = document.getElementById('overall_valve_condition').value;
+            if (overallValveCondition === "Other") {
+                overallValveCondition = document.getElementById('overall_valve_condition_other').value.trim();
+            }
             // Create user_data object only if any field is filled
             let user_data = null;
             if (
@@ -845,11 +923,22 @@
                 if (transportComment) user_data.client_info.transport_comment = transportComment;
             }
             
+            // Get service selections (multiple checkboxes)
+            const selectedServices = document.querySelectorAll('input[name="service_options"]:checked');
+            const serviceSelections = Array.from(selectedServices).map(checkbox => checkbox.value);
+            
+            // Get stamp selection and date
+            const stampSelection = document.getElementById('stamp_selection').value;
+            const stampDate = document.getElementById('stamp_date').value.trim();
+            
             const requestData = {
                 identifier: identifier,
                 user_data: user_data,
                 image_files: uploadedImages,
-                received_valve_images: receivedValveImages.filter(img => img) // Filter out empty slots
+                received_valve_images: receivedValveImages.filter(img => img), // Filter out empty slots
+                stamp_selection: stampSelection,
+                date_value: stampDate || '7/7/2027',  // Use default if empty
+                selected_services: serviceSelections
             };
 
             // Show loading state
@@ -981,6 +1070,17 @@
             document.getElementById('date_in_calendar').value = today.toISOString().split('T')[0];
         }
 
+        function setCurrentStampDate() {
+            const today = new Date();
+            const day = String(today.getDate()).padStart(2, '0');
+            const month = String(today.getMonth() + 1).padStart(2, '0');
+            const year = today.getFullYear();
+            const formattedDate = `${day}/${month}/${year}`;
+            
+            document.getElementById('stamp_date').value = formattedDate;
+            document.getElementById('stamp_date_calendar').value = today.toISOString().split('T')[0];
+        }
+
         function updateDateInput() {
             const calendarInput = document.getElementById('date_in_calendar');
             const textInput = document.getElementById('date_in');
@@ -1038,6 +1138,33 @@
             }
         }
 
+        function updateStampDateInput() {
+            const calendarInput = document.getElementById('stamp_date_calendar');
+            const textInput = document.getElementById('stamp_date');
+            
+            if (calendarInput.value) {
+                const date = new Date(calendarInput.value);
+                const day = String(date.getDate()).padStart(2, '0');
+                const month = String(date.getMonth() + 1).padStart(2, '0');
+                const year = date.getFullYear();
+                const formattedDate = `${day}/${month}/${year}`;
+                
+                textInput.value = formattedDate;
+            }
+        }
+
+        function updateCalendarFromStampDate() {
+            const textInput = document.getElementById('stamp_date');
+            const calendarInput = document.getElementById('stamp_date_calendar');
+            
+            if (textInput.value) {
+                const date = parseDateFromDDMMYYYY(textInput.value);
+                if (date && !isNaN(date.getTime())) {
+                    calendarInput.value = date.toISOString().split('T')[0];
+                }
+            }
+        }
+
         function cleanupTempFiles() {
             if (!confirm('Are you sure you want to clean up all temporary files? This will remove all uploaded images and Excel files.')) {
                 return;
@@ -1085,6 +1212,7 @@
             
             // Set current date by default
             setCurrentDate();
+            setCurrentStampDate();
         };
     </script>
 </body>

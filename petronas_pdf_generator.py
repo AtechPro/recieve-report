@@ -84,7 +84,7 @@ def load_valve_data(identifier, user_data=None):
         'received_valve_condition': {
             'inlet_connection_type': user_data.get('client_info', {}).get('inlet_type', clean_value(record.get('Inlet (Type)'))),
             'outlet_connection_type': user_data.get('client_info', {}).get('outlet_type', clean_value(record.get('Outlet (Type)'))),
-            'nameplate': clean_value(record.get('Name Plate')),
+            'nameplate': clean_value(record.get('Tag Number (Valve No)')),
             'tag_number': clean_value(record.get('Tag Number (Valve No)')),
             'inlet_connection_condition': user_data.get('client_info', {}).get('inlet_connection_condition', clean_value(record.get('Inlet Connection Condition'))),
             'outlet_connection_condition': user_data.get('client_info', {}).get('outlet_connection_condition', clean_value(record.get('Outlet Connection Condition'))),
@@ -94,6 +94,11 @@ def load_valve_data(identifier, user_data=None):
         },
         'overall_condition': {
             'description': user_data.get('client_info', {}).get('overall_valve_condition', clean_value(record.get('Overall Valve Condition')))
+        },
+        'stamp_info': {
+            'stamp_path': user_data.get('stamp_info', {}).get('stamp_path', 'stamp/sao.png'),
+            'prepared_name': user_data.get('stamp_info', {}).get('prepared_name', 'Amirul Qayyum Bin Sikambar'),
+            'date_value': user_data.get('stamp_info', {}).get('date_value', '')
         }
     }
     
@@ -229,19 +234,22 @@ class PDF(FPDF):
             row.cell('VALVE OPERATED TYPE')
             row.cell(data['valve_operated_type'], colspan=5)
 
-    def service_info(self):
+    def service_info(self, selected_services=None):
+        if selected_services is None:
+            selected_services = []
+        
         self.set_font(self.FONT_FAMILY, '', self.FONT_SIZE)
         col_widths = [30, 20, 40, 20, 40, 20, 50, 30]
         with self.table(col_widths=col_widths, line_height=4) as table:
             row = table.row()
             row.cell('INSITU TESTING')
-            row.cell('')
+            row.cell('/' if 'insitu_testing' in selected_services else '', align='C') # checkbox for INSITU TESTING
             row.cell('SERVICE & REPAIR')
-            row.cell('')
+            row.cell('/' if 'service_repair' in selected_services else '', align='C') # checkbox for SERVICE & REPAIR
             row.cell('TESTING ONLY')
-            row.cell('')
+            row.cell('/' if 'testing_only' in selected_services else '', align='C') # checkbox for TESTING ONLY
             row.cell('REPLACE NEW VALVE')
-            row.cell('')
+            row.cell('/' if 'replace_new_valve' in selected_services else '', align='C') # checkbox for REPLACE NEW VALVE 
 
     def transportation_details(self):
         data = self.valve_data['transportation_details']
@@ -458,19 +466,89 @@ class PDF(FPDF):
 
         self.set_y(y_sig + sig_height)
 
-def generate_pdf(identifier, user_data=None, image_files=None, received_valve_images=None):
+    def stamp(self, stamp_path=None, prepared_name=None, date_value=None):
+        # Get stamp data from mapped data if not provided as parameters
+        stamp_data = self.valve_data.get('stamp_info', {})
+        
+        # Use provided parameters or fall back to mapped data
+        stamp_path = stamp_path or stamp_data.get('stamp_path')
+        prepared_name = prepared_name or stamp_data.get('prepared_name')
+        date_value = date_value or stamp_data.get('date_value')
+        
+        # Get positioning from mapped data
+        stamp_x = stamp_data.get('stamp_x', 30)
+        stamp_y = stamp_data.get('stamp_y', 251)
+        name_x = stamp_data.get('name_x', 20)
+        name_y = stamp_data.get('name_y', 265)
+        date_x = stamp_data.get('date_x', 20)
+        date_y = stamp_data.get('date_y', 272)
+        
+        if stamp_path and os.path.exists(stamp_path):
+            # Get image dimensions to calculate aspect ratio
+            try:
+                with Image.open(stamp_path) as img:
+                    img_width, img_height = img.size
+                    aspect_ratio = img_width / img_height
+                    
+                    # Set target size around 20mm
+                    target_size = 20
+                    
+                    # Calculate dimensions that maintain aspect ratio
+                    if aspect_ratio > 1:  # Landscape
+                        stamp_width = target_size
+                        stamp_height = target_size / aspect_ratio
+                    else:  # Portrait or square
+                        stamp_height = target_size
+                        stamp_width = target_size * aspect_ratio
+                    
+                    # Position stamp using mapped data coordinates
+                    self.image(stamp_path, x=stamp_x, y=stamp_y, w=stamp_width, h=stamp_height)
+                    
+            except Exception as e:
+                print(f"Error loading stamp image: {e}")
+                # Fallback to fixed size if image loading fails
+                self.image(stamp_path, x=stamp_x, y=stamp_y, w=20, h=20)
+        else:
+            print("Stamp image not found")
+
+        # Position text using mapped data coordinates
+        if prepared_name:
+            self.set_xy(name_x, name_y)
+            self.set_font(self.FONT_FAMILY, 'B', self.FONT_SIZE)
+            self.cell(20, 5, prepared_name, align='L')
+        
+        if date_value:
+            self.set_xy(date_x, date_y)
+            self.cell(20, 5, date_value, align='L')
+
+
+def generate_pdf(identifier, user_data=None, image_files=None, received_valve_images=None, stamp_selection=None, date_value=None, selected_services=None):
     valve_data = load_valve_data(identifier, user_data)
     pdf = PDF(valve_data, format='A4')
     print('FPDF units: millimeters (mm) by default for A4 size 210x297mm')
     pdf.add_page()
 
     pdf.client_info()
-    pdf.service_info()
+    pdf.service_info(selected_services)
     pdf.transportation_details()
     pdf.received_info_and_condition(received_valve_images)
     pdf.valve_condition()
     pdf.detailed_picture(image_files)
     pdf.signature_block()
+    
+    # Map stamp selection to stamp path and prepared name
+    stamp_mapping = {
+        'SAO': {
+            'stamp_path': 'stamp/sao.png',
+            'prepared_name': 'Sao Lip Zhou'
+        }
+    }
+    
+    if stamp_selection and stamp_selection in stamp_mapping:
+        stamp_info = stamp_mapping[stamp_selection]
+        pdf.stamp(stamp_info['stamp_path'], stamp_info['prepared_name'], date_value)
+    else:
+        pass
 
     # Create generated_pdfs directory if it doesn't exist
     os.makedirs('generated_pdfs', exist_ok=True)

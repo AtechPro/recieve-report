@@ -92,12 +92,15 @@ def generate():
     user_data = data.get('user_data', None)
     image_files = data.get('image_files', None)
     received_valve_images = data.get('received_valve_images', None)
+    stamp_selection = data.get('stamp_selection', 'SAO')  # Default to SAO
+    date_value = data.get('date_value', '7/7/2027')  # Default date
+    selected_services = data.get('selected_services', [])  # Service selections from user (array)
     
     if not identifier:
         return jsonify({'error': 'Missing required field: identifier (No or WO)'}), 400
 
     try:
-        pdf_filename = generate_pdf(identifier, user_data, image_files, received_valve_images)
+        pdf_filename = generate_pdf(identifier, user_data, image_files, received_valve_images, stamp_selection, date_value, selected_services)
         pdf_path = os.path.join(PDF_FOLDER, pdf_filename)
         
         # Clean up temporary images after PDF generation
