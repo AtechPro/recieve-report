@@ -97,7 +97,7 @@ def load_valve_data(identifier, user_data=None):
         },
         'stamp_info': {
             'stamp_path': user_data.get('stamp_info', {}).get('stamp_path', 'stamp/sao.png'),
-            'prepared_name': user_data.get('stamp_info', {}).get('prepared_name', 'Amirul Qayyum Bin Sikambar'),
+            'prepared_name': user_data.get('stamp_info', {}).get('prepared_name', 'Sao Lip Zhou'),
             'date_value': user_data.get('stamp_info', {}).get('date_value', '')
         }
     }
