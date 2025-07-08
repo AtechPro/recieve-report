@@ -397,33 +397,58 @@
         <div class="upload-section">
             <h2>Client Information</h2>
             <p>Customize the client information that appears in your PDF report. Leave fields blank to use default values.</p>
-            
-            <div class="form-grid">
-                <div class="form-group">
-                    <label for="client_name">Client Name</label>
-                    <input type="text" id="client_name" placeholder="PETRONAS CHEMICALS FERTILISER SABAH SDN BHD">
-                </div>
-                <div class="form-group">
-                    <label for="project_name">Project Name</label>
-                    <input type="text" id="project_name" placeholder="VALVE MAINTENANCE PROJECT 2025">
-                </div>
-                <div class="form-group">
-                    <label for="location">Location</label>
-                    <input type="text" id="location" placeholder="Sipitang">
-                </div>
-                <div class="form-group">
-                    <label for="date_in">Date In (dd/mm/yyyy)</label>
-                    <div style="display: flex; gap: 10px; align-items: center;">
-                        <input type="date" id="date_in_calendar" style="flex: 1; padding: 12px 16px; border: 2px solid var(--light-gray-2); border-radius: 8px; font-size: 14px; transition: all 0.3s ease; background: var(--pure-white);" onchange="updateDateInput()">
-                        <button type="button" class="btn" style="padding: 8px 12px; font-size: 12px; white-space: nowrap;" onclick="setCurrentDate()">
-                            📅 Today
-                        </button>
+
+            <div class="valve-selector">
+                <label for="valve_wo">Search by Work Order (WO)</label>
+                <input list="valve_wo_list" id="valve_wo" name="valve_wo" placeholder="Enter work order number (WO)...">
+                <datalist id="valve_wo_list"></datalist>
+            </div>
+
+            <div class="valve-selector" style="margin-top: 20px;">
+                <label>Service Options (Select multiple)</label>
+                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-top: 10px;">
+                    <div style="display: flex; align-items: center; gap: 10px; padding: 10px; background: var(--light-gray); border-radius: 6px;">
+                        <input type="checkbox" id="insitu_testing" name="service_options" value="insitu_testing">
+                        <label for="insitu_testing" style="margin: 0; cursor: pointer;">SERVICE & REPAIR</label>
                     </div>
-                    <input type="text" id="date_in" placeholder="07/08/2025" style="margin-top: 8px;" onchange="updateCalendarFromText()">
-                    <small style="color: #666; font-size: 0.8rem; margin-top: 4px; display: block;">
-                        Use the calendar above or "Today" button to set the date
-                    </small>
+                    <div style="display: flex; align-items: center; gap: 10px; padding: 10px; background: var(--light-gray); border-radius: 6px;">
+                        <input type="checkbox" id="service_repair" name="service_options" value="service_repair">
+                        <label for="service_repair" style="margin: 0; cursor: pointer;">TESTING ONLY</label>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 10px; padding: 10px; background: var(--light-gray); border-radius: 6px;">
+                        <input type="checkbox" id="testing_only" name="service_options" value="testing_only">
+                        <label for="testing_only" style="margin: 0; cursor: pointer;">REPLACE NEW VALVE</label>
+                    </div>
+
                 </div>
+            </div>
+
+            <div class="form-group">
+                <label for="client_name">Client Name</label>
+                <input type="text" id="client_name" placeholder="PETRONAS CHEMICALS FERTILISER SABAH SDN BHD">
+            </div>
+            <div class="form-group">
+                <label for="project_name">Project Name</label>
+                <input type="text" id="project_name" placeholder="VALVE MAINTENANCE PROJECT 2025">
+            </div>
+            <div class="form-group">
+                <label for="location">Location</label>
+                <input type="text" id="location" placeholder="Sipitang">
+            </div>
+            <div class="form-group">
+                <label for="date_in">Date In (dd/mm/yyyy)</label>
+                <div style="display: flex; gap: 10px; align-items: center;">
+                    <input type="date" id="date_in_calendar" style="flex: 1; padding: 12px 16px; border: 2px solid var(--light-gray-2); border-radius: 8px; font-size: 14px; transition: all 0.3s ease; background: var(--pure-white);" onchange="updateDateInput()">
+                    <button type="button" class="btn" style="padding: 8px 12px; font-size: 12px; white-space: nowrap;" onclick="setCurrentDate()">
+                        📅 Today
+                    </button>
+                </div>
+                <input type="text" id="date_in" placeholder="07/08/2025" style="margin-top: 8px;" onchange="updateCalendarFromText()">
+                <small style="color: #666; font-size: 0.8rem; margin-top: 4px; display: block;">
+                    Use the calendar above or "Today" button to set the date
+                </small>
+            </div>
+            <div class="form-grid">   
                 <div class="form-group">
                     <label for="transport_mode">Transport Mode</label>
                     <input type="text" id="transport_mode" placeholder="e.g. Truck, Ship, etc.">
@@ -494,7 +519,6 @@
                     <label for="connection_major_damage">Connection Major Damage</label>
                     <select id="connection_major_damage" onchange="toggleOtherInput('connection_major_damage')">
                         <option value="">Select</option>
-                        <option value="None">None</option>
                         <option value="Yes">Yes</option>
                         <option value="No">No</option>
                         <option value="Other">Other</option>
@@ -603,11 +627,7 @@
             <h2>Generate PDF Report</h2>
             
             <!-- Search by WO -->
-            <div class="valve-selector">
-                <label for="valve_wo">Search by Work Order (WO)</label>
-                <input list="valve_wo_list" id="valve_wo" name="valve_wo" placeholder="Enter work order number (WO)...">
-                <datalist id="valve_wo_list"></datalist>
-            </div>
+
             
             <!-- Stamp Selection -->
             <div class="valve-selector" style="margin-top: 20px;">
@@ -619,24 +639,7 @@
             </div>
             
             <!-- Service Selection -->
-            <div class="valve-selector" style="margin-top: 20px;">
-                <label>Service Options (Select multiple)</label>
-                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-top: 10px;">
-                    <div style="display: flex; align-items: center; gap: 10px; padding: 10px; background: var(--light-gray); border-radius: 6px;">
-                        <input type="checkbox" id="insitu_testing" name="service_options" value="insitu_testing">
-                        <label for="insitu_testing" style="margin: 0; cursor: pointer;">SERVICE & REPAIR</label>
-                    </div>
-                    <div style="display: flex; align-items: center; gap: 10px; padding: 10px; background: var(--light-gray); border-radius: 6px;">
-                        <input type="checkbox" id="service_repair" name="service_options" value="service_repair">
-                        <label for="service_repair" style="margin: 0; cursor: pointer;">TESTING ONLY</label>
-                    </div>
-                    <div style="display: flex; align-items: center; gap: 10px; padding: 10px; background: var(--light-gray); border-radius: 6px;">
-                        <input type="checkbox" id="testing_only" name="service_options" value="testing_only">
-                        <label for="testing_only" style="margin: 0; cursor: pointer;">REPLACE NEW VALVE</label>
-                    </div>
-
-                </div>
-            </div>
+            
             
             <!-- Date Selection -->
             <div class="valve-selector" style="margin-top: 20px;">

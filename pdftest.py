@@ -1,4 +1,4 @@
-from petronas_pdf_generator import generate_pdf
+from recievedreport import generate_pdf
 
 if __name__ == "__main__":
     # Test function to generate PDF with all available PNG images
