@@ -78,7 +78,18 @@ def load_valve_data(identifier, user_data=None):
             'stamp_path': user_data.get('stamp_info', {}).get('stamp_path', 'stamp/sao.png'),
             'prepared_name': user_data.get('stamp_info', {}).get('prepared_name', 'Sao Lip Zhou'),
             'date_value': user_data.get('stamp_info', {}).get('date_value', '')
-        }
+        },
+        'visual_inspection': user_data.get('visual_inspection') if user_data and user_data.get('visual_inspection') else [
+            {"desc": "GENERAL APPEARANCE", "condition": "", "actions": "", "remarks": ""},
+            {"desc": "NAMEPLATE", "condition": "", "actions": "", "remarks": ""},
+            {"desc": "OVERALL FLANGE/CONNECTION CONDITION", "condition": "", "actions": "", "remarks": ""},
+            {"desc": "BODY", "condition": "", "actions": "", "remarks": ""},
+            {"desc": "BONNET", "condition": "", "actions": "", "remarks": ""},
+            {"desc": "YOKE", "condition": "", "actions": "", "remarks": ""},
+            {"desc": "DISC", "condition": "", "actions": "", "remarks": ""},
+            {"desc": "SEAT", "condition": "", "actions": "", "remarks": ""},
+            {"desc": "BONNET GASKET", "condition": "", "actions": "", "remarks": ""},
+        ]
     }
     
     return mapped_data
@@ -240,7 +251,10 @@ class PDF(FPDF):
     def visual_inspection(self):
         self.set_font(self.FONT_FAMILY, '', self.FONT_SIZE)
         col_widths = [64, 62, 62, 62] # =190
-        with self.table(col_widths=col_widths, line_height=4) as table:
+
+        grey = (128, 128, 128)
+        headings_style = FontFace(emphasis="B", fill_color=grey)
+        with self.table(col_widths=col_widths, line_height=4, headings_style=headings_style) as table:
             row = table.row()
             row.cell('AS RECEIVED VISUAL INSPECTION (EXTERNAL)', align='C', colspan=4)
             row = table.row()
@@ -264,7 +278,9 @@ class PDF(FPDF):
     def internal_inspection(self):
         self.set_font(self.FONT_FAMILY, '', self.FONT_SIZE)
         col_widths = [64, 62, 62, 62]  # 4 columns, total 190mm
-        with self.table(col_widths=col_widths, line_height=4) as table:
+        grey = (128, 128, 128)
+        headings_style = FontFace(emphasis="B", fill_color=grey)
+        with self.table(col_widths=col_widths, line_height=4, headings_style=headings_style) as table:
             # Title row spanning all columns
             row = table.row()
             row.cell('INTERNAL PARTS INSPECTION', align='C', colspan=4)
@@ -298,7 +314,9 @@ class PDF(FPDF):
         self.set_font(self.FONT_FAMILY, '', self.FONT_SIZE)
         col_widths = [187.5, 62.5]
 
-        with self.table(col_widths=col_widths, line_height=4) as table:
+        grey = (128, 128, 128)
+        headings_style = FontFace(emphasis="B", fill_color=grey)
+        with self.table(col_widths=col_widths, line_height=4, headings_style=headings_style) as table:
             row = table.row()
             row.cell('DETAILS PICTURE OF SERVICED ITEM ', align='C', colspan=2)
         
@@ -311,7 +329,7 @@ class PDF(FPDF):
         # Empty space for first picture (increased height)
         with self.table(col_widths=col_widths, line_height=35) as table:
             row = table.row()
-            row.cell('')
+            row.cell('') # this is picture, 2 is max
             row.cell('')
         
         self.ln(30)
@@ -324,7 +342,7 @@ class PDF(FPDF):
         # Empty space for second picture (increased height)
         with self.table(col_widths=col_widths, line_height=35) as table:
             row = table.row()
-            row.cell('')
+            row.cell('') # this is picture, 2 is max
             row.cell('')
         
         # Third section
@@ -336,7 +354,7 @@ class PDF(FPDF):
         # Empty space for third picture (increased height)
         with self.table(col_widths=col_widths, line_height=35) as table:
             row = table.row()
-            row.cell('')
+            row.cell('') # this is picture, 2 is max
             row.cell('')
         
         with self.table(col_widths=col_widths, line_height=4) as table:
@@ -347,7 +365,7 @@ class PDF(FPDF):
         # Empty space for third picture (increased height)
         with self.table(col_widths=col_widths, line_height=35) as table:
             row = table.row()
-            row.cell('')
+            row.cell('') # this is picture, 2 is max
             row.cell('')
 
 
@@ -455,7 +473,7 @@ class PDF(FPDF):
             self.set_xy(date_x, date_y)
             self.cell(sig_width - 4, 5, date_value, align='L')
 
-def generate_pdf(identifier, user_data=None, image_files=None, received_valve_images=None, stamp_selection=None, date_value=None, selected_services=None):
+def generate_pdf(identifier, user_data=None, stamp_selection=None, date_value=None, selected_services=None):
     valve_data = load_valve_data(identifier, user_data)
     pdf = PDF(valve_data, selected_services=selected_services, format='A4')
     print('FPDF units: millimeters (mm) by default for A4 size 210x297mm')
