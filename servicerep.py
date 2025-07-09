@@ -89,6 +89,20 @@ def load_valve_data(identifier, user_data=None):
             {"desc": "DISC", "condition": "", "actions": "", "remarks": ""},
             {"desc": "SEAT", "condition": "", "actions": "", "remarks": ""},
             {"desc": "BONNET GASKET", "condition": "", "actions": "", "remarks": ""},
+        ],
+        'internal_inspection': user_data.get('internal_inspection') if user_data and user_data.get('internal_inspection') else [
+            {"desc": "BODY", "condition": "", "actions": "", "remarks": ""},
+            {"desc": "BONNET", "condition": "", "actions": "", "remarks": ""},
+            {"desc": "YOKE", "condition": "", "actions": "", "remarks": ""},
+            {"desc": "DISC", "condition": "", "actions": "", "remarks": ""},
+            {"desc": "SEAT", "condition": "", "actions": "", "remarks": ""},
+            {"desc": "BONNET GASKET", "condition": "", "actions": "", "remarks": ""},
+            {"desc": "STEM", "condition": "", "actions": "", "remarks": ""},
+            {"desc": "WHEEL NUT", "condition": "", "actions": "", "remarks": ""},
+            {"desc": "PACKING", "condition": "", "actions": "", "remarks": ""},
+            {"desc": "GLAND BUSHING", "condition": "", "actions": "", "remarks": ""},
+            {"desc": "BACK SEAT", "condition": "", "actions": "", "remarks": ""},
+            {"desc": "GLAND NUT", "condition": "", "actions": "", "remarks": ""},
         ]
     }
     
@@ -262,16 +276,15 @@ class PDF(FPDF):
             row.cell('CONDITION', align='C')
             row.cell('ACTIONS', align='C')
             row.cell('REMARKS', align='C')
-            parts = [
-                'GENERAL APPEARANCE', 'NAMEPLATE', 'OVERALL FLANGE/CONNECTION CONDITION', 
-                'BODY', 'BONNET', 'YOKE', 'DISC', 'SEAT', 'BONNET GASKET',
-            ]
+            
+            # Use mapped data for parts
+            parts = self.valve_data.get('visual_inspection', [])
             for part in parts:
                 row = table.row()
-                row.cell(part, align='L')
-                row.cell('', align='C')
-                row.cell('', align='C')
-                row.cell('', align='C')
+                row.cell(part.get('desc', ''), align='L')
+                row.cell(part.get('condition', ''), align='C')
+                row.cell(part.get('actions', ''), align='C')
+                row.cell(part.get('remarks', ''), align='C')
     
 
     
@@ -281,27 +294,21 @@ class PDF(FPDF):
         grey = (128, 128, 128)
         headings_style = FontFace(emphasis="B", fill_color=grey)
         with self.table(col_widths=col_widths, line_height=4, headings_style=headings_style) as table:
-            # Title row spanning all columns
             row = table.row()
             row.cell('INTERNAL PARTS INSPECTION', align='C', colspan=4)
-            # Header row
             row = table.row()
             row.cell('DESCRIPTION', align='C')
             row.cell('CONDITION', align='C')
             row.cell('ACTIONS', align='C')
             row.cell('REMARKS', align='C')
-            # Data rows
-            parts = [
-                'BODY', 'BONNET', 'YOKE', 'DISC', 'SEAT', 'BONNET GASKET',
-                'STEM', 'WHEEL NUT', 'PACKING', 'GLAND BUSHING', 'BACK SEAT', 'GLAND NUT'
-            ]
-            
+            # Use mapped data for parts
+            parts = self.valve_data.get('internal_inspection', [])
             for part in parts:
                 row = table.row()
-                row.cell(part, align='L')
-                row.cell('', align='C')
-                row.cell('', align='C')
-                row.cell('', align='C')
+                row.cell(part.get('desc', ''), align='L')
+                row.cell(part.get('condition', ''), align='C')
+                row.cell(part.get('actions', ''), align='C')
+                row.cell(part.get('remarks', ''), align='C')
                 
     def additonal_comment(self):
         self.set_font(self.FONT_FAMILY, '', self.FONT_SIZE)
@@ -408,24 +415,18 @@ class PDF(FPDF):
 
 
     def stamp(self, stamp_path=None, prepared_name=None, date_value=None):
-        # Get stamp data from mapped data if not provided as parameters
         stamp_data = self.valve_data.get('stamp_info', {})
         
-        # Use provided parameters or fall back to mapped data
         stamp_path = stamp_path or stamp_data.get('stamp_path')
         prepared_name = prepared_name or stamp_data.get('prepared_name')
         date_value = date_value or stamp_data.get('date_value')
-        
-        # Get current position after signature block
+
         current_x = self.get_x()
         current_y = self.get_y()
         
-        # Calculate positioning relative to signature block
-        # The signature block has 3 columns of 63.33mm each
         sig_width = 63.33
         sig_height = 30
-        
-        # Position stamp in the first column (PREPARED BY)
+
         stamp_x = current_x + 20  # Small offset from left edge
         stamp_y = current_y - sig_height + 2   # Position within signature box
         

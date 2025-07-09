@@ -8,8 +8,6 @@ if __name__ == "__main__":
         output_filename = servicerep.generate_pdf(
             identifier=identifier,
             user_data=None,
-            image_files=None,
-            received_valve_images=None,
             stamp_selection="SAO",
             date_value="01/01/2025",
             selected_services=["insitu_testing", "service_repair"]
