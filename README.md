@@ -1,223 +1,344 @@
-# Valve Report PDF Template
+# Valve Report Generator
 
-A comprehensive FPDF template for generating professional valve inspection reports with image support.
+A comprehensive web-based system for generating professional valve inspection and service reports with image support, Excel data integration, and PDF management.
 
-## Features
+## 🚀 Features
 
-- **Professional Layout**: Clean, structured PDF reports with headers and footers
-- **Image Support**: Add single images or multiple images in grid layouts
-- **Cover Pages**: Professional cover pages with titles and dates
-- **Data Tables**: Structured tables for valve information and inspection results
-- **Recommendations Section**: Numbered list for recommendations
-- **Signature Section**: Professional signature area for inspectors
-- **Auto-scaling Images**: Images automatically scale to fit page dimensions
-- **Multiple Image Layouts**: Support for single images and grid layouts
+### **Core Functionality**
+- **Web-based Interface**: Modern, responsive web application built with Flask
+- **Dual Report Types**: Service Reports and Received Reports with different layouts
+- **Excel Data Integration**: Upload Excel files or use existing extracted data
+- **Professional PDF Generation**: Clean, structured reports with company branding
+- **Image Management**: Upload, preview, and delete images with drag-and-drop support
+- **PDF Management**: View, download, and delete generated PDFs
 
-## Installation
+### **Advanced Features**
+- **Multiple Image Support**: Upload up to 3 "AS RECEIVED VALVE" images + 4 detailed images
+- **Service Options**: Select multiple service types (In-situ Testing, Service & Repair, Testing Only, Replace New Valve)
+- **Custom Client Information**: Override default values with custom client data
+- **Stamp System**: Add digital stamps with prepared by information and dates
+- **Mobile Responsive**: Works seamlessly on desktop and mobile devices
+- **Real-time Preview**: Image previews with delete functionality
+- **Auto-cleanup**: Automatic cleanup of temporary files after PDF generation
 
-The template uses the following dependencies (already in your `requirements.txt`):
+## 📋 Prerequisites
 
+- Python 3.8 or higher
+- pip (Python package installer)
+- Modern web browser (Chrome, Firefox, Safari, Edge)
+
+## 🛠️ Installation
+
+### 1. Clone the Repository
 ```bash
-fpdf2==2.8.3
-Pillow
+git clone <repository-url>
+cd valverec
 ```
 
-## Quick Start
-
-### Basic Usage
-
-```python
-from valvereport import ValveReportPDF
-
-# Create a new PDF
-pdf = ValveReportPDF()
-
-# Add cover page
-pdf.add_cover_page(
-    title="Valve Inspection Report",
-    subtitle="Valve #V-001",
-    date="December 15, 2024"
-)
-
-# Add valve information
-valve_data = {
-    "Valve ID": "V-001",
-    "Type": "Gate Valve",
-    "Size": "8 inch",
-    "Material": "Carbon Steel"
-}
-pdf.add_valve_info_section(valve_data)
-
-# Save the PDF
-pdf.output("my_report.pdf")
-```
-
-### Adding Images
-
-```python
-# Add a single image with caption
-pdf.add_image_section("valve_photo.jpg", "Front view of valve V-001")
-
-# Add multiple images in a grid
-image_paths = ["valve1.jpg", "valve2.jpg", "valve3.jpg"]
-captions = ["Front view", "Side view", "Internal components"]
-pdf.add_multiple_images(image_paths, captions)
-```
-
-## Template Methods
-
-### Core Methods
-
-- `add_cover_page(title, subtitle, date)`: Add a professional cover page
-- `add_valve_info_section(valve_data)`: Add valve information in a table format
-- `add_inspection_results(results_data)`: Add inspection results in a table
-- `add_recommendations(recommendations)`: Add numbered recommendations
-- `add_signature_section(inspector_name, date)`: Add signature section
-
-### Image Methods
-
-- `add_image_section(image_path, caption, max_width, max_height)`: Add single image
-- `add_multiple_images(image_paths, captions, images_per_row)`: Add multiple images in grid
-
-## Example Reports
-
-Run the example script to see the template in action:
-
+### 2. Create Virtual Environment
 ```bash
-python example_usage.py
+python -m venv venv
+
+# On Windows
+venv\Scripts\activate
+
+# On macOS/Linux
+source venv/bin/activate
 ```
 
-This will generate:
-- `basic_valve_report.pdf`: Basic report without images
-- `valve_report_with_images.pdf`: Report with sample data
-- `image_demo_report.pdf`: Demonstration of image features
-
-## Data Formats
-
-### Valve Data Dictionary
-```python
-valve_data = {
-    "Valve ID": "V-001",
-    "Type": "Gate Valve",
-    "Size": "8 inch",
-    "Material": "Carbon Steel",
-    "Location": "Pump Station A",
-    "Installation Date": "2020-03-15",
-    "Last Inspection": "2023-06-20"
-}
+### 3. Install Dependencies
+```bash
+pip install -r requirements.txt
 ```
 
-### Inspection Results List
-```python
-results_data = [
-    {
-        "test_type": "Visual Inspection",
-        "result": "Pass",
-        "status": "Good",
-        "notes": "No visible damage"
-    },
-    {
-        "test_type": "Pressure Test",
-        "result": "Pass",
-        "status": "Good",
-        "notes": "Holds 150 PSI"
-    }
-]
+### 4. Prepare Data Files
+Ensure you have the following files in your project directory:
+- `extracted_data.json` (will be created when you upload Excel)
+- `petronas.png` (company logo)
+- `stamp/sao.png` (stamp image)
+
+## 🚀 Quick Start
+
+### 1. Start the Application
+```bash
+python recweb.py
 ```
 
-### Recommendations List
-```python
-recommendations = [
-    "Continue regular maintenance schedule",
-    "Monitor for any signs of wear or corrosion",
-    "Schedule next inspection within 12 months"
-]
+### 2. Access the Web Interface
+Open your browser and navigate to:
+```
+http://localhost:5300
 ```
 
-## Image Support
+### 3. Generate Your First Report
+1. **Upload Excel Data**: Upload your valve data Excel file or use existing data
+2. **Enter Work Order**: Search by Work Order (WO) number
+3. **Upload Images**: Add valve images (optional)
+4. **Customize Information**: Modify client details if needed
+5. **Generate PDF**: Click "Generate PDF" to create your report
 
-### Supported Formats
+## 📊 Report Types
+
+### Service Report (`servicerep.py`)
+- **Visual Inspection**: Internal parts inspection table
+- **Internal Inspection**: Detailed component inspection
+- **Service Options**: Multiple service type selections
+- **Professional Layout**: Clean, structured format
+
+### Received Report (`recievedreport.py`)
+- **Transportation Details**: Transport mode, packaging, received by
+- **Valve Condition**: Overall condition assessment
+- **Detailed Pictures**: 4-image grid layout
+- **AS Received Images**: Up to 3 valve condition images
+
+## 🖼️ Image Management
+
+### Supported Image Types
 - JPEG (.jpg, .jpeg)
 - PNG (.png)
 - GIF (.gif)
-- BMP (.bmp)
-- TIFF (.tiff)
 
 ### Image Features
-- **Auto-scaling**: Images automatically scale to fit page dimensions
-- **Centering**: Single images are centered on the page
-- **Grid Layout**: Multiple images arranged in configurable grid
-- **Captions**: Optional captions for each image
-- **Page Breaks**: Automatic page breaks for multiple images
+- **Drag & Drop**: Easy image upload
+- **Real-time Preview**: See images before PDF generation
+- **Delete Functionality**: Remove uploaded images with red × button
+- **Mobile Camera**: Take photos directly on mobile devices
+- **Auto-cleanup**: Temporary images removed after PDF generation
 
-### Image Sizing
-- **Single Images**: Maximum 180x200 mm (configurable)
-- **Grid Images**: Automatically sized for grid layout
-- **Aspect Ratio**: Maintains original aspect ratio
+### Image Categories
+1. **AS RECEIVED VALVE Images** (up to 3)
+   - Overall valve condition photos
+   - Before-service documentation
 
-## Customization
+2. **Detailed Images** (4 specific types)
+   - Inlet Connection
+   - Outlet Connection
+   - Defect Connection (if any)
+   - Defect on Body (if any)
 
-### Fonts and Styling
-The template uses Arial font family with different sizes:
-- Title: 24pt Bold
-- Section Headers: 14pt Bold
-- Table Headers: 10pt Bold
-- Body Text: 10pt Regular
-- Captions: 10pt Italic
+## 📁 File Management
 
-### Page Layout
-- **Page Size**: A4 (210x297 mm)
-- **Margins**: 15mm auto page break
-- **Headers**: "Valve Inspection Report" on each page
-- **Footers**: Page numbers
+### Generated PDFs
+- **View**: Open PDFs directly in browser
+- **Download**: Download PDFs to your device
+- **Delete**: Remove unwanted PDFs with confirmation
+- **List**: Browse all generated reports
 
-### Colors
-- **Text**: Black
-- **Tables**: Black borders
-- **Lines**: Black signature lines
+### Data Files
+- **Excel Upload**: Upload new valve data
+- **Existing Data**: Use previously extracted data
+- **Auto-extraction**: Excel data automatically converted to JSON
 
-## Advanced Usage
+## 🎨 Customization
 
-### Custom Page Headers
-```python
-class CustomValveReportPDF(ValveReportPDF):
-    def header(self):
-        # Custom header implementation
-        self.set_font('Arial', 'B', 16)
-        self.cell(0, 10, 'Custom Valve Report', 0, 1, 'C')
+### Client Information
+Customize the following fields:
+- Client Name
+- Project Name
+- Location
+- Date In
+- Transport Mode
+- Transport By
+- Packaging
+- Received By
+- Inlet/Outlet Types
+- Connection Conditions
+- Valve Body Condition
+- Overall Valve Condition
+
+### Service Options
+Select multiple service types:
+- ✅ In-situ Testing
+- ✅ Service & Repair
+- ✅ Testing Only
+- ✅ Replace New Valve
+
+### Stamp System
+- **Digital Stamps**: Add prepared by information
+- **Date Stamps**: Include generation dates
+- **Customizable**: Modify stamp details
+
+## 🔧 Configuration
+
+### Environment Variables
+Create a `.env` file for custom configuration:
+```env
+FLASK_ENV=development
+UPLOAD_FOLDER=static/temp_images
+PDF_FOLDER=generated_pdfs
 ```
 
-### Adding Custom Sections
-```python
-def add_custom_section(self, title, content):
-    self.add_page()
-    self.set_font('Arial', 'B', 14)
-    self.cell(0, 10, title, 0, 1, 'L')
-    self.ln(5)
-    
-    self.set_font('Arial', '', 11)
-    self.multi_cell(0, 8, content)
+### File Structure
+```
+valverec/
+├── recweb.py                 # Main Flask application
+├── servicerep.py            # Service report generator
+├── recievedreport.py        # Received report generator
+├── extract_excel_to_json.py # Excel data extractor
+├── templates/
+│   └── index.html           # Web interface
+├── static/
+│   ├── temp_images/         # Temporary uploaded images
+│   └── temp_excel/          # Temporary Excel files
+├── generated_pdfs/          # Generated PDF reports
+├── stamp/                   # Stamp images
+└── requirements.txt         # Python dependencies
 ```
 
-## Troubleshooting
+## 🐳 Docker Support
+
+### Build and Run with Docker
+```bash
+# Build the Docker image
+docker build -t valve-report-generator .
+
+# Run the container
+docker run -p 5300:5300 valve-report-generator
+```
+
+## 📱 Mobile Support
+
+### Mobile Features
+- **Responsive Design**: Optimized for mobile screens
+- **Touch-friendly**: Large buttons and touch targets
+- **Camera Integration**: Take photos directly with device camera
+- **Mobile Upload**: Easy file selection on mobile devices
+
+### Mobile Workflow
+1. Open web app on mobile browser
+2. Upload Excel data or use existing
+3. Enter Work Order number
+4. Tap image fields to take photos
+5. Generate PDF report
+6. Download or view generated report
+
+## 🔍 API Endpoints
+
+### Core Endpoints
+- `GET /` - Main web interface
+- `POST /upload-excel` - Upload Excel data
+- `POST /upload-image` - Upload valve images
+- `POST /generate` - Generate PDF report
+- `GET /list-pdfs` - List generated PDFs
+- `GET /download-pdf/<filename>` - Download PDF
+- `GET /view-pdf/<filename>` - View PDF in browser
+- `DELETE /delete-pdf/<filename>` - Delete PDF
+- `POST /cleanup-temp` - Clean temporary files
+
+### Data Endpoints
+- `GET /available-no` - Get available Work Order numbers
+
+## 🛡️ Security Features
+
+### File Upload Security
+- **File Type Validation**: Only allowed image types
+- **Secure Filenames**: Prevents path traversal attacks
+- **Size Limits**: Prevents large file uploads
+- **Auto-cleanup**: Temporary files automatically removed
+
+### PDF Management Security
+- **Filename Validation**: Prevents directory traversal
+- **Confirmation Dialogs**: Prevents accidental deletions
+- **Error Handling**: Graceful error management
+
+## 🐛 Troubleshooting
 
 ### Common Issues
 
-1. **Image not found**: Ensure image path is correct and file exists
-2. **Font issues**: Arial font should be available on most systems
-3. **Page breaks**: Adjust `max_width` and `max_height` for better image placement
-4. **Memory issues**: For large images, consider resizing before adding to PDF
+**1. Port Already in Use**
+```bash
+# Change port in recweb.py
+app.run(debug=True, port=5301, host='0.0.0.0')
+```
 
-### Error Handling
-The template includes error handling for:
-- Missing image files
-- Invalid image formats
-- File permission issues
+**2. Missing Dependencies**
+```bash
+pip install -r requirements.txt
+```
 
-## License
+**3. Excel Upload Fails**
+- Ensure Excel file is .xlsx or .xls format
+- Check file is not corrupted
+- Verify file permissions
 
-This template is provided as-is for valve inspection reporting purposes.
+**4. Image Upload Issues**
+- Check image format (JPG, PNG, GIF)
+- Ensure image file is not corrupted
+- Verify file size is reasonable
 
-## Support
+**5. PDF Generation Errors**
+- Check Work Order number exists in data
+- Verify all required fields are filled
+- Check server logs for detailed errors
 
-For issues or questions about the template, check the example usage and ensure all dependencies are properly installed. 
+### Debug Mode
+Enable debug mode for detailed error messages:
+```python
+app.run(debug=True, port=5300, host='0.0.0.0')
+```
+
+## 📈 Performance Tips
+
+### Optimization
+- **Image Compression**: Compress images before upload
+- **Batch Processing**: Generate multiple reports efficiently
+- **Cleanup**: Regularly clean temporary files
+- **Browser Cache**: Clear browser cache if issues occur
+
+### Best Practices
+- **Regular Backups**: Backup generated PDFs
+- **Data Validation**: Verify Excel data before upload
+- **Image Quality**: Use high-quality images for better reports
+- **File Management**: Regularly delete old PDFs
+
+## 🤝 Contributing
+
+### Development Setup
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Test thoroughly
+5. Submit a pull request
+
+### Code Style
+- Follow PEP 8 Python style guide
+- Add comments for complex logic
+- Include error handling
+- Write descriptive commit messages
+
+## 📄 License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
+
+## 🆘 Support
+
+### Getting Help
+- **Documentation**: Check this README first
+- **Issues**: Report bugs via GitHub Issues
+- **Questions**: Ask questions in GitHub Discussions
+
+### Contact
+For support or questions:
+- Create an issue on GitHub
+- Check the troubleshooting section
+- Review the code comments
+
+## 🔄 Version History
+
+### v2.0.0 (Current)
+- ✅ Web-based interface
+- ✅ Image upload and management
+- ✅ PDF generation and management
+- ✅ Excel data integration
+- ✅ Mobile responsive design
+- ✅ Delete functionality for images and PDFs
+- ✅ Professional report layouts
+
+### v1.0.0
+- ✅ Basic PDF generation
+- ✅ Simple report templates
+- ✅ Image support
+
+---
+
+**Made with ❤️ for professional valve inspection reporting** 
