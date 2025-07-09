@@ -160,7 +160,7 @@ class PDF(FPDF):
             row = table.row()
             row.cell('RECEIVED REPORT', align='C')
 
-    def client_info(self):
+        # Add client information as part of the header
         data = self.valve_data['client_info']
         self.set_font(self.FONT_FAMILY, '', self.FONT_SIZE)
         col_widths = [30, 80, 40, 14, 20, 20, 23, 23]
@@ -213,6 +213,7 @@ class PDF(FPDF):
             row.cell('VALVE OPERATED TYPE')
             row.cell(data['valve_operated_type'], colspan=5)
 
+
     def service_info(self, selected_services=None):
         if selected_services is None:
             selected_services = []
@@ -235,14 +236,15 @@ class PDF(FPDF):
         col_widths = [64, 62, 62, 62] # =190
         with self.table(col_widths=col_widths, line_height=4) as table:
             row = table.row()
-            row.cell('INTERNAL PARTS INSPECTION', align='C', colspan=4)
+            row.cell('AS RECEIVED VISUAL INSPECTION (EXTERNAL)', align='C', colspan=4)
             row = table.row()
             row.cell('DESCRIPTION', align='C')
             row.cell('CONDITION', align='C')
             row.cell('ACTIONS', align='C')
             row.cell('REMARKS', align='C')
             parts = [
-                'GENERAL APPEARANCE', 'NAMEPLATE', 'OVERALL FLANGE/CONNECTION CONDITION', 'BODY', 'BONNET', 'YOKE', 'DISC', 'SEAT', 'BONNET GASKET',
+                'GENERAL APPEARANCE', 'NAMEPLATE', 'OVERALL FLANGE/CONNECTION CONDITION', 
+                'BODY', 'BONNET', 'YOKE', 'DISC', 'SEAT', 'BONNET GASKET',
             ]
             for part in parts:
                 row = table.row()
@@ -271,6 +273,7 @@ class PDF(FPDF):
                 'BODY', 'BONNET', 'YOKE', 'DISC', 'SEAT', 'BONNET GASKET',
                 'STEM', 'WHEEL NUT', 'PACKING', 'GLAND BUSHING', 'BACK SEAT', 'GLAND NUT'
             ]
+            
             for part in parts:
                 row = table.row()
                 row.cell(part, align='L')
@@ -315,11 +318,6 @@ class PDF(FPDF):
 
             self.set_y(y_sig + sig_height)
 
-    
-
-
-
-# will put something later comming soon 
 
 
     def stamp(self, stamp_path=None, prepared_name=None, date_value=None):
@@ -382,7 +380,7 @@ def generate_pdf(identifier, user_data=None, image_files=None, received_valve_im
     pdf = PDF(valve_data, format='A4')
     print('FPDF units: millimeters (mm) by default for A4 size 210x297mm')
     pdf.add_page()
-    pdf.client_info()
+    # Client info is now part of the header, so no need to call client_info() separately
     pdf.service_info(selected_services)
     pdf.visual_inspection()
     pdf.internal_inspection()
