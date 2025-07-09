@@ -89,9 +89,10 @@ class PDF(FPDF):
     HEADER_FONT_SIZE = 8
     RECEIVED_FONT_SIZE = 7
 
-    def __init__(self, data, *args, **kwargs):
+    def __init__(self, data, selected_services=None, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.valve_data = data
+        self.selected_services = selected_services or []
 
     def header(self):
         # Two-column header: logo and wrapped title
@@ -213,6 +214,11 @@ class PDF(FPDF):
             row.cell('VALVE OPERATED TYPE')
             row.cell(data['valve_operated_type'], colspan=5)
 
+        # Add service information as part of the header
+        # Get selected_services from valve_data if available
+        selected_services = getattr(self, 'selected_services', [])
+        self.service_info(selected_services)
+
 
     def service_info(self, selected_services=None):
         if selected_services is None:
@@ -280,7 +286,70 @@ class PDF(FPDF):
                 row.cell('', align='C')
                 row.cell('', align='C')
                 row.cell('', align='C')
+                
+    def additonal_comment(self):
+        self.set_font(self.FONT_FAMILY, '', self.FONT_SIZE)
+        col_widths = [250]  # 4 columns, total 190mm
+        with self.table(col_widths=col_widths, line_height=30) as table:
+            row = table.row()
+            row.cell(' ', align='L', colspan=1)
     
+    def detailed_picture(self):
+        self.set_font(self.FONT_FAMILY, '', self.FONT_SIZE)
+        col_widths = [187.5, 62.5]
+
+        with self.table(col_widths=col_widths, line_height=4) as table:
+            row = table.row()
+            row.cell('DETAILS PICTURE OF SERVICED ITEM ', align='C', colspan=2)
+        
+        # First section
+        with self.table(col_widths=col_widths, line_height=4) as table:
+            row = table.row()
+            row.cell('ITEM:', align='C')
+            row.cell('DESCRIPTION OF SERVICES', align='C')
+        
+        # Empty space for first picture (increased height)
+        with self.table(col_widths=col_widths, line_height=35) as table:
+            row = table.row()
+            row.cell('')
+            row.cell('')
+        
+        self.ln(30)
+        # Second section
+        with self.table(col_widths=col_widths, line_height=4) as table:
+            row = table.row()
+            row.cell('ITEM:', align='C')
+            row.cell('DESCRIPTION OF SERVICES', align='C')
+        
+        # Empty space for second picture (increased height)
+        with self.table(col_widths=col_widths, line_height=35) as table:
+            row = table.row()
+            row.cell('')
+            row.cell('')
+        
+        # Third section
+        with self.table(col_widths=col_widths, line_height=4) as table:
+            row = table.row()
+            row.cell('ITEM:', align='C')
+            row.cell('DESCRIPTION OF SERVICES', align='C')
+        
+        # Empty space for third picture (increased height)
+        with self.table(col_widths=col_widths, line_height=35) as table:
+            row = table.row()
+            row.cell('')
+            row.cell('')
+        
+        with self.table(col_widths=col_widths, line_height=4) as table:
+            row = table.row()
+            row.cell('ITEM:', align='C')
+            row.cell('DESCRIPTION OF SERVICES', align='C')
+        
+        # Empty space for third picture (increased height)
+        with self.table(col_widths=col_widths, line_height=35) as table:
+            row = table.row()
+            row.cell('')
+            row.cell('')
+
 
 
     def signature_block(self, date_value=""):
@@ -329,13 +398,24 @@ class PDF(FPDF):
         prepared_name = prepared_name or stamp_data.get('prepared_name')
         date_value = date_value or stamp_data.get('date_value')
         
-        # Get positioning from mapped data
-        stamp_x = stamp_data.get('stamp_x', 30)
-        stamp_y = stamp_data.get('stamp_y', 251)
-        name_x = stamp_data.get('name_x', 20)
-        name_y = stamp_data.get('name_y', 265)
-        date_x = stamp_data.get('date_x', 20)
-        date_y = stamp_data.get('date_y', 272)
+        # Get current position after signature block
+        current_x = self.get_x()
+        current_y = self.get_y()
+        
+        # Calculate positioning relative to signature block
+        # The signature block has 3 columns of 63.33mm each
+        sig_width = 63.33
+        sig_height = 30
+        
+        # Position stamp in the first column (PREPARED BY)
+        stamp_x = current_x + 20  # Small offset from left edge
+        stamp_y = current_y - sig_height + 2   # Position within signature box
+        
+        # Position name and date text
+        name_x = current_x + 15
+        name_y = current_y - 15  # Near bottom of signature box
+        date_x = current_x + 15
+        date_y = current_y - 8   # Near bottom of signature box
         
         if stamp_path and os.path.exists(stamp_path):
             # Get image dimensions to calculate aspect ratio
@@ -344,8 +424,8 @@ class PDF(FPDF):
                     img_width, img_height = img.size
                     aspect_ratio = img_width / img_height
                     
-                    # Set target size around 20mm
-                    target_size = 20
+                    # Set target size around 15mm to fit in signature box
+                    target_size = 15
                     
                     # Calculate dimensions that maintain aspect ratio
                     if aspect_ratio > 1:  # Landscape
@@ -355,35 +435,36 @@ class PDF(FPDF):
                         stamp_height = target_size
                         stamp_width = target_size * aspect_ratio
                     
-                    # Position stamp using mapped data coordinates
+                    # Position stamp in the first column of signature block
                     self.image(stamp_path, x=stamp_x, y=stamp_y, w=stamp_width, h=stamp_height)
                     
             except Exception as e:
                 print(f"Error loading stamp image: {e}")
                 # Fallback to fixed size if image loading fails
-                self.image(stamp_path, x=stamp_x, y=stamp_y, w=20, h=20)
+                self.image(stamp_path, x=stamp_x, y=stamp_y, w=15, h=15)
         else:
             print("Stamp image not found")
 
-        # Position text using mapped data coordinates
+        # Position text in the first column of signature block
         if prepared_name:
             self.set_xy(name_x, name_y)
             self.set_font(self.FONT_FAMILY, 'B', self.FONT_SIZE)
-            self.cell(20, 5, prepared_name, align='L')
+            self.cell(sig_width - 4, 5, prepared_name, align='L')
         
         if date_value:
             self.set_xy(date_x, date_y)
-            self.cell(20, 5, date_value, align='L')
+            self.cell(sig_width - 4, 5, date_value, align='L')
 
 def generate_pdf(identifier, user_data=None, image_files=None, received_valve_images=None, stamp_selection=None, date_value=None, selected_services=None):
     valve_data = load_valve_data(identifier, user_data)
-    pdf = PDF(valve_data, format='A4')
+    pdf = PDF(valve_data, selected_services=selected_services, format='A4')
     print('FPDF units: millimeters (mm) by default for A4 size 210x297mm')
     pdf.add_page()
-    # Client info is now part of the header, so no need to call client_info() separately
-    pdf.service_info(selected_services)
+    # Service info is now part of the header, so no need to call service_info() separately
     pdf.visual_inspection()
     pdf.internal_inspection()
+    pdf.additonal_comment()
+    pdf.detailed_picture()
     pdf.signature_block()
     
     # Map stamp selection to stamp path and prepared name
