@@ -229,8 +229,58 @@ class PDF(FPDF):
             row.cell('/' if 'testing_only' in selected_services else '', align='C') # checkbox for TESTING ONLY
             row.cell('REPLACE NEW VALVE')
             row.cell('/' if 'replace_new_valve' in selected_services else '', align='C') # checkbox for REPLACE NEW VALVE 
+    
+    def visual_inspection(self):
+        self.set_font(self.FONT_FAMILY, '', self.FONT_SIZE)
+        col_widths = [64, 62, 62, 62] # =190
+        with self.table(col_widths=col_widths, line_height=4) as table:
+            row = table.row()
+            row.cell('INTERNAL PARTS INSPECTION', align='C', colspan=4)
+            row = table.row()
+            row.cell('DESCRIPTION', align='C')
+            row.cell('CONDITION', align='C')
+            row.cell('ACTIONS', align='C')
+            row.cell('REMARKS', align='C')
+            parts = [
+                'GENERAL APPEARANCE', 'NAMEPLATE', 'OVERALL FLANGE/CONNECTION CONDITION', 'BODY', 'BONNET', 'YOKE', 'DISC', 'SEAT', 'BONNET GASKET',
+            ]
+            for part in parts:
+                row = table.row()
+                row.cell(part, align='L')
+                row.cell('', align='C')
+                row.cell('', align='C')
+                row.cell('', align='C')
+    
 
-        def signature_block(self, date_value=""):
+    
+    def internal_inspection(self):
+        self.set_font(self.FONT_FAMILY, '', self.FONT_SIZE)
+        col_widths = [64, 62, 62, 62]  # 4 columns, total 190mm
+        with self.table(col_widths=col_widths, line_height=4) as table:
+            # Title row spanning all columns
+            row = table.row()
+            row.cell('INTERNAL PARTS INSPECTION', align='C', colspan=4)
+            # Header row
+            row = table.row()
+            row.cell('DESCRIPTION', align='C')
+            row.cell('CONDITION', align='C')
+            row.cell('ACTIONS', align='C')
+            row.cell('REMARKS', align='C')
+            # Data rows
+            parts = [
+                'BODY', 'BONNET', 'YOKE', 'DISC', 'SEAT', 'BONNET GASKET',
+                'STEM', 'WHEEL NUT', 'PACKING', 'GLAND BUSHING', 'BACK SEAT', 'GLAND NUT'
+            ]
+            for part in parts:
+                row = table.row()
+                row.cell(part, align='L')
+                row.cell('', align='C')
+                row.cell('', align='C')
+                row.cell('', align='C')
+    
+
+
+    def signature_block(self, date_value=""):
             self.set_font(self.FONT_FAMILY, 'B', self.FONT_SIZE)
             col_widths = [63.33, 63.33, 63.33]
             table_width = sum(col_widths)
@@ -264,6 +314,8 @@ class PDF(FPDF):
                 self.cell(0, 5, "DATE:")
 
             self.set_y(y_sig + sig_height)
+
+    
 
 
 
@@ -330,13 +382,10 @@ def generate_pdf(identifier, user_data=None, image_files=None, received_valve_im
     pdf = PDF(valve_data, format='A4')
     print('FPDF units: millimeters (mm) by default for A4 size 210x297mm')
     pdf.add_page()
-
     pdf.client_info()
     pdf.service_info(selected_services)
-    pdf.transportation_details()
-    pdf.received_info_and_condition(received_valve_images)
-    pdf.valve_condition()
-    pdf.detailed_picture(image_files)
+    pdf.visual_inspection()
+    pdf.internal_inspection()
     pdf.signature_block()
     
     # Map stamp selection to stamp path and prepared name

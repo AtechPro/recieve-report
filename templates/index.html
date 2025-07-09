@@ -138,6 +138,22 @@
             border-color: var(--medium-teal);
         }
 
+        .service-option {
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .service-option:hover {
+            background: var(--light-gray-2) !important;
+            transform: translateY(-1px);
+        }
+
+        .service-option input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            accent-color: var(--medium-teal);
+        }
+
         .file-upload-area {
             border: 2px dashed var(--muted-green);
             border-radius: 8px;
@@ -233,6 +249,70 @@
             border-radius: 8px;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
             border: 2px solid var(--muted-green);
+        }
+
+        .image-preview-container {
+            position: relative;
+            display: inline-block;
+            margin: 10px 0;
+        }
+
+        .delete-image-btn {
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            background: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 32px;
+            height: 32px;
+            cursor: pointer;
+            font-size: 18px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 3px 10px rgba(220, 53, 69, 0.4);
+            transition: all 0.3s ease;
+            z-index: 10;
+            line-height: 1;
+        }
+
+        .delete-image-btn:hover {
+            background: #c82333;
+            transform: scale(1.15);
+            box-shadow: 0 5px 15px rgba(220, 53, 69, 0.5);
+        }
+
+        .delete-image-btn:active {
+            transform: scale(0.9);
+        }
+
+        .delete-pdf-btn {
+            background: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: 6px 12px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            box-shadow: 0 2px 6px rgba(220, 53, 69, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .delete-pdf-btn:hover {
+            background: #c82333;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 10px rgba(220, 53, 69, 0.4);
+        }
+
+        .delete-pdf-btn:active {
+            transform: translateY(0);
         }
 
         .btn {
@@ -406,21 +486,27 @@
 
             <div class="valve-selector" style="margin-top: 20px;">
                 <label>Service Options (Select multiple)</label>
-                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-top: 10px;">
-                    <div style="display: flex; align-items: center; gap: 10px; padding: 10px; background: var(--light-gray); border-radius: 6px;">
-                        <input type="checkbox" id="insitu_testing" name="service_options" value="insitu_testing">
-                        <label for="insitu_testing" style="margin: 0; cursor: pointer;">SERVICE & REPAIR</label>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-top: 10px;">
+                    <div style="display: flex; align-items: center; gap: 10px; padding: 12px; background: var(--light-gray); border-radius: 8px; border: 2px solid transparent; transition: all 0.3s ease;" class="service-option">
+                        <input type="checkbox" id="service_repair" name="service_options" value="service_repair" onchange="toggleServiceOption(this)">
+                        <label for="service_repair" style="margin: 0; cursor: pointer; font-weight: 500;">SERVICE & REPAIR</label>
                     </div>
-                    <div style="display: flex; align-items: center; gap: 10px; padding: 10px; background: var(--light-gray); border-radius: 6px;">
-                        <input type="checkbox" id="service_repair" name="service_options" value="service_repair">
-                        <label for="service_repair" style="margin: 0; cursor: pointer;">TESTING ONLY</label>
+                    <div style="display: flex; align-items: center; gap: 10px; padding: 12px; background: var(--light-gray); border-radius: 8px; border: 2px solid transparent; transition: all 0.3s ease;" class="service-option">
+                        <input type="checkbox" id="testing_only" name="service_options" value="testing_only" onchange="toggleServiceOption(this)">
+                        <label for="testing_only" style="margin: 0; cursor: pointer; font-weight: 500;">TESTING ONLY</label>
                     </div>
-                    <div style="display: flex; align-items: center; gap: 10px; padding: 10px; background: var(--light-gray); border-radius: 6px;">
-                        <input type="checkbox" id="testing_only" name="service_options" value="testing_only">
-                        <label for="testing_only" style="margin: 0; cursor: pointer;">REPLACE NEW VALVE</label>
+                    <div style="display: flex; align-items: center; gap: 10px; padding: 12px; background: var(--light-gray); border-radius: 8px; border: 2px solid transparent; transition: all 0.3s ease;" class="service-option">
+                        <input type="checkbox" id="replace_valve" name="service_options" value="replace_new_valve" onchange="toggleServiceOption(this)">
+                        <label for="replace_valve" style="margin: 0; cursor: pointer; font-weight: 500;">REPLACE NEW VALVE</label>
                     </div>
-
+                    <div style="display: flex; align-items: center; gap: 10px; padding: 12px; background: var(--light-gray); border-radius: 8px; border: 2px solid transparent; transition: all 0.3s ease;" class="service-option">
+                        <input type="checkbox" id="insitu_testing" name="service_options" value="insitu_testing" onchange="toggleServiceOption(this)">
+                        <label for="insitu_testing" style="margin: 0; cursor: pointer; font-weight: 500;">IN-SITU TESTING</label>
+                    </div>
                 </div>
+                <small style="color: #666; font-size: 0.8rem; margin-top: 8px; display: block;">
+                    Select one or more service options that apply to this valve report
+                </small>
             </div>
 
             <div class="form-group">
@@ -569,21 +655,30 @@
             <label for="received_valve_1">AS RECEIVED VALVE Image 1</label>
             <input type="file" id="received_valve_1" accept="image/*" onchange="uploadReceivedValveImage(1)">
             <div id="received_valve_1_status"></div>
-            <img id="received_valve_1_preview" class="image-preview" style="display: none;">
+            <div class="image-preview-container" id="received_valve_1_container" style="display: none;">
+                <img id="received_valve_1_preview" class="image-preview">
+                <button type="button" class="delete-image-btn" onclick="deleteReceivedValveImage(1)" title="Delete image">×</button>
+            </div>
         </div>
 
         <div class="image-upload">
             <label for="received_valve_2">AS RECEIVED VALVE Image 2</label>
             <input type="file" id="received_valve_2" accept="image/*" onchange="uploadReceivedValveImage(2)">
             <div id="received_valve_2_status"></div>
-            <img id="received_valve_2_preview" class="image-preview" style="display: none;">
+            <div class="image-preview-container" id="received_valve_2_container" style="display: none;">
+                <img id="received_valve_2_preview" class="image-preview">
+                <button type="button" class="delete-image-btn" onclick="deleteReceivedValveImage(2)" title="Delete image">×</button>
+            </div>
         </div>
 
         <div class="image-upload">
             <label for="received_valve_3">AS RECEIVED VALVE Image 3</label>
             <input type="file" id="received_valve_3" accept="image/*" onchange="uploadReceivedValveImage(3)">
             <div id="received_valve_3_status"></div>
-            <img id="received_valve_3_preview" class="image-preview" style="display: none;">
+            <div class="image-preview-container" id="received_valve_3_container" style="display: none;">
+                <img id="received_valve_3_preview" class="image-preview">
+                <button type="button" class="delete-image-btn" onclick="deleteReceivedValveImage(3)" title="Delete image">×</button>
+            </div>
         </div>
         </div>
 
@@ -598,28 +693,40 @@
             <label for="inlet_connection">Inlet Connection Image</label>
             <input type="file" id="inlet_connection" accept="image/*" onchange="uploadImage('inlet_connection')">
             <div id="inlet_connection_status"></div>
-            <img id="inlet_connection_preview" class="image-preview" style="display: none;">
+            <div class="image-preview-container" id="inlet_connection_container" style="display: none;">
+                <img id="inlet_connection_preview" class="image-preview">
+                <button type="button" class="delete-image-btn" onclick="deleteImage('inlet_connection')" title="Delete image">×</button>
+            </div>
         </div>
 
         <div class="image-upload">
             <label for="outlet_connection">Outlet Connection Image</label>
             <input type="file" id="outlet_connection" accept="image/*" onchange="uploadImage('outlet_connection')">
             <div id="outlet_connection_status"></div>
-            <img id="outlet_connection_preview" class="image-preview" style="display: none;">
+            <div class="image-preview-container" id="outlet_connection_container" style="display: none;">
+                <img id="outlet_connection_preview" class="image-preview">
+                <button type="button" class="delete-image-btn" onclick="deleteImage('outlet_connection')" title="Delete image">×</button>
+            </div>
         </div>
 
         <div class="image-upload">
             <label for="defect_connection">Defect Connection Image</label>
             <input type="file" id="defect_connection" accept="image/*" onchange="uploadImage('defect_connection')">
             <div id="defect_connection_status"></div>
-            <img id="defect_connection_preview" class="image-preview" style="display: none;">
+            <div class="image-preview-container" id="defect_connection_container" style="display: none;">
+                <img id="defect_connection_preview" class="image-preview">
+                <button type="button" class="delete-image-btn" onclick="deleteImage('defect_connection')" title="Delete image">×</button>
+            </div>
         </div>
 
         <div class="image-upload">
             <label for="defect_body">Defect on Body Image</label>
             <input type="file" id="defect_body" accept="image/*" onchange="uploadImage('defect_body')">
             <div id="defect_body_status"></div>
-            <img id="defect_body_preview" class="image-preview" style="display: none;">
+            <div class="image-preview-container" id="defect_body_container" style="display: none;">
+                <img id="defect_body_preview" class="image-preview">
+                <button type="button" class="delete-image-btn" onclick="deleteImage('defect_body')" title="Delete image">×</button>
+            </div>
         </div>
         </div>
 
@@ -778,10 +885,11 @@
                     showStatus(imageType + '_status', data.message, 'success');
                     uploadedImages[imageType] = data.filepath;
                     
-                    // Show preview
+                    // Show preview container
+                    const container = document.getElementById(imageType + '_container');
                     const preview = document.getElementById(imageType + '_preview');
                     preview.src = URL.createObjectURL(file);
-                    preview.style.display = 'block';
+                    container.style.display = 'block';
                 } else {
                     showStatus(imageType + '_status', data.error, 'error');
                 }
@@ -817,16 +925,80 @@
                     const index = imageNumber - 1;
                     receivedValveImages[index] = data.filepath;
                     
-                    // Show preview
+                    // Show preview container
+                    const container = document.getElementById('received_valve_' + imageNumber + '_container');
                     const preview = document.getElementById('received_valve_' + imageNumber + '_preview');
                     preview.src = URL.createObjectURL(file);
-                    preview.style.display = 'block';
+                    container.style.display = 'block';
                 } else {
                     showStatus('received_valve_' + imageNumber + '_status', data.error, 'error');
                 }
             })
             .catch(error => {
                 showStatus('received_valve_' + imageNumber + '_status', 'Upload failed: ' + error.message, 'error');
+            });
+        }
+
+        function deleteImage(imageType) {
+            // Remove from uploadedImages object
+            delete uploadedImages[imageType];
+            
+            // Hide preview container
+            const container = document.getElementById(imageType + '_container');
+            container.style.display = 'none';
+            
+            // Clear file input
+            const fileInput = document.getElementById(imageType);
+            fileInput.value = '';
+            
+            // Clear status
+            const statusDiv = document.getElementById(imageType + '_status');
+            statusDiv.innerHTML = '';
+            
+            showStatus(imageType + '_status', 'Image deleted successfully.', 'success');
+        }
+
+        function deleteReceivedValveImage(imageNumber) {
+            // Remove from receivedValveImages array
+            const index = imageNumber - 1;
+            receivedValveImages[index] = null;
+            
+            // Hide preview container
+            const container = document.getElementById('received_valve_' + imageNumber + '_container');
+            container.style.display = 'none';
+            
+            // Clear file input
+            const fileInput = document.getElementById('received_valve_' + imageNumber);
+            fileInput.value = '';
+            
+            // Clear status
+            const statusDiv = document.getElementById('received_valve_' + imageNumber + '_status');
+            statusDiv.innerHTML = '';
+            
+            showStatus('received_valve_' + imageNumber + '_status', 'Image deleted successfully.', 'success');
+        }
+
+        function deletePDF(filename) {
+            if (!confirm(`Are you sure you want to delete "${filename}"? This action cannot be undone.`)) {
+                return;
+            }
+
+            fetch(`/delete-pdf/${filename}`, {
+                method: 'DELETE'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.message) {
+                    // Show success message
+                    alert(data.message);
+                    // Reload the PDF list to reflect the changes
+                    loadAvailablePDFs();
+                } else {
+                    alert('Delete failed: ' + data.error);
+                }
+            })
+            .catch(error => {
+                alert('Delete failed: ' + error.message);
             });
         }
 
@@ -1016,12 +1188,15 @@
                                         <strong style="color: var(--deep-teal);">${pdf.filename}</strong>
                                         <span style="color: #666; font-size: 0.9rem;">${fileSize} KB</span>
                                     </div>
-                                    <div style="display: flex; gap: 10px;">
+                                    <div style="display: flex; gap: 10px; align-items: center;">
                                         <button class="btn" onclick="window.open('${pdf.download_url}', '_blank')" style="padding: 8px 16px; font-size: 0.9rem;">
                                             📥 Download
                                         </button>
                                         <button class="btn btn-secondary" onclick="window.open('${pdf.view_url}', '_blank')" style="padding: 8px 16px; font-size: 0.9rem;">
                                             👁️ View
+                                        </button>
+                                        <button class="delete-pdf-btn" onclick="deletePDF('${pdf.filename}')" title="Delete PDF">
+                                            ⚠️ Delete
                                         </button>
                                     </div>
                                 </div>
@@ -1181,10 +1356,13 @@
                 if (data.message) {
                     alert('Cleanup completed successfully!');
                     // Clear any uploaded image previews
-                    const previews = document.querySelectorAll('.image-preview');
-                    previews.forEach(preview => {
-                        preview.style.display = 'none';
-                        preview.src = '';
+                    const containers = document.querySelectorAll('.image-preview-container');
+                    containers.forEach(container => {
+                        container.style.display = 'none';
+                        const preview = container.querySelector('.image-preview');
+                        if (preview) {
+                            preview.src = '';
+                        }
                     });
                     // Clear uploaded images arrays
                     uploadedImages = {};
@@ -1206,6 +1384,19 @@
             } else {
                 otherInput.style.display = 'none';
                 otherInput.value = '';
+            }
+        }
+
+        function toggleServiceOption(checkbox) {
+            const serviceOption = checkbox.closest('.service-option');
+            if (checkbox.checked) {
+                serviceOption.style.background = 'rgba(44, 161, 132, 0.1)';
+                serviceOption.style.borderColor = 'var(--medium-teal)';
+                serviceOption.style.transform = 'scale(1.02)';
+            } else {
+                serviceOption.style.background = 'var(--light-gray)';
+                serviceOption.style.borderColor = 'transparent';
+                serviceOption.style.transform = 'scale(1)';
             }
         }
         

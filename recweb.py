@@ -206,6 +206,30 @@ def list_pdfs():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
+@app.route('/delete-pdf/<filename>', methods=['DELETE'])
+def delete_pdf(filename):
+    """Delete a specific PDF file"""
+    try:
+        # Security check: ensure filename doesn't contain path traversal
+        if '..' in filename or '/' in filename:
+            return jsonify({'error': 'Invalid filename'}), 400
+        
+        pdf_path = os.path.join(PDF_FOLDER, filename)
+        
+        if not os.path.exists(pdf_path):
+            return jsonify({'error': f'PDF file not found: {filename}'}), 404
+        
+        # Delete the file
+        os.remove(pdf_path)
+        print(f"Deleted PDF: {pdf_path}")
+        
+        return jsonify({
+            'message': f'PDF "{filename}" deleted successfully',
+            'filename': filename
+        }), 200
+    except Exception as e:
+        return jsonify({'error': f'Failed to delete PDF: {str(e)}'}), 500
+
 @app.route('/cleanup-temp', methods=['POST'])
 def cleanup_temp():
     """Clean up all temporary files (images and Excel)"""
