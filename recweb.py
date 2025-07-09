@@ -55,7 +55,7 @@ def cleanup_all_temp_images():
 
 @app.route('/')
 def index():
-    return render_template('index.html')
+    return render_template('recieve_valve.html')
 
 @app.route('/upload-image', methods=['POST'])
 def upload_image():
