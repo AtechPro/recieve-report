@@ -466,22 +466,64 @@ class PDF(FPDF):
 
         self.set_y(y_sig + sig_height)
 
+    def signature_block(self, date_value=""):
+            self.set_font(self.FONT_FAMILY, 'B', self.FONT_SIZE)
+            col_widths = [63.33, 63.33, 63.33]
+            table_width = sum(col_widths)
+            x_start = self.get_x()
+            y_start = self.get_y()
+            grey = (128, 128, 128)
+            headings_style = FontFace(emphasis="B", fill_color=grey)
+
+            with self.table(col_widths=col_widths, line_height=5, headings_style=headings_style) as table:
+                row = table.row()
+                row.cell('PREPARED BY', align='C')
+                row.cell('CLIENT REPRESENTATIVE', align='C')
+                row.cell('APPROVED BY', align='C')
+
+            sig_height = 30
+            y_sig = self.get_y()
+            self.rect(x_start, y_sig, table_width, sig_height)
+
+            for i in range(1, len(col_widths)):
+                x = x_start + sum(col_widths[:i])
+                self.line(x, y_sig, x, y_sig + sig_height)
+
+            label_x_offsets = [x_start + 2, x_start + col_widths[0] + 2, x_start + col_widths[0] + col_widths[1] + 2]
+            label_y_name = y_sig + sig_height - 15
+            label_y_date = y_sig + sig_height - 8
+
+            for x in label_x_offsets:
+                self.set_xy(x, label_y_name)
+                self.cell(0, 5, "NAME:")
+                self.set_xy(x, label_y_date)
+                self.cell(0, 5, "DATE:")
+
+            self.set_y(y_sig + sig_height)
+
+
+
     def stamp(self, stamp_path=None, prepared_name=None, date_value=None):
-        # Get stamp data from mapped data if not provided as parameters
         stamp_data = self.valve_data.get('stamp_info', {})
         
-        # Use provided parameters or fall back to mapped data
         stamp_path = stamp_path or stamp_data.get('stamp_path')
         prepared_name = prepared_name or stamp_data.get('prepared_name')
         date_value = date_value or stamp_data.get('date_value')
+
+        current_x = self.get_x()
+        current_y = self.get_y()
         
-        # Get positioning from mapped data
-        stamp_x = stamp_data.get('stamp_x', 30)
-        stamp_y = stamp_data.get('stamp_y', 251)
-        name_x = stamp_data.get('name_x', 20)
-        name_y = stamp_data.get('name_y', 265)
-        date_x = stamp_data.get('date_x', 20)
-        date_y = stamp_data.get('date_y', 272)
+        sig_width = 63.33
+        sig_height = 30
+
+        stamp_x = current_x + 20  # Small offset from left edge
+        stamp_y = current_y - sig_height + 2   # Position within signature box
+        
+        # Position name and date text
+        name_x = current_x + 15
+        name_y = current_y - 15  # Near bottom of signature box
+        date_x = current_x + 15
+        date_y = current_y - 8   # Near bottom of signature box
         
         if stamp_path and os.path.exists(stamp_path):
             # Get image dimensions to calculate aspect ratio
@@ -490,8 +532,8 @@ class PDF(FPDF):
                     img_width, img_height = img.size
                     aspect_ratio = img_width / img_height
                     
-                    # Set target size around 20mm
-                    target_size = 20
+                    # Set target size around 15mm to fit in signature box
+                    target_size = 15
                     
                     # Calculate dimensions that maintain aspect ratio
                     if aspect_ratio > 1:  # Landscape
@@ -501,25 +543,25 @@ class PDF(FPDF):
                         stamp_height = target_size
                         stamp_width = target_size * aspect_ratio
                     
-                    # Position stamp using mapped data coordinates
+                    # Position stamp in the first column of signature block
                     self.image(stamp_path, x=stamp_x, y=stamp_y, w=stamp_width, h=stamp_height)
                     
             except Exception as e:
                 print(f"Error loading stamp image: {e}")
                 # Fallback to fixed size if image loading fails
-                self.image(stamp_path, x=stamp_x, y=stamp_y, w=20, h=20)
+                self.image(stamp_path, x=stamp_x, y=stamp_y, w=15, h=15)
         else:
             print("Stamp image not found")
 
-        # Position text using mapped data coordinates
+        # Position text in the first column of signature block
         if prepared_name:
             self.set_xy(name_x, name_y)
             self.set_font(self.FONT_FAMILY, 'B', self.FONT_SIZE)
-            self.cell(20, 5, prepared_name, align='L')
+            self.cell(sig_width - 4, 5, prepared_name, align='L')
         
         if date_value:
             self.set_xy(date_x, date_y)
-            self.cell(20, 5, date_value, align='L')
+            self.cell(sig_width - 4, 5, date_value, align='L')
 
 
 def generate_pdf(identifier, user_data=None, image_files=None, received_valve_images=None, stamp_selection=None, date_value=None, selected_services=None):
@@ -556,10 +598,10 @@ def generate_pdf(identifier, user_data=None, image_files=None, received_valve_im
     # Determine if identifier is a No or WO for filename
     record = get_record_by_no_or_wo(identifier)
     if record.get('No') == str(identifier):
-        output_filename = f'generated_report_No_{identifier}.pdf'
+        output_filename = f'Recieved_report_No_{identifier}.pdf'
         print(f'PDF report "{output_filename}" created successfully for No = {identifier}.')
     else:
-        output_filename = f'generated_report_WO_{identifier}.pdf'
+        output_filename = f'Recieved_report_WO_{identifier}.pdf'
         print(f'PDF report "{output_filename}" created successfully for WO = {identifier}.')
     
     output_path = os.path.join('generated_pdfs', output_filename)

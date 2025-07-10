@@ -103,6 +103,11 @@ def load_valve_data(identifier, user_data=None):
             {"desc": "GLAND BUSHING", "condition": "", "actions": "", "remarks": ""},
             {"desc": "BACK SEAT", "condition": "", "actions": "", "remarks": ""},
             {"desc": "GLAND NUT", "condition": "", "actions": "", "remarks": ""},
+        ],
+        'detailed_pictures': user_data.get('detailed_pictures') if user_data and user_data.get('detailed_pictures') else [
+            {"item": "ITEM 1", "finding": "", "proposed_action": "", "image_path_1": "goodvalve.png", "image_path_2": "goodvalve.png"},
+            {"item": "ITEM 2", "finding": "", "proposed_action": "", "image_path_1": "goodvalve.png", "image_path_2": "goodvalve.png"},
+            {"item": "ITEM 3", "finding": "", "proposed_action": "", "image_path_1": "goodvalve.png", "image_path_2": "goodvalve.png"}
         ]
     }
     
@@ -345,10 +350,12 @@ class PDF(FPDF):
             row = table.row()
             row.cell('INTERNAL PARTS INSPECTION', align='C', colspan=4)
             row = table.row()
+            self.set_font(self.FONT_FAMILY, 'B', self.FONT_SIZE)
             row.cell('DESCRIPTION', align='C')
             row.cell('CONDITION', align='C')
             row.cell('ACTIONS', align='C')
             row.cell('REMARKS', align='C')
+            self.set_font(self.FONT_FAMILY, '', self.FONT_SIZE)
             # Use mapped data for parts
             parts = self.valve_data.get('internal_inspection', [])
             for part in parts:
@@ -368,69 +375,45 @@ class PDF(FPDF):
             row = table.row()
             row.cell('DETAILS PICTURE/MAJOR DEFECT ', align='C', colspan=3)
         
-        # First section
-        with self.table(col_widths=col_widths, line_height=4) as table:
-            row = table.row()
-            row.cell('ITEM:', align='C')
-            row.cell('FINDING', align='C')
-            row.cell('DESCRIPTION OF SERVICES', align='C')
+        # Get detailed pictures data from mapped data
+        detailed_pictures = self.valve_data.get('detailed_pictures', [])
         
-        # Empty space for first picture (increased height)
-        table_x = self.get_x()
-        table_y = self.get_y()
-        with self.table(col_widths=col_widths, line_height=35) as table:
-            row = table.row()
-            row.cell('') # this is picture, 2 is max 
-            row.cell('') 
-            row.cell('')
-        
-        # Position image in the first cell (first column)
-        image_x = table_x + 2  # Small margin from cell border
-        image_y = table_y + 2  # Small margin from cell border
-        self.image('goodvalve.png', x=image_x, y=image_y, w=40, h=30) 
-        self.image('goodvalve.png', x=image_x + 50, y=image_y, w=40, h=30) 
-        
-        with self.table(col_widths=col_widths, line_height=4) as table:
-            row = table.row()
-            row.cell('ITEM:', align='C')
-            row.cell('FINDING', align='C')
-            row.cell('DESCRIPTION OF SERVICES', align='C')
-        
-        # Empty space for second picture (increased height)
-        table_x = self.get_x()
-        table_y = self.get_y()
-        with self.table(col_widths=col_widths, line_height=35) as table:
-            row = table.row()
-            row.cell('') # this is picture, 2 is max
-            row.cell('') 
-            row.cell('')
-        
-        # Position image in the first cell (first column) - second picture
-        image_x = table_x + 2  # Small margin from cell border
-        image_y = table_y + 2  # Small margin from cell border
-        self.image('goodvalve.png', x=image_x, y=image_y, w=40, h=30)  # Uncomment and add your image
-        self.image('goodvalve.png', x=image_x + 50, y=image_y, w=40, h=30) 
-
-        with self.table(col_widths=col_widths, line_height=4) as table:
-            row = table.row()
-            row.cell('ITEM:', align='C')
-            row.cell('FINDING', align='C')
-            row.cell('DESCRIPTION OF SERVICES', align='C')
-        
-        # Empty space for third picture (increased height)
-        table_x = self.get_x()
-        table_y = self.get_y()
-        with self.table(col_widths=col_widths, line_height=35) as table:
-            row = table.row()
-            row.cell('') # this is picture, 2 is max
-            row.cell('') 
-            row.cell('')
-        
-        # Position image in the first cell (first column) - third picture
-        image_x = table_x + 2  # Small margin from cell border
-        image_y = table_y + 2  # Small margin from cell border
-        self.image('goodvalve.png', x=image_x, y=image_y, w=40, h=30)  # Uncomment and add your image
-        self.image('goodvalve.png', x=image_x + 50, y=image_y, w=40, h=30) 
+        for i, picture_data in enumerate(detailed_pictures):
+            # Section header
+            with self.table(col_widths=col_widths, line_height=4) as table:
+                row = table.row()
+                row.cell('ITEM:', align='C',)
+                row.cell('FINDING', align='C')
+                row.cell('DESCRIPTION OF SERVICES', align='C')
+            
+            # Picture section with data
+            table_x = self.get_x()
+            table_y = self.get_y()
+            with self.table(col_widths=col_widths, line_height=35) as table:
+                row = table.row()
+                row.cell('') # this is picture, 2 is max 
+                row.cell(picture_data.get('finding', ''), align='L') # finding 
+                row.cell(picture_data.get('proposed_action', ''), align='L') # PROPOSED ACTION
+            
+            # Position image in the first cell (first column)
+            image_x = table_x + 2  # Small margin from cell border
+            image_y = table_y + 2  # Small margin from cell border
+            
+            # Load and display two different images if paths exist
+            image_path_1 = picture_data.get('image_path_1', 'goodvalve.png')
+            image_path_2 = picture_data.get('image_path_2', 'goodvalve.png')
+            
+            # Display first image
+            if os.path.exists(image_path_1):
+                self.image(image_path_1, x=image_x, y=image_y, w=40, h=30)
+            elif os.path.exists('goodvalve.png'):
+                self.image('goodvalve.png', x=image_x, y=image_y, w=40, h=30)
+            
+            # Display second image
+            if os.path.exists(image_path_2):
+                self.image(image_path_2, x=image_x + 50, y=image_y, w=40, h=30)
+            elif os.path.exists('goodvalve.png'):
+                self.image('goodvalve.png', x=image_x + 50, y=image_y, w=40, h=30) 
 
     def signature_block(self, date_value=""):
             self.set_font(self.FONT_FAMILY, 'B', self.FONT_SIZE)
@@ -562,10 +545,10 @@ def generate_pdf(identifier, user_data=None, stamp_selection=None, date_value=No
     # Determine if identifier is a No or WO for filename
     record = get_record_by_no_or_wo(identifier)
     if record.get('No') == str(identifier):
-        output_filename = f'generated_report_No_{identifier}.pdf'
+        output_filename = f'Finding_report_No_{identifier}.pdf'
         print(f'PDF report "{output_filename}" created successfully for No = {identifier}.')
     else:
-        output_filename = f'generated_report_WO_{identifier}.pdf'
+        output_filename = f'Finding_report_WO_{identifier}.pdf'
         print(f'PDF report "{output_filename}" created successfully for WO = {identifier}.')
     
     output_path = os.path.join('generated_pdfs', output_filename)

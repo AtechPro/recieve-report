@@ -506,10 +506,10 @@ def generate_pdf(identifier, user_data=None, stamp_selection=None, date_value=No
     # Determine if identifier is a No or WO for filename
     record = get_record_by_no_or_wo(identifier)
     if record.get('No') == str(identifier):
-        output_filename = f'generated_report_No_{identifier}.pdf'
+        output_filename = f'Service_report_No_{identifier}.pdf'
         print(f'PDF report "{output_filename}" created successfully for No = {identifier}.')
     else:
-        output_filename = f'generated_report_WO_{identifier}.pdf'
+        output_filename = f'Service_report_WO_{identifier}.pdf'
         print(f'PDF report "{output_filename}" created successfully for WO = {identifier}.')
     
     output_path = os.path.join('generated_pdfs', output_filename)
