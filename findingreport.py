@@ -285,65 +285,152 @@ class PDF(FPDF):
                 row.cell(part.get('condition', ''), align='C')
                 row.cell(part.get('actions', ''), align='C')
                 row.cell(part.get('remarks', ''), align='C')
+
+    def pretest(self):
+        self.set_font(self.FONT_FAMILY, '', self.FONT_SIZE)
+        col_widths = [10,45,45,45,45]  # 4 columns, total 190mm
+        grey = (128, 128, 128)
+        headings_style = FontFace(emphasis="B", fill_color=grey)
+        with self.table(col_widths=col_widths, line_height=4, headings_style=headings_style) as table:
+            row = table.row()
+            row.cell('PRE-TEST (HYDROTEST/LEAKED TEST)', align='C', colspan=5)
+            row = table.row()
+            row.cell('TYPE TEST', align='C', colspan=2)
+            row.cell(' ', align='C')
+            row.cell('TEST MEDIUM', align='C')
+            row.cell(' ', align='C')
+            row = table.row()
+            row.cell('DESCRIPTION', align='C', colspan=2)
+            row.cell('PRESSURE', align='C')
+            row.cell('DURATION', align='C')
+            row.cell('RESULT & REMARKS', align='C')
+            row = table.row()
+            row.cell('A', align='C')
+            row.cell('SHELL', align='C')
+            row.cell(' ', align='C')
+            row.cell(' ', align='C')
+            row.cell(' ', align='C')
+            row = table.row()
+            row.cell('B', align='C')
+            row.cell('BACKSEAT', align='C')
+            row.cell(' ', align='C')
+            row.cell(' ', align='C')
+            row.cell(' ', align='C')
+            row = table.row()
+            row.cell('C', align='C')
+            row.cell('SEAT', align='C')
+            row.cell(' ', align='C')
+            row.cell(' ', align='C')
+            row.cell(' ', align='C')
+            row = table.row()
+            row.cell('TEST ACCORDANCE TO', align='C', colspan=2)
+            row.cell(' ', align='C', colspan=3)
+
+
+    def additonal_comment(self):
+        self.set_font(self.FONT_FAMILY, '', self.FONT_SIZE)
+        col_widths = [250]  # 4 columns, total 190mm
+        with self.table(col_widths=col_widths, line_height=30) as table:
+            row = table.row()
+            row.cell(' ', align='C', colspan=1)
+        self.ln(40)
+
+
+    def internal_inspection(self):
+        self.set_font(self.FONT_FAMILY, '', self.FONT_SIZE)
+        col_widths = [64, 62, 62, 62]  # 4 columns, total 190mm
+        grey = (128, 128, 128)
+        headings_style = FontFace(emphasis="B", fill_color=grey)
+        with self.table(col_widths=col_widths, line_height=4, headings_style=headings_style) as table:
+            row = table.row()
+            row.cell('INTERNAL PARTS INSPECTION', align='C', colspan=4)
+            row = table.row()
+            row.cell('DESCRIPTION', align='C')
+            row.cell('CONDITION', align='C')
+            row.cell('ACTIONS', align='C')
+            row.cell('REMARKS', align='C')
+            # Use mapped data for parts
+            parts = self.valve_data.get('internal_inspection', [])
+            for part in parts:
+                row = table.row()
+                row.cell(part.get('desc', ''), align='L')
+                row.cell(part.get('condition', ''), align='C')
+                row.cell(part.get('actions', ''), align='C')
+                row.cell(part.get('remarks', ''), align='C')
     
     def detailed_picture(self):
         self.set_font(self.FONT_FAMILY, '', self.FONT_SIZE)
-        col_widths = [187.5, 62.5]
+        col_widths = [125, 62.5, 62.5]
 
         grey = (128, 128, 128)
         headings_style = FontFace(emphasis="B", fill_color=grey)
         with self.table(col_widths=col_widths, line_height=4, headings_style=headings_style) as table:
             row = table.row()
-            row.cell('DETAILS PICTURE OF SERVICED ITEM ', align='C', colspan=2)
+            row.cell('DETAILS PICTURE/MAJOR DEFECT ', align='C', colspan=3)
         
         # First section
         with self.table(col_widths=col_widths, line_height=4) as table:
             row = table.row()
             row.cell('ITEM:', align='C')
+            row.cell('FINDING', align='C')
             row.cell('DESCRIPTION OF SERVICES', align='C')
         
         # Empty space for first picture (increased height)
+        table_x = self.get_x()
+        table_y = self.get_y()
         with self.table(col_widths=col_widths, line_height=35) as table:
             row = table.row()
-            row.cell('') # this is picture, 2 is max
+            row.cell('') # this is picture, 2 is max 
+            row.cell('') 
             row.cell('')
-        # Second section
+        
+        # Position image in the first cell (first column)
+        image_x = table_x + 2  # Small margin from cell border
+        image_y = table_y + 2  # Small margin from cell border
+        self.image('goodvalve.png', x=image_x, y=image_y, w=40, h=30) 
+        self.image('goodvalve.png', x=image_x + 50, y=image_y, w=40, h=30) 
+        
         with self.table(col_widths=col_widths, line_height=4) as table:
             row = table.row()
             row.cell('ITEM:', align='C')
+            row.cell('FINDING', align='C')
             row.cell('DESCRIPTION OF SERVICES', align='C')
         
         # Empty space for second picture (increased height)
+        table_x = self.get_x()
+        table_y = self.get_y()
         with self.table(col_widths=col_widths, line_height=35) as table:
             row = table.row()
             row.cell('') # this is picture, 2 is max
+            row.cell('') 
             row.cell('')
         
-        # Third section
+        # Position image in the first cell (first column) - second picture
+        image_x = table_x + 2  # Small margin from cell border
+        image_y = table_y + 2  # Small margin from cell border
+        self.image('goodvalve.png', x=image_x, y=image_y, w=40, h=30)  # Uncomment and add your image
+        self.image('goodvalve.png', x=image_x + 50, y=image_y, w=40, h=30) 
+
         with self.table(col_widths=col_widths, line_height=4) as table:
             row = table.row()
             row.cell('ITEM:', align='C')
+            row.cell('FINDING', align='C')
             row.cell('DESCRIPTION OF SERVICES', align='C')
         
         # Empty space for third picture (increased height)
+        table_x = self.get_x()
+        table_y = self.get_y()
         with self.table(col_widths=col_widths, line_height=35) as table:
             row = table.row()
             row.cell('') # this is picture, 2 is max
+            row.cell('') 
             row.cell('')
         
-        with self.table(col_widths=col_widths, line_height=4) as table:
-            row = table.row()
-            row.cell('ITEM:', align='C')
-            row.cell('DESCRIPTION OF SERVICES', align='C')
-        
-        # Empty space for third picture (increased height)
-        with self.table(col_widths=col_widths, line_height=35) as table:
-            row = table.row()
-            row.cell('') # this is picture, 2 is max
-            row.cell('')
-
-    
-
+        # Position image in the first cell (first column) - third picture
+        image_x = table_x + 2  # Small margin from cell border
+        image_y = table_y + 2  # Small margin from cell border
+        self.image('goodvalve.png', x=image_x, y=image_y, w=40, h=30)  # Uncomment and add your image
+        self.image('goodvalve.png', x=image_x + 50, y=image_y, w=40, h=30) 
 
     def signature_block(self, date_value=""):
             self.set_font(self.FONT_FAMILY, 'B', self.FONT_SIZE)
@@ -449,6 +536,9 @@ def generate_pdf(identifier, user_data=None, stamp_selection=None, date_value=No
     pdf.add_page()
     # Service info is now part of the header, so no need to call service_info() separately
     pdf.visual_inspection()
+    pdf.internal_inspection()
+    pdf.pretest()
+    pdf.additonal_comment()
     pdf.detailed_picture()
     pdf.signature_block()
     
