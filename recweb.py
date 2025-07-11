@@ -57,6 +57,10 @@ def cleanup_all_temp_images():
 def index():
     return render_template('recieve_valve.html')
 
+@app.route('/finding-report')
+def finding_report():
+    return render_template('finding_report.html')
+
 @app.route('/upload-image', methods=['POST'])
 def upload_image():
     if 'image' not in request.files:
@@ -108,6 +112,57 @@ def generate():
         
         return jsonify({
             'message': f'PDF generated successfully for identifier = {identifier}.',
+            'pdf_filename': pdf_filename,
+            'pdf_path': pdf_path,
+            'download_url': f'/download-pdf/{pdf_filename}',
+            'view_url': f'/view-pdf/{pdf_filename}'
+        }), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/generate-finding-report', methods=['POST'])
+def generate_finding_report():
+    data = request.get_json()
+    identifier = data.get('identifier')
+    stamp_selection = data.get('stamp_selection', 'SAO')
+    date_value = data.get('date_value', '')
+    selected_services = data.get('selected_services', [])
+    
+    # Extract additional data for finding report
+    visual_inspection = data.get('visual_inspection', [])
+    internal_inspection = data.get('internal_inspection', [])
+    detailed_pictures = data.get('detailed_pictures', [])
+    pretest = data.get('pretest', {})
+    
+    if not identifier:
+        return jsonify({'error': 'Missing required field: identifier (No or WO)'}), 400
+
+    try:
+        # Import the finding report generation function
+        from findingreport import generate_pdf as generate_finding_pdf
+        
+        # Create user_data with the collected form data
+        user_data = {
+            'visual_inspection': visual_inspection,
+            'internal_inspection': internal_inspection,
+            'detailed_pictures': detailed_pictures,
+            'pretest': pretest,
+            'stamp_info': {
+                'date_value': date_value
+            }
+        }
+        
+        pdf_filename = generate_finding_pdf(
+            identifier=identifier,
+            user_data=user_data,
+            stamp_selection=stamp_selection,
+            date_value=date_value,
+            selected_services=selected_services
+        )
+        pdf_path = os.path.join(PDF_FOLDER, pdf_filename)
+        
+        return jsonify({
+            'message': f'Finding report generated successfully for identifier = {identifier}.',
             'pdf_filename': pdf_filename,
             'pdf_path': pdf_path,
             'download_url': f'/download-pdf/{pdf_filename}',

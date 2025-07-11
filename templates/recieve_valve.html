@@ -61,6 +61,37 @@
             font-size: 1.1rem;
         }
 
+        .nav-tabs {
+            display: flex;
+            background: var(--pure-white);
+            border-radius: 12px;
+            margin: 25px 0;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+        }
+
+        .nav-tab {
+            flex: 1;
+            padding: 20px;
+            text-align: center;
+            background: var(--light-gray);
+            color: var(--very-dark-teal);
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+        }
+
+        .nav-tab:hover {
+            background: var(--light-gray-2);
+        }
+
+        .nav-tab.active {
+            background: var(--medium-teal);
+            color: var(--pure-white);
+        }
+
         .upload-section {
             background: var(--pure-white);
             border-radius: 12px;
@@ -449,6 +480,11 @@
         <div class="header">
             <h1>Valve Report Generator</h1>
             <p>Professional PDF Report Generation System</p>
+        </div>
+
+        <div class="nav-tabs">
+            <a href="/" class="nav-tab active">Receive Report</a>
+            <a href="/finding-report" class="nav-tab">Finding Report</a>
         </div>
         
         <div class="upload-section">

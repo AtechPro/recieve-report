@@ -1,0 +1,1211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Valve Finding Report Generator</title>
+    <style>
+        :root {
+            --deep-teal: #167E66;
+            --muted-green: #8CB8AC;
+            --pure-white: #FFFFFF;
+            --dark-teal: #20735F;
+            --medium-teal: #2CA184;
+            --very-dark-teal: #235647;
+            --almost-white: #FEFEFE;
+            --light-mint: #FAFCFB;
+            --light-gray: #F5F5F5;
+            --light-gray-2: #f0f0f0;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--light-mint) 0%, var(--almost-white) 100%);
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            color: var(--very-dark-teal);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 30px 0;
+            background: linear-gradient(135deg, var(--deep-teal) 0%, var(--dark-teal) 100%);
+            color: var(--pure-white);
+            border-radius: 15px;
+            box-shadow: 0 8px 32px rgba(22, 126, 102, 0.15);
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 2.5rem;
+            font-weight: 300;
+            letter-spacing: 1px;
+        }
+
+        .header p {
+            margin: 10px 0 0 0;
+            opacity: 0.9;
+            font-size: 1.1rem;
+        }
+
+        .nav-tabs {
+            display: flex;
+            background: var(--pure-white);
+            border-radius: 12px;
+            margin: 25px 0;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+        }
+
+        .nav-tab {
+            flex: 1;
+            padding: 20px;
+            text-align: center;
+            background: var(--light-gray);
+            color: var(--very-dark-teal);
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+        }
+
+        .nav-tab:hover {
+            background: var(--light-gray-2);
+        }
+
+        .nav-tab.active {
+            background: var(--medium-teal);
+            color: var(--pure-white);
+        }
+
+        .upload-section {
+            background: var(--pure-white);
+            border-radius: 12px;
+            padding: 30px;
+            margin: 25px 0;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            border: 1px solid rgba(140, 184, 172, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .upload-section:hover {
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+            transform: translateY(-2px);
+        }
+
+        .upload-section h2 {
+            color: var(--deep-teal);
+            margin: 0 0 20px 0;
+            font-size: 1.5rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .upload-section h2::before {
+            content: '';
+            width: 4px;
+            height: 24px;
+            background: var(--medium-teal);
+            border-radius: 2px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group label {
+            font-weight: 600;
+            color: var(--deep-teal);
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+        }
+
+        .form-group input[type="text"], .form-group select {
+            padding: 12px 16px;
+            border: 2px solid var(--light-gray-2);
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            background: var(--pure-white);
+        }
+
+        .form-group input[type="text"]:focus, .form-group select:focus {
+            outline: none;
+            border-color: var(--medium-teal);
+            box-shadow: 0 0 0 3px rgba(44, 161, 132, 0.1);
+        }
+
+        .service-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .service-option {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 15px;
+            background: var(--light-gray);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .service-option:hover {
+            background: var(--light-gray-2);
+            transform: translateY(-1px);
+        }
+
+        .service-option input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            accent-color: var(--medium-teal);
+        }
+
+        .service-option:has(input[type="checkbox"]:checked) {
+            background: rgba(44, 161, 132, 0.1);
+            border-color: var(--medium-teal);
+        }
+
+        .btn {
+            background: linear-gradient(135deg, var(--medium-teal) 0%, var(--deep-teal) 100%);
+            color: var(--pure-white);
+            padding: 14px 28px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(44, 161, 132, 0.3);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(44, 161, 132, 0.4);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .status {
+            margin: 15px 0;
+            padding: 15px 20px;
+            border-radius: 8px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .status::before {
+            content: '';
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+
+        .success {
+            background: rgba(44, 161, 132, 0.1);
+            color: var(--deep-teal);
+            border: 1px solid rgba(44, 161, 132, 0.3);
+        }
+
+        .success::before {
+            background: var(--medium-teal);
+        }
+
+        .error {
+            background: rgba(220, 53, 69, 0.1);
+            color: #dc3545;
+            border: 1px solid rgba(220, 53, 69, 0.3);
+        }
+
+        .error::before {
+            background: #dc3545;
+        }
+
+        .info {
+            background: rgba(23, 162, 184, 0.1);
+            color: #17a2b8;
+            border: 1px solid rgba(23, 162, 184, 0.3);
+        }
+
+        .info::before {
+            background: #17a2b8;
+        }
+
+        .valve-selector {
+            background: var(--pure-white);
+            padding: 25px;
+            border-radius: 12px;
+            margin: 25px 0;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            border: 1px solid rgba(140, 184, 172, 0.2);
+        }
+
+        .valve-selector h3 {
+            color: var(--deep-teal);
+            margin: 0 0 20px 0;
+            font-size: 1.3rem;
+            font-weight: 600;
+        }
+
+        .pdf-list {
+            background: var(--pure-white);
+            padding: 25px;
+            border-radius: 12px;
+            margin: 25px 0;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            border: 1px solid rgba(140, 184, 172, 0.2);
+        }
+
+        .pdf-list h3 {
+            color: var(--deep-teal);
+            margin: 0 0 20px 0;
+            font-size: 1.3rem;
+            font-weight: 600;
+        }
+
+        .pdf-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            background: var(--light-gray);
+            border-radius: 8px;
+            margin: 10px 0;
+            transition: all 0.3s ease;
+        }
+
+        .pdf-item:hover {
+            background: var(--light-gray-2);
+        }
+
+        .pdf-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-small {
+            padding: 8px 16px;
+            font-size: 12px;
+            border-radius: 6px;
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+            box-shadow: 0 4px 15px rgba(220, 53, 69, 0.3);
+        }
+
+        .btn-danger:hover {
+            box-shadow: 0 6px 20px rgba(220, 53, 69, 0.4);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, var(--muted-green) 0%, var(--dark-teal) 100%);
+            box-shadow: 0 4px 15px rgba(140, 184, 172, 0.3);
+        }
+
+        .btn-secondary:hover {
+            box-shadow: 0 6px 20px rgba(140, 184, 172, 0.4);
+        }
+
+        .date-input-group {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .date-input-group input[type="text"] {
+            flex: 1;
+        }
+
+        .date-input-group input[type="date"] {
+            width: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Valve Finding Report Generator</h1>
+            <p>Generate detailed finding reports for valve inspections and maintenance</p>
+        </div>
+
+        <div class="nav-tabs">
+            <a href="/" class="nav-tab">Receive Report</a>
+            <a href="/finding-report" class="nav-tab active">Finding Report</a>
+        </div>
+
+        <div class="upload-section">
+            <h2>📊 Excel Data Upload</h2>
+            <p>Upload your Excel file containing valve data to extract information for the finding report.</p>
+            
+            <div class="file-upload-area">
+                <input type="file" id="excelFile" accept=".xlsx,.xls" onchange="handleExcelUpload()">
+                <p>Drag and drop your Excel file here or click to browse</p>
+            </div>
+            
+            <div id="excelStatus" class="status" style="display: none;"></div>
+        </div>
+
+        <div class="valve-selector">
+            <h3>🔍 Valve Selection</h3>
+            <p>Select the valve by its No or Work Order (WO) number from the uploaded data.</p>
+            
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="valve_identifier">Valve No or WO Number:</label>
+                    <input type="text" id="valve_identifier" placeholder="Enter No or WO number" list="valve_wo_list">
+                    <datalist id="valve_wo_list"></datalist>
+                </div>
+            </div>
+        </div>
+
+        <div class="upload-section">
+            <h2>⚙️ Service Configuration</h2>
+            <p>Select the services that were performed for this valve:</p>
+            
+            <div class="service-options">
+                <div class="service-option">
+                    <input type="checkbox" id="insitu_testing" value="insitu_testing" onchange="toggleServiceOption(this)">
+                    <label for="insitu_testing">In-Situ Testing</label>
+                </div>
+                <div class="service-option">
+                    <input type="checkbox" id="service_repair" value="service_repair" onchange="toggleServiceOption(this)">
+                    <label for="service_repair">Service & Repair</label>
+                </div>
+                <div class="service-option">
+                    <input type="checkbox" id="testing_only" value="testing_only" onchange="toggleServiceOption(this)">
+                    <label for="testing_only">Testing Only</label>
+                </div>
+                <div class="service-option">
+                    <input type="checkbox" id="replace_new_valve" value="replace_new_valve" onchange="toggleServiceOption(this)">
+                    <label for="replace_new_valve">Replace New Valve</label>
+                </div>
+            </div>
+        </div>
+
+        <div class="upload-section">
+            <h2>📅 Report Details</h2>
+            <p>Configure the report date and stamp information:</p>
+            
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="stamp_date">Report Date:</label>
+                    <div class="date-input-group">
+                        <input type="text" id="stamp_date" placeholder="DD/MM/YYYY" onchange="updateCalendarFromStampDate()">
+                        <input type="date" id="stamp_date_calendar" onchange="updateStampDateInput()">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="stamp_selection">Stamp Selection:</label>
+                    <select id="stamp_selection">
+                        <option value="SAO">SAO</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="upload-section">
+            <h2>🔍 Visual Inspection Data</h2>
+            <p>Enter inspection findings for external components:</p>
+            
+            <div id="visualInspectionContainer">
+                <!-- Visual inspection items will be dynamically generated -->
+            </div>
+            
+            <!-- Fixed descriptions - no need to add custom items -->
+        </div>
+
+        <div class="upload-section">
+            <h2>🧪 Pre-Test Data</h2>
+            <p>Enter test parameters and results:</p>
+            
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="type_test">Type Test:</label>
+                    <select id="type_test">
+                        <option value="">-- Select Test Type --</option>
+                        <option value="hydro test">Hydro Test</option>
+                        <option value="gravity test">Gravity Test</option>
+                        <option value="leak">Leak</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="test_medium">Test Medium:</label>
+                    <select id="test_medium">
+                        <option value="">-- Select Test Medium --</option>
+                        <option value="water">Water</option>
+                        <option value="nitrogen">Nitrogen</option>
+                        <option value="air">Air</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+            </div>
+            
+            <h3 style="color: var(--deep-teal); margin: 20px 0 10px 0;">Shell Test</h3>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="shell_pressure">Pressure:</label>
+                    <input type="text" id="shell_pressure" placeholder="e.g., 150 PSI">
+                </div>
+                <div class="form-group">
+                    <label for="shell_duration">Duration:</label>
+                    <input type="text" id="shell_duration" placeholder="e.g., 30 minutes">
+                </div>
+                <div class="form-group">
+                    <label for="shell_result">Result & Remarks:</label>
+                    <select id="shell_result">
+                        <option value="NO LEAK & ACCEPTED" selected>NO LEAK & ACCEPTED</option>
+                        <option value="LEAKED">LEAKED</option>
+                        <option value="MINOR LEAKED & ACCEPTED">MINOR LEAKED & ACCEPTED</option>
+                    </select>
+                </div>
+            </div>
+            
+            <h3 style="color: var(--deep-teal); margin: 20px 0 10px 0;">Backseat Test</h3>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="backseat_pressure">Pressure:</label>
+                    <input type="text" id="backseat_pressure" placeholder="e.g., 150 PSI">
+                </div>
+                <div class="form-group">
+                    <label for="backseat_duration">Duration:</label>
+                    <input type="text" id="backseat_duration" placeholder="e.g., 30 minutes">
+                </div>
+                <div class="form-group">
+                    <label for="backseat_result">Result & Remarks:</label>
+                    <select id="backseat_result">
+                        <option value="NO LEAK & ACCEPTED" selected>NO LEAK & ACCEPTED</option>
+                        <option value="LEAKED">LEAKED</option>
+                        <option value="MINOR LEAKED & ACCEPTED">MINOR LEAKED & ACCEPTED</option>
+                    </select>
+                </div>
+            </div>
+            
+            <h3 style="color: var(--deep-teal); margin: 20px 0 10px 0;">Seat Test</h3>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="seat_pressure">Pressure:</label>
+                    <input type="text" id="seat_pressure" placeholder="e.g., 150 PSI">
+                </div>
+                <div class="form-group">
+                    <label for="seat_duration">Duration:</label>
+                    <input type="text" id="seat_duration" placeholder="e.g., 30 minutes">
+                </div>
+                <div class="form-group">
+                    <label for="seat_result">Result & Remarks:</label>
+                    <select id="seat_result">
+                        <option value="NO LEAK & ACCEPTED" selected>NO LEAK & ACCEPTED</option>
+                        <option value="LEAKED">LEAKED</option>
+                        <option value="MINOR LEAKED & ACCEPTED">MINOR LEAKED & ACCEPTED</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="test_accordance_to">Test Accordance To:</label>
+                <select id="test_accordance_to">
+                    <option value="">-- Select --</option>
+                    <option value="API 2000">API 2000</option>
+                    <option value="CLIENT REQUEST PRESSURE">CLIENT REQUEST PRESSURE</option>
+                    <option value="API 598">API 598</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="upload-section">
+            <h2>🔧 Internal Inspection Data</h2>
+            <p>Enter inspection findings for internal components:</p>
+            
+            <div id="internalInspectionContainer">
+                <!-- Internal inspection items will be dynamically generated -->
+            </div>
+            
+            <!-- Fixed descriptions - no need to add custom items -->
+        </div>
+
+        <div class="upload-section">
+            <h2>📸 Detailed Pictures & Findings</h2>
+            <p>Upload images and describe findings for major defects:</p>
+            <p style="font-size: 0.9rem; color: var(--medium-teal); background: rgba(44, 161, 132, 0.1); padding: 10px; border-radius: 6px; border-left: 3px solid var(--medium-teal);">
+                📱 <strong>Mobile Users:</strong> Tap any image field to open your camera and take photos directly!
+            </p>
+            <div id="detailedPicturesContainer">
+                <!-- Detailed pictures items will be dynamically generated -->
+            </div>
+            
+            <!-- Fixed 3 items - no need to add more -->
+        </div>
+
+        
+
+        <div class="upload-section">
+            <h2>📄 Generate Finding Report</h2>
+            <p>Click the button below to generate the finding report PDF:</p>
+            
+            <button class="btn" onclick="generateFindingReport()">Generate Finding Report</button>
+            
+            <div id="findingReportStatus" class="status" style="display: none;"></div>
+        </div>
+
+        <div class="pdf-list">
+            <h3>📋 Generated Reports</h3>
+            <p>View and download previously generated finding reports:</p>
+            
+            <div id="pdfList"></div>
+        </div>
+    </div>
+
+    <script>
+        let uploadedImages = {};
+        let receivedValveImages = [];
+
+        function handleExcelUpload() {
+            const fileInput = document.getElementById('excelFile');
+            const statusDiv = document.getElementById('excelStatus');
+            
+            if (!fileInput.files[0]) {
+                showStatus('excelStatus', 'Please select a file', 'error');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('excel', fileInput.files[0]);
+
+            showStatus('excelStatus', 'Uploading Excel file...', 'info');
+
+            fetch('/upload-excel', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.message) {
+                    showStatus('excelStatus', data.message, 'success');
+                    loadAvailableNumbers();
+                } else {
+                    showStatus('excelStatus', 'Upload failed: ' + data.error, 'error');
+                }
+            })
+            .catch(error => {
+                showStatus('excelStatus', 'Upload failed: ' + error.message, 'error');
+            });
+        }
+
+        function generateFindingReport() {
+            const identifier = document.getElementById('valve_identifier').value;
+            
+            if (!identifier) {
+                showStatus('findingReportStatus', 'Please enter a valve No or WO number', 'error');
+                return;
+            }
+
+            // Collect all form data
+            const formData = collectFormData();
+
+            showStatus('findingReportStatus', 'Generating finding report...', 'info');
+
+            fetch('/generate-finding-report', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(formData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.message) {
+                    showStatus('findingReportStatus', data.message, 'success');
+                    loadAvailablePDFs();
+                    
+                    // Show download link
+                    if (data.download_url) {
+                        const downloadLink = document.createElement('a');
+                        downloadLink.href = data.download_url;
+                        downloadLink.textContent = 'Download PDF';
+                        downloadLink.className = 'btn btn-secondary';
+                        downloadLink.style.marginTop = '10px';
+                        downloadLink.style.display = 'inline-block';
+                        
+                        const statusDiv = document.getElementById('findingReportStatus');
+                        statusDiv.appendChild(document.createElement('br'));
+                        statusDiv.appendChild(downloadLink);
+                    }
+                } else {
+                    showStatus('findingReportStatus', 'Generation failed: ' + data.error, 'error');
+                }
+            })
+            .catch(error => {
+                showStatus('findingReportStatus', 'Generation failed: ' + error.message, 'error');
+            });
+        }
+
+        function loadAvailablePDFs() {
+            fetch('/list-pdfs')
+                .then(response => response.json())
+                .then(data => {
+                    const pdfList = document.getElementById('pdfList');
+                    pdfList.innerHTML = '';
+                    
+                    if (data.pdfs && data.pdfs.length > 0) {
+                        data.pdfs.forEach(pdf => {
+                            const pdfItem = document.createElement('div');
+                            pdfItem.className = 'pdf-item';
+                            pdfItem.innerHTML = `
+                                <span>${pdf.filename}</span>
+                                <div class="pdf-actions">
+                                    <a href="/view-pdf/${pdf.filename}" target="_blank" class="btn btn-small btn-secondary">View</a>
+                                    <a href="/download-pdf/${pdf.filename}" class="btn btn-small btn-secondary">Download</a>
+                                    <button onclick="deletePDF('${pdf.filename}')" class="btn btn-small btn-danger">Delete</button>
+                                </div>
+                            `;
+                            pdfList.appendChild(pdfItem);
+                        });
+                    } else {
+                        pdfList.innerHTML = '<p>No PDFs found</p>';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading PDFs:', error);
+                });
+        }
+
+        function deletePDF(filename) {
+            if (!confirm('Are you sure you want to delete this PDF?')) {
+                return;
+            }
+
+            fetch(`/delete-pdf/${filename}`, {
+                method: 'DELETE'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.message) {
+                    loadAvailablePDFs();
+                } else {
+                    alert('Delete failed: ' + data.error);
+                }
+            })
+            .catch(error => {
+                alert('Delete failed: ' + error.message);
+            });
+        }
+
+        function showStatus(elementId, message, type) {
+            const element = document.getElementById(elementId);
+            element.textContent = message;
+            element.className = 'status ' + type;
+            element.style.display = 'block';
+        }
+
+        function loadAvailableNumbers() {
+            fetch('/available-no')
+                .then(response => response.json())
+                .then(data => {
+                    const woDatalist = document.getElementById('valve_wo_list');
+                    woDatalist.innerHTML = '';
+                    if (data.wo_numbers && data.wo_numbers.length > 0) {
+                        data.wo_numbers.forEach(wo => {
+                            const option = document.createElement('option');
+                            option.value = wo;
+                            woDatalist.appendChild(option);
+                        });
+                    }
+                });
+        }
+        
+        function setCurrentStampDate() {
+            const today = new Date();
+            const day = String(today.getDate()).padStart(2, '0');
+            const month = String(today.getMonth() + 1).padStart(2, '0');
+            const year = today.getFullYear();
+            const formattedDate = `${day}/${month}/${year}`;
+            
+            document.getElementById('stamp_date').value = formattedDate;
+            document.getElementById('stamp_date_calendar').value = today.toISOString().split('T')[0];
+        }
+
+        function updateStampDateInput() {
+            const calendarInput = document.getElementById('stamp_date_calendar');
+            const textInput = document.getElementById('stamp_date');
+            
+            if (calendarInput.value) {
+                const date = new Date(calendarInput.value);
+                const day = String(date.getDate()).padStart(2, '0');
+                const month = String(date.getMonth() + 1).padStart(2, '0');
+                const year = date.getFullYear();
+                const formattedDate = `${day}/${month}/${year}`;
+                
+                textInput.value = formattedDate;
+            }
+        }
+
+        function updateCalendarFromStampDate() {
+            const textInput = document.getElementById('stamp_date');
+            const calendarInput = document.getElementById('stamp_date_calendar');
+            
+            if (textInput.value) {
+                const date = parseDateFromDDMMYYYY(textInput.value);
+                if (date && !isNaN(date.getTime())) {
+                    calendarInput.value = date.toISOString().split('T')[0];
+                }
+            }
+        }
+
+        function parseDateFromDDMMYYYY(dateString) {
+            if (!dateString || !dateString.includes('/')) return null;
+            
+            const parts = dateString.split('/');
+            if (parts.length === 3) {
+                const day = parseInt(parts[0]);
+                const month = parseInt(parts[1]) - 1;
+                const year = parseInt(parts[2]);
+                return new Date(year, month, day);
+            }
+            return null;
+        }
+
+        function toggleServiceOption(checkbox) {
+            const serviceOption = checkbox.closest('.service-option');
+            if (checkbox.checked) {
+                serviceOption.style.background = 'rgba(44, 161, 132, 0.1)';
+                serviceOption.style.borderColor = 'var(--medium-teal)';
+                serviceOption.style.transform = 'scale(1.02)';
+            } else {
+                serviceOption.style.background = 'var(--light-gray)';
+                serviceOption.style.borderColor = 'transparent';
+                serviceOption.style.transform = 'scale(1)';
+            }
+        }
+
+        // Visual Inspection Functions
+        function addVisualInspectionItem(desc = '', condition = '', actions = '', remarks = '') {
+            const container = document.getElementById('visualInspectionContainer');
+            const itemId = 'visual_' + Date.now();
+            
+            const itemDiv = document.createElement('div');
+            itemDiv.className = 'inspection-item';
+            itemDiv.style.cssText = `
+                background: var(--light-gray);
+                padding: 15px;
+                border-radius: 8px;
+                margin: 10px 0;
+                border: 1px solid rgba(140, 184, 172, 0.3);
+            `;
+            
+            itemDiv.innerHTML = `
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                    <h4 style="margin: 0; color: var(--deep-teal);">${desc}</h4>
+                    <!-- Fixed items cannot be removed -->
+                </div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Condition:</label>
+                        <input type="text" class="inspection-condition" value="${condition}" placeholder="e.g., Good, Damaged, Corroded">
+                    </div>
+                    <div class="form-group">
+                        <label>Actions:</label>
+                        <select class="actions-select" style="min-width: 180px;">
+                            <option value="">-- Select --</option>
+                            <option value="SAND DOWN & CLEANING">SAND DOWN & CLEANING</option>
+                            <option value="CLEANING">CLEANING</option>
+                            <option value="TO REPLACE NEW">TO REPLACE NEW</option>
+                            <option value="TO MACHINED">TO MACHINED</option>
+                            <option value="TO LAPPING">TO LAPPING</option>
+                            <option value="TO BUILD UP & MACHINE">TO BUILD UP & MACHINE</option>
+                            <option value="N/A">N/A</option>
+                            <option value="CLEANING & NEW PAINTING">CLEANING & NEW PAINTING</option>
+                            <option value="TOUCH UP PAINTING">TOUCH UP PAINTING</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Remarks:</label>
+                        <select class="remarks-select" style="min-width: 160px;">
+                            <option value="">-- Select --</option>
+                            <option value="REUSEABLE">REUSEABLE</option>
+                            <option value="BADLY DAMAGED">BADLY DAMAGED</option>
+                            <option value="NEED TO REPLACED">NEED TO REPLACED</option>
+                            <option value="NO SPARE KIT">NO SPARE KIT</option>
+                            <option value="N/A">N/A</option>
+                            <option value="TO FABRICATE">TO FABRICATE</option>
+                        </select>
+                    </div>
+                </div>
+            `;
+            
+            // Add event listeners for selects
+            setTimeout(() => {
+                const remarksSelect = itemDiv.querySelector('.remarks-select');
+                remarksSelect.addEventListener('change', function() {
+                    remarksSelect.setAttribute('data-selected', this.value);
+                });
+                const actionsSelect = itemDiv.querySelector('.actions-select');
+                actionsSelect.value = actions;
+                actionsSelect.addEventListener('change', function() {
+                    actionsSelect.setAttribute('data-selected', this.value);
+                });
+            }, 0);
+            
+            container.appendChild(itemDiv);
+        }
+
+        // Internal Inspection Functions
+        function addInternalInspectionItem(desc = '', condition = '', actions = '', remarks = '') {
+            const container = document.getElementById('internalInspectionContainer');
+            const itemId = 'internal_' + Date.now();
+            
+            const itemDiv = document.createElement('div');
+            itemDiv.className = 'inspection-item';
+            itemDiv.style.cssText = `
+                background: var(--light-gray);
+                padding: 15px;
+                border-radius: 8px;
+                margin: 10px 0;
+                border: 1px solid rgba(140, 184, 172, 0.3);
+            `;
+            
+            itemDiv.innerHTML = `
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                    <h4 style="margin: 0; color: var(--deep-teal);">${desc}</h4>
+                    <!-- Fixed items cannot be removed -->
+                </div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Condition:</label>
+                        <select class="inspection-condition">
+                            <option value="">-- Select --</option>
+                            <option value="MISSING">MISSING</option>
+                            <option value="LOOSED">LOOSED</option>
+                            <option value="OK">OK</option>
+                            <option value="WORN OUT">WORN OUT</option>
+                            <option value="MINOR SCRATCH">MINOR SCRATCH</option>
+                            <option value="MAJOR SCRATCH">MAJOR SCRATCH</option>
+                            <option value="NOT AVAILABLE">NOT AVAILABLE</option>
+                            <option value="NOT VISIBLE">NOT VISIBLE</option>
+                            <option value="DIRTY">DIRTY</option>
+                            <option value="CORRODED">CORRODED</option>
+                            <option value="NOT APPLICABLE">NOT APPLICABLE</option>
+                            <option value="IN PLACED">IN PLACED</option>
+                            <option value="DENTED">DENTED</option>
+                            <option value="DAMAGED">DAMAGED</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Actions:</label>
+                        <input type="text" class="inspection-actions" value="${actions}" placeholder="e.g., Clean, Replace, Repair">
+                    </div>
+                    <div class="form-group">
+                        <label>Remarks:</label>
+                        <select class="inspection-remarks" style="min-width: 160px;">
+                            <option value="">-- Select --</option>
+                            <option value="REUSEABLE">REUSEABLE</option>
+                            <option value="BADLY DAMAGED">BADLY DAMAGED</option>
+                            <option value="NEED TO REPLACED">NEED TO REPLACED</option>
+                            <option value="NO SPARE KIT">NO SPARE KIT</option>
+                            <option value="N/A">N/A</option>
+                            <option value="TO FABRICATE">TO FABRICATE</option>
+                        </select>
+                    </div>
+                </div>
+            `;
+            
+            container.appendChild(itemDiv);
+        }
+
+        // Detailed Pictures Functions
+        function addDetailedPictureItem(item = '', finding = '', proposedAction = '', imagePath1 = '', imagePath2 = '') {
+            const container = document.getElementById('detailedPicturesContainer');
+            const itemId = 'picture_' + Date.now();
+            
+            const itemDiv = document.createElement('div');
+            itemDiv.className = 'picture-item';
+            itemDiv.style.cssText = `
+                background: var(--light-gray);
+                padding: 15px;
+                border-radius: 8px;
+                margin: 10px 0;
+                border: 1px solid rgba(140, 184, 172, 0.3);
+            `;
+            
+            itemDiv.innerHTML = `
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                    <h4 style="margin: 0; color: var(--deep-teal);">Picture Item</h4>
+                    <!-- Fixed items cannot be removed -->
+                </div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Item:</label>
+                        <input type="text" class="picture-item-name" value="${item}" readonly style="background-color: var(--light-gray-2); color: var(--deep-teal); font-weight: 600;">
+                    </div>
+                    <div class="form-group">
+                        <label>Finding:</label>
+                        <input type="text" class="picture-finding" value="${finding}" placeholder="Describe the finding">
+                    </div>
+                    <div class="form-group">
+                        <label>Proposed Action:</label>
+                        <input type="text" class="picture-proposed-action" value="${proposedAction}" placeholder="Describe proposed action">
+                    </div>
+                </div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Image 1:</label>
+                        <div style="display: flex; gap: 10px; align-items: center;">
+                            <button type="button" class="btn btn-secondary" style="padding: 8px 12px; font-size: 12px;" onclick="captureImage(this, 1)">
+                                📷 Camera
+                            </button>
+                            <button type="button" class="btn btn-secondary" style="padding: 8px 12px; font-size: 12px;" onclick="selectFromGallery(this, 1)">
+                                🖼️ Gallery
+                            </button>
+                            <button type="button" class="btn btn-danger" style="padding: 8px 12px; font-size: 12px;" onclick="deleteImage(this, 1)">
+                                🗑️ Delete
+                            </button>
+                        </div>
+                        <input type="file" class="picture-image-1" accept="image/*" capture="environment" style="display: none;" onchange="handlePictureUpload(this, 1)">
+                        <input type="hidden" class="picture-image-path-1" value="${imagePath1}">
+                        <div class="image-preview-1" style="margin-top: 10px;"></div>
+                    </div>
+                    <div class="form-group">
+                        <label>Image 2:</label>
+                        <div style="display: flex; gap: 10px; align-items: center;">
+                            <button type="button" class="btn btn-secondary" style="padding: 8px 12px; font-size: 12px;" onclick="captureImage(this, 2)">
+                                📷 Camera
+                            </button>
+                            <button type="button" class="btn btn-secondary" style="padding: 8px 12px; font-size: 12px;" onclick="selectFromGallery(this, 2)">
+                                🖼️ Gallery
+                            </button>
+                            <button type="button" class="btn btn-danger" style="padding: 8px 12px; font-size: 12px;" onclick="deleteImage(this, 2)">
+                                🗑️ Delete
+                            </button>
+                        </div>
+                        <input type="file" class="picture-image-2" accept="image/*" capture="environment" style="display: none;" onchange="handlePictureUpload(this, 2)">
+                        <input type="hidden" class="picture-image-path-2" value="${imagePath2}">
+                        <div class="image-preview-2" style="margin-top: 10px;"></div>
+                    </div>
+                </div>
+            `;
+            
+            container.appendChild(itemDiv);
+        }
+
+        function removeInspectionItem(button) {
+            button.closest('.inspection-item, .picture-item').remove();
+        }
+
+        function captureImage(button, imageNum) {
+            const fileInput = button.closest('.form-group').querySelector(`.picture-image-${imageNum}`);
+            fileInput.setAttribute('capture', 'environment');
+            fileInput.click();
+        }
+
+        function selectFromGallery(button, imageNum) {
+            const fileInput = button.closest('.form-group').querySelector(`.picture-image-${imageNum}`);
+            fileInput.removeAttribute('capture');
+            fileInput.click();
+        }
+
+        function deleteImage(button, imageNum) {
+            const formGroup = button.closest('.form-group');
+            const hiddenInput = formGroup.querySelector(`.picture-image-path-${imageNum}`);
+            const fileInput = formGroup.querySelector(`.picture-image-${imageNum}`);
+            const previewDiv = formGroup.querySelector(`.image-preview-${imageNum}`);
+            
+            // Clear the file input
+            fileInput.value = '';
+            
+            // Clear the hidden path
+            hiddenInput.value = '';
+            
+            // Clear the preview
+            previewDiv.innerHTML = '';
+            
+            console.log(`Image ${imageNum} deleted`);
+        }
+
+        function handlePictureUpload(input, imageNum) {
+            const file = input.files[0];
+            if (!file) return;
+
+            // Show preview immediately
+            const formGroup = input.closest('.form-group');
+            const previewDiv = formGroup.querySelector(`.image-preview-${imageNum}`);
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                previewDiv.innerHTML = `
+                    <img src="${e.target.result}" style="max-width: 150px; max-height: 100px; border-radius: 8px; border: 2px solid var(--muted-green);">
+                `;
+            };
+            reader.readAsDataURL(file);
+
+            const formData = new FormData();
+            formData.append('image', file);
+            formData.append('image_type', `picture_${imageNum}`);
+
+            fetch('/upload-image', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.message) {
+                    // Store the filepath in the hidden input
+                    const hiddenInput = formGroup.querySelector(`.picture-image-path-${imageNum}`);
+                    hiddenInput.value = data.filepath;
+                    console.log(`Image ${imageNum} uploaded:`, data.filepath);
+                } else {
+                    alert('Image upload failed: ' + data.error);
+                    // Remove preview if upload failed
+                    previewDiv.innerHTML = '';
+                }
+            })
+            .catch(error => {
+                alert('Image upload failed: ' + error.message);
+                // Remove preview if upload failed
+                previewDiv.innerHTML = '';
+            });
+        }
+
+        function collectFormData() {
+            const data = {
+                identifier: document.getElementById('valve_identifier').value,
+                stamp_selection: document.getElementById('stamp_selection').value,
+                date_value: document.getElementById('stamp_date').value,
+                selected_services: Array.from(document.querySelectorAll('.service-option input[type="checkbox"]:checked')).map(cb => cb.value),
+                
+                // Pre-test data
+                pretest: {
+                    type_test: document.getElementById('type_test').value,
+                    test_medium: document.getElementById('test_medium').value,
+                    shell: {
+                        pressure: document.getElementById('shell_pressure').value,
+                        duration: document.getElementById('shell_duration').value,
+                        result_remarks: document.getElementById('shell_result').value
+                    },
+                    backseat: {
+                        pressure: document.getElementById('backseat_pressure').value,
+                        duration: document.getElementById('backseat_duration').value,
+                        result_remarks: document.getElementById('backseat_result').value
+                    },
+                    seat: {
+                        pressure: document.getElementById('seat_pressure').value,
+                        duration: document.getElementById('seat_duration').value,
+                        result_remarks: document.getElementById('seat_result').value
+                    },
+                    test_accordance_to: document.getElementById('test_accordance_to').value
+                },
+                
+                // Visual inspection data
+                visual_inspection: [],
+                internal_inspection: [],
+                detailed_pictures: []
+            };
+
+            // Collect visual inspection data
+            document.querySelectorAll('#visualInspectionContainer .inspection-item').forEach(item => {
+                const descElement = item.querySelector('h4');
+                data.visual_inspection.push({
+                    desc: descElement ? descElement.textContent : '',
+                    condition: item.querySelector('.inspection-condition') ? item.querySelector('.inspection-condition').value : '',
+                    actions: item.querySelector('.actions-select') ? item.querySelector('.actions-select').getAttribute('data-selected') || item.querySelector('.actions-select').value : '',
+                    remarks: item.querySelector('.remarks-select') ? item.querySelector('.remarks-select').getAttribute('data-selected') || item.querySelector('.remarks-select').value : ''
+                });
+            });
+
+            // Collect internal inspection data
+            document.querySelectorAll('#internalInspectionContainer .inspection-item').forEach(item => {
+                const descElement = item.querySelector('h4');
+                data.internal_inspection.push({
+                    desc: descElement ? descElement.textContent : '',
+                    condition: item.querySelector('.inspection-condition') ? item.querySelector('.inspection-condition').value : '',
+                    actions: item.querySelector('.inspection-actions') ? item.querySelector('.inspection-actions').value : '',
+                    remarks: item.querySelector('.inspection-remarks') ? item.querySelector('.inspection-remarks').value : ''
+                });
+            });
+
+            // Collect detailed pictures data
+            document.querySelectorAll('#detailedPicturesContainer .picture-item').forEach(item => {
+                const imagePath1Input = item.querySelector('.picture-image-path-1');
+                const imagePath2Input = item.querySelector('.picture-image-path-2');
+                data.detailed_pictures.push({
+                    item: item.querySelector('.picture-item-name') ? item.querySelector('.picture-item-name').value : '',
+                    finding: item.querySelector('.picture-finding') ? item.querySelector('.picture-finding').value : '',
+                    proposed_action: item.querySelector('.picture-proposed-action') ? item.querySelector('.picture-proposed-action').value : '',
+                    image_path_1: imagePath1Input ? imagePath1Input.value : '',
+                    image_path_2: imagePath2Input ? imagePath2Input.value : ''
+                });
+            });
+
+            return data;
+        }
+        
+        window.onload = function() {
+            loadAvailableNumbers();
+            loadAvailablePDFs();
+            setCurrentStampDate();
+            
+            // Add default visual inspection items with fixed descriptions
+            addVisualInspectionItem('GENERAL APPEARANCE', '', '', '');
+            addVisualInspectionItem('NAMEPLATE', '', '', '');
+            addVisualInspectionItem('OVERALL FLANGE/CONNECTION CONDITION', '', '', '');
+            addVisualInspectionItem('BODY', '', '', '');
+            addVisualInspectionItem('BONNET', '', '', '');
+            addVisualInspectionItem('YOKE', '', '', '');
+            addVisualInspectionItem('DISC', '', '', '');
+            addVisualInspectionItem('SEAT', '', '', '');
+            addVisualInspectionItem('BONNET GASKET', '', '', '');
+            
+            // Add default internal inspection items with fixed descriptions
+            addInternalInspectionItem('BODY', '', '', '');
+            addInternalInspectionItem('BONNET', '', '', '');
+            addInternalInspectionItem('YOKE', '', '', '');
+            addInternalInspectionItem('DISC', '', '', '');
+            addInternalInspectionItem('SEAT', '', '', '');
+            addInternalInspectionItem('BONNET GASKET', '', '', '');
+            addInternalInspectionItem('STEM', '', '', '');
+            addInternalInspectionItem('WHEEL NUT', '', '', '');
+            addInternalInspectionItem('PACKING', '', '', '');
+            addInternalInspectionItem('GLAND BUSHING', '', '', '');
+            addInternalInspectionItem('BACK SEAT', '', '', '');
+            addInternalInspectionItem('GLAND NUT', '', '', '');
+            
+            // Add exactly 3 fixed picture items
+            addDetailedPictureItem('ITEM 1', '', '', '', '');
+            addDetailedPictureItem('ITEM 2', '', '', '', '');
+            addDetailedPictureItem('ITEM 3', '', '', '', '');
+        };
+    </script>
+</body>
+</html> 

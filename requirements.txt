@@ -2,12 +2,11 @@ Flask==3.0.0
 Flask-SQLAlchemy==3.1.1
 Werkzeug==3.1.3
 python-dotenv==1.1.0
-Pillow #this library is vulnerable
+Pillow
 opencv-python==4.11.0.86
 openpyxl==3.1.5
 fpdf2==2.8.3
 SQLAlchemy==2.0.27
 numpy==1.26.4
 pandas==2.2.3
-gunicorn==23.0.0
-pywin32==306
+gunicorn==23.0.0 

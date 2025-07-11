@@ -108,7 +108,27 @@ def load_valve_data(identifier, user_data=None):
             {"item": "ITEM 1", "finding": "", "proposed_action": "", "image_path_1": "goodvalve.png", "image_path_2": "goodvalve.png"},
             {"item": "ITEM 2", "finding": "", "proposed_action": "", "image_path_1": "goodvalve.png", "image_path_2": "goodvalve.png"},
             {"item": "ITEM 3", "finding": "", "proposed_action": "", "image_path_1": "goodvalve.png", "image_path_2": "goodvalve.png"}
-        ]
+        ],
+        'pretest': user_data.get('pretest') if user_data and user_data.get('pretest') else {
+            'type_test': '',
+            'test_medium': '',
+            'shell': {
+                'pressure': '',
+                'duration': '',
+                'result_remarks': ''
+            },
+            'backseat': {
+                'pressure': '',
+                'duration': '',
+                'result_remarks': ''
+            },
+            'seat': {
+                'pressure': '',
+                'duration': '',
+                'result_remarks': ''
+            },
+            'test_accordance_to': ''
+        }
     }
     
     return mapped_data
@@ -296,14 +316,18 @@ class PDF(FPDF):
         col_widths = [10,45,45,45,45]  # 4 columns, total 190mm
         grey = (128, 128, 128)
         headings_style = FontFace(emphasis="B", fill_color=grey)
+        
+        # Get pretest data from mapped data
+        pretest_data = self.valve_data.get('pretest', {})
+        
         with self.table(col_widths=col_widths, line_height=4, headings_style=headings_style) as table:
             row = table.row()
             row.cell('PRE-TEST (HYDROTEST/LEAKED TEST)', align='C', colspan=5)
             row = table.row()
             row.cell('TYPE TEST', align='C', colspan=2)
-            row.cell(' ', align='C')
+            row.cell(pretest_data.get('type_test', ''), align='C')
             row.cell('TEST MEDIUM', align='C')
-            row.cell(' ', align='C')
+            row.cell(pretest_data.get('test_medium', ''), align='C')
             row = table.row()
             row.cell('DESCRIPTION', align='C', colspan=2)
             row.cell('PRESSURE', align='C')
@@ -312,24 +336,24 @@ class PDF(FPDF):
             row = table.row()
             row.cell('A', align='C')
             row.cell('SHELL', align='C')
-            row.cell(' ', align='C')
-            row.cell(' ', align='C')
-            row.cell(' ', align='C')
+            row.cell(pretest_data.get('shell', {}).get('pressure', ''), align='C')
+            row.cell(pretest_data.get('shell', {}).get('duration', ''), align='C')
+            row.cell(pretest_data.get('shell', {}).get('result_remarks', ''), align='C')
             row = table.row()
             row.cell('B', align='C')
             row.cell('BACKSEAT', align='C')
-            row.cell(' ', align='C')
-            row.cell(' ', align='C')
-            row.cell(' ', align='C')
+            row.cell(pretest_data.get('backseat', {}).get('pressure', ''), align='C')
+            row.cell(pretest_data.get('backseat', {}).get('duration', ''), align='C')
+            row.cell(pretest_data.get('backseat', {}).get('result_remarks', ''), align='C')
             row = table.row()
             row.cell('C', align='C')
             row.cell('SEAT', align='C')
-            row.cell(' ', align='C')
-            row.cell(' ', align='C')
-            row.cell(' ', align='C')
+            row.cell(pretest_data.get('seat', {}).get('pressure', ''), align='C')
+            row.cell(pretest_data.get('seat', {}).get('duration', ''), align='C')
+            row.cell(pretest_data.get('seat', {}).get('result_remarks', ''), align='C')
             row = table.row()
             row.cell('TEST ACCORDANCE TO', align='C', colspan=2)
-            row.cell(' ', align='C', colspan=3)
+            row.cell(pretest_data.get('test_accordance_to', ''), align='C', colspan=3)
 
 
     def additonal_comment(self):
@@ -399,21 +423,23 @@ class PDF(FPDF):
             image_x = table_x + 2  # Small margin from cell border
             image_y = table_y + 2  # Small margin from cell border
             
-            # Load and display two different images if paths exist
-            image_path_1 = picture_data.get('image_path_1', 'goodvalve.png')
-            image_path_2 = picture_data.get('image_path_2', 'goodvalve.png')
+            # Load and display images only if they were actually uploaded
+            image_path_1 = picture_data.get('image_path_1', '')
+            image_path_2 = picture_data.get('image_path_2', '')
             
-            # Display first image
-            if os.path.exists(image_path_1):
-                self.image(image_path_1, x=image_x, y=image_y, w=40, h=30)
-            elif os.path.exists('goodvalve.png'):
-                self.image('goodvalve.png', x=image_x, y=image_y, w=40, h=30)
+            # Collect all valid uploaded images
+            uploaded_images = []
+            if image_path_1 and image_path_1 != 'goodvalve.png' and os.path.exists(image_path_1):
+                uploaded_images.append(image_path_1)
+            if image_path_2 and image_path_2 != 'goodvalve.png' and os.path.exists(image_path_2):
+                uploaded_images.append(image_path_2)
             
-            # Display second image
-            if os.path.exists(image_path_2):
-                self.image(image_path_2, x=image_x + 50, y=image_y, w=40, h=30)
-            elif os.path.exists('goodvalve.png'):
-                self.image('goodvalve.png', x=image_x + 50, y=image_y, w=40, h=30) 
+            # Display images dynamically based on what was uploaded
+            for i, image_path in enumerate(uploaded_images):
+                if i == 0:  # First image
+                    self.image(image_path, x=image_x, y=image_y, w=40, h=30)
+                elif i == 1:  # Second image
+                    self.image(image_path, x=image_x + 50, y=image_y, w=40, h=30) 
 
     def signature_block(self, date_value=""):
             self.set_font(self.FONT_FAMILY, 'B', self.FONT_SIZE)
