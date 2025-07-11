@@ -99,12 +99,13 @@ def generate():
     stamp_selection = data.get('stamp_selection', 'SAO')  # Default to SAO
     date_value = data.get('date_value', '7/7/2027')  # Default date
     selected_services = data.get('selected_services', [])  # Service selections from user (array)
+    comment = data.get('comment', '')  # Get the comment from the request
     
     if not identifier:
         return jsonify({'error': 'Missing required field: identifier (No or WO)'}), 400
 
     try:
-        pdf_filename = generate_pdf(identifier, user_data, image_files, received_valve_images, stamp_selection, date_value, selected_services)
+        pdf_filename = generate_pdf(identifier, user_data, image_files, received_valve_images, stamp_selection, date_value, selected_services, comment)
         pdf_path = os.path.join(PDF_FOLDER, pdf_filename)
         
         # Clean up temporary images after PDF generation
@@ -127,6 +128,7 @@ def generate_finding_report():
     stamp_selection = data.get('stamp_selection', 'SAO')
     date_value = data.get('date_value', '')
     selected_services = data.get('selected_services', [])
+    comment = data.get('comment', '')  # Get comment from request
     
     # Extract additional data for finding report
     visual_inspection = data.get('visual_inspection', [])
@@ -147,6 +149,7 @@ def generate_finding_report():
             'internal_inspection': internal_inspection,
             'detailed_pictures': detailed_pictures,
             'pretest': pretest,
+            'comment': comment,  # Include comment in user_data
             'stamp_info': {
                 'date_value': date_value
             }

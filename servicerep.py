@@ -491,7 +491,7 @@ class PDF(FPDF):
             self.set_xy(date_x, date_y)
             self.cell(sig_width - 4, 5, date_value, align='L')
 
-def generate_pdf(identifier, user_data=None, stamp_selection=None, date_value=None, selected_services=None):
+def generate_pdf(identifier, user_data=None, stamp_selection=None, date_value=None, selected_services=None, comment=""):
     valve_data = load_valve_data(identifier, user_data)
     pdf = PDF(valve_data, selected_services=selected_services, format='A4')
     print('FPDF units: millimeters (mm) by default for A4 size 210x297mm')
@@ -499,7 +499,7 @@ def generate_pdf(identifier, user_data=None, stamp_selection=None, date_value=No
     # Service info is now part of the header, so no need to call service_info() separately
     pdf.visual_inspection()
     pdf.internal_inspection()
-    pdf.additonal_comment()
+    pdf.additonal_comment(comment)
     pdf.detailed_picture()
     pdf.signature_block()
     

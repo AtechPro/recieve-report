@@ -128,7 +128,8 @@ def load_valve_data(identifier, user_data=None):
                 'result_remarks': ''
             },
             'test_accordance_to': ''
-        }
+        },
+        'comment': user_data.get('comment', '') if user_data else ''
     }
     
     return mapped_data
@@ -356,7 +357,8 @@ class PDF(FPDF):
             row.cell(pretest_data.get('test_accordance_to', ''), align='C', colspan=3)
 
 
-    def additonal_comment(self, comment=""):
+    def additonal_comment(self):
+        comment = self.valve_data.get('comment', '')
         self.set_font(self.FONT_FAMILY, '', self.FONT_SIZE)
         x = self.get_x()
         y = self.get_y()
@@ -554,7 +556,7 @@ class PDF(FPDF):
             self.set_xy(date_x, date_y)
             self.cell(sig_width - 4, 5, date_value, align='L')
 
-def generate_pdf(identifier, user_data=None, stamp_selection=None, date_value=None, selected_services=None, comment=None):
+def generate_pdf(identifier, user_data=None, stamp_selection=None, date_value=None, selected_services=None):
     valve_data = load_valve_data(identifier, user_data)
     pdf = PDF(valve_data, selected_services=selected_services, format='A4')
     print('FPDF units: millimeters (mm) by default for A4 size 210x297mm')
@@ -563,7 +565,7 @@ def generate_pdf(identifier, user_data=None, stamp_selection=None, date_value=No
     pdf.visual_inspection()
     pdf.internal_inspection()
     pdf.pretest()
-    pdf.additonal_comment(comment)
+    pdf.additonal_comment()
     
     pdf.detailed_picture()
     pdf.signature_block()
@@ -605,28 +607,36 @@ if __name__ == "__main__":
     identifier = "1"  # Change as needed
     # Optionally, you can provide user_data, image_files, received_valve_images, stamp_selection, date_value, selected_services
     try:
-        comment = (
-            "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean vitae massa mi. "
-            "Pellentesque a pulvinar purus. Curabitur vehicula ultrices enim, eget suscipit ante venenatis quis. "
-            "Ut ullamcorper, arcu porta ultrices ultrices, mi tellus consequat ipsum, ut tempor nunc ante eget risus. "
-            "Praesent iaculis pellentesque est, ut pretium arcu pellentesque eu. Morbi quis hendrerit diam, posuere placerat turpis. "
-            "Etiam ac neque eget nulla dapibus vehicula a nec augue. Vestibulum in finibus dolor. Pellentesque vel nunc dolor. "
-            "Sed dignissim dui quis mattis laoreet. Aliquam fringilla feugiat leo vitae pulvinar. Curabitur dictum erat ex. "
-            "Proin aliquam leo nunc, eu viverra erat ultrices vel. Duis est lacus, efficitur at blandit eu, iaculis a nulla. "
-            "Aenean convallis nisl sit amet dui pellentesque dictum. In vehicula eros quis felis ornare, vitae luctus odio aliquam. "
-            "Vestibulum sodales nisl eu mi dapibus, sit amet feugiat ex tempus. In ut suscipit orci. Integer interdum id tellus quis dapibus. "
-            "Sed tempor neque at pulvinar tristique. Nunc gravida, odio vel ultricies rutrum, ex odio tristique libero, at ultrices ligula felis at turpis. "
-            "Sed mollis nibh nisl, a tempus lacus rhoncus vitae. Etiam tincidunt augue sit amet massa sodales, et vulputate ex malesuada. "
-            "Duis non nibh augue. Nullam cursus iaculis enim, at fringilla erat venenatis at."
-            "Sed dignissim dui quis mattis laoreet. Aliquam fringilla feugiat leo vitae pulvinar. Curabitur dictum erat ex. "
-        )
+        # Example user_data with comment
+        user_data = {
+            'client_info': {
+                'client': 'PETRONAS CHEMICALS FERTILISER SABAH SDN BHD',
+                'project': 'VALVE MAINTENANCE PROJECT 2025',
+                'location': 'Sipitang',
+                'date_in': '01/01/2025'
+            },
+            'comment': (
+                "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean vitae massa mi. "
+                "Pellentesque a pulvinar purus. Curabitur vehicula ultrices enim, eget suscipit ante venenatis quis. "
+                "Ut ullamcorper, arcu porta ultrices ultrices, mi tellus consequat ipsum, ut tempor nunc ante eget risus. "
+                "Praesent iaculis pellentesque est, ut pretium arcu pellentesque eu. Morbi quis hendrerit diam, posuere placerat turpis. "
+                "Etiam ac neque eget nulla dapibus vehicula a nec augue. Vestibulum in finibus dolor. Pellentesque vel nunc dolor. "
+                "Sed dignissim dui quis mattis laoreet. Aliquam fringilla feugiat leo vitae pulvinar. Curabitur dictum erat ex. "
+                "Proin aliquam leo nunc, eu viverra erat ultrices vel. Duis est lacus, efficitur at blandit eu, iaculis a nulla. "
+                "Aenean convallis nisl sit amet dui pellentesque dictum. In vehicula eros quis felis ornare, vitae luctus odio aliquam. "
+                "Vestibulum sodales nisl eu mi dapibus, sit amet feugiat ex tempus. In ut suscipit orci. Integer interdum id tellus quis dapibus. "
+                "Sed tempor neque at pulvinar tristique. Nunc gravida, odio vel ultricies rutrum, ex odio tristique libero, at ultrices ligula felis at turpis. "
+                "Sed mollis nibh nisl, a tempus lacus rhoncus vitae. Etiam tincidunt augue sit amet massa sodales, et vulputate ex malesuada. "
+                "Duis non nibh augue. Nullam cursus iaculis enim, at fringilla erat venenatis at."
+                "Sed dignissim dui quis mattis laoreet. Aliquam fringilla feugiat leo vitae pulvinar. Curabitur dictum erat ex. "
+            )
+        }
         output_filename = generate_pdf(
             identifier=identifier,
-            user_data=None,
+            user_data=user_data,
             stamp_selection="SAO",
             date_value="01/01/2025",
-            selected_services=["insitu_testing", "service_repair"],
-            comment=comment
+            selected_services=["insitu_testing", "service_repair"]
         )
         print(f"Test PDF generated: {output_filename}")
     except Exception as e:
