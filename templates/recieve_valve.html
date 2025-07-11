@@ -849,7 +849,7 @@
                     const container = document.getElementById(imageType + '_container');
                     const preview = document.getElementById(imageType + '_preview');
                     preview.src = URL.createObjectURL(file);
-                    container.style.display = 'block';
+                    if (container) container.style.display = 'block';
                 } else {
                     showStatus(imageType + '_status', data.error, 'error');
                 }
@@ -889,7 +889,7 @@
                     const container = document.getElementById('received_valve_' + imageNumber + '_container');
                     const preview = document.getElementById('received_valve_' + imageNumber + '_preview');
                     preview.src = URL.createObjectURL(file);
-                    container.style.display = 'block';
+                    if (container) container.style.display = 'block';
                 } else {
                     showStatus('received_valve_' + imageNumber + '_status', data.error, 'error');
                 }
@@ -905,7 +905,7 @@
             
             // Hide preview container
             const container = document.getElementById(imageType + '_container');
-            container.style.display = 'none';
+            if (container) container.style.display = 'none';
             
             // Clear file input
             const fileInput = document.getElementById(imageType);
@@ -925,7 +925,7 @@
             
             // Hide preview container
             const container = document.getElementById('received_valve_' + imageNumber + '_container');
-            container.style.display = 'none';
+            if (container) container.style.display = 'none';
             
             // Clear file input
             const fileInput = document.getElementById('received_valve_' + imageNumber);
@@ -962,62 +962,49 @@
             });
         }
 
-        function generatePDF() {
-            const valveWO = document.getElementById('valve_wo').value;
-            
-            // Check if WO identifier is provided
-            if (!valveWO) {
-                showStatus('pdf_status', 'Please enter a Work Order (WO) number.', 'error');
-                return;
-            }
-            
-            // Use the WO identifier
-            const identifier = valveWO;
-            
-            // Collect client information
-            const clientName = document.getElementById('client_name').value.trim();
-            const projectName = document.getElementById('project_name').value.trim();
-            const location = document.getElementById('location').value.trim();
-            const dateIn = document.getElementById('date_in').value.trim();
-            // Collect new user input fields
-            const transportMode = document.getElementById('transport_mode').value.trim();
-            const transportBy = document.getElementById('transport_by').value.trim();
-            const packaging = document.getElementById('packaging').value.trim();
-            const receivedBy = document.getElementById('received_by').value.trim();
-            const transportComment = document.getElementById('transport_comment').value.trim();
-            let inletType = document.getElementById('inlet_type').value;
-            if (inletType === "Other") {
-                inletType = document.getElementById('inlet_type_other').value.trim();
-            }
-            let outletType = document.getElementById('outlet_type').value;
-            if (outletType === "Other") {
-                outletType = document.getElementById('outlet_type_other').value.trim();
-            }
-            let inletConnectionCondition = document.getElementById('inlet_connection_condition').value;
-            if (inletConnectionCondition === "Other") {
-                inletConnectionCondition = document.getElementById('inlet_connection_condition_other').value.trim();
-            }
-            let outletConnectionCondition = document.getElementById('outlet_connection_condition').value;
-            if (outletConnectionCondition === "Other") {
-                outletConnectionCondition = document.getElementById('outlet_connection_condition_other').value.trim();
-            }
-            let connectionMajorDamage = document.getElementById('connection_major_damage').value;
-            if (connectionMajorDamage === "Other") {
-                connectionMajorDamage = document.getElementById('connection_major_damage_other').value.trim();
-            }
-            let valveBodyCondition = document.getElementById('valve_body_condition').value;
-            if (valveBodyCondition === "Other") {
-                valveBodyCondition = document.getElementById('valve_body_condition_other').value.trim();
-            }
-            let majorDefectOnBody = document.getElementById('major_defect_on_body').value;
-            if (majorDefectOnBody === "Other") {
-                majorDefectOnBody = document.getElementById('major_defect_on_body_other').value.trim();
-            }
-            let overallValveCondition = document.getElementById('overall_valve_condition').value;
-            if (overallValveCondition === "Other") {
-                overallValveCondition = document.getElementById('overall_valve_condition_other').value.trim();
-            }
-            // Create user_data object only if any field is filled
+        function collectFormData() {
+            // Collect all form data for PDF generation, similar to finding_report.html
+            const valveWO = document.getElementById('valve_wo')?.value || '';
+            const clientName = document.getElementById('client_name')?.value.trim() || '';
+            const projectName = document.getElementById('project_name')?.value.trim() || '';
+            const location = document.getElementById('location')?.value.trim() || '';
+            const dateIn = document.getElementById('date_in')?.value.trim() || '';
+            const transportMode = document.getElementById('transport_mode')?.value.trim() || '';
+            const transportBy = document.getElementById('transport_by')?.value.trim() || '';
+            const packaging = document.getElementById('packaging')?.value.trim() || '';
+            const receivedBy = document.getElementById('received_by')?.value.trim() || '';
+            const transportComment = document.getElementById('transport_comment')?.value.trim() || '';
+            let inletType = document.getElementById('inlet_type')?.value || '';
+            if (inletType === "Other") inletType = document.getElementById('inlet_type_other')?.value.trim() || '';
+            let outletType = document.getElementById('outlet_type')?.value || '';
+            if (outletType === "Other") outletType = document.getElementById('outlet_type_other')?.value.trim() || '';
+            let inletConnectionCondition = document.getElementById('inlet_connection_condition')?.value || '';
+            if (inletConnectionCondition === "Other") inletConnectionCondition = document.getElementById('inlet_connection_condition_other')?.value.trim() || '';
+            let outletConnectionCondition = document.getElementById('outlet_connection_condition')?.value || '';
+            if (outletConnectionCondition === "Other") outletConnectionCondition = document.getElementById('outlet_connection_condition_other')?.value.trim() || '';
+            let connectionMajorDamage = document.getElementById('connection_major_damage')?.value || '';
+            if (connectionMajorDamage === "Other") connectionMajorDamage = document.getElementById('connection_major_damage_other')?.value.trim() || '';
+            let valveBodyCondition = document.getElementById('valve_body_condition')?.value || '';
+            if (valveBodyCondition === "Other") valveBodyCondition = document.getElementById('valve_body_condition_other')?.value.trim() || '';
+            let majorDefectOnBody = document.getElementById('major_defect_on_body')?.value || '';
+            if (majorDefectOnBody === "Other") majorDefectOnBody = document.getElementById('major_defect_on_body_other')?.value.trim() || '';
+            let overallValveCondition = document.getElementById('overall_valve_condition')?.value || '';
+            if (overallValveCondition === "Other") overallValveCondition = document.getElementById('overall_valve_condition_other')?.value.trim() || '';
+
+            // Get service selections (multiple checkboxes)
+            const selectedServices = document.querySelectorAll('input[name="service_options"]:checked');
+            const serviceSelections = Array.from(selectedServices).map(checkbox => checkbox.value);
+
+            // Get stamp selection and date
+            const stampSelection = document.getElementById('stamp_selection')?.value || '';
+            const stampDate = document.getElementById('stamp_date')?.value.trim() || '';
+
+            // Images
+            // uploadedImages and receivedValveImages are global variables
+            const image_files = uploadedImages;
+            const received_valve_images = receivedValveImages.filter(img => img);
+
+            // Compose user_data
             let user_data = null;
             if (
                 clientName || projectName || location || dateIn ||
@@ -1026,14 +1013,11 @@
                 connectionMajorDamage || valveBodyCondition || majorDefectOnBody || overallValveCondition ||
                 transportComment
             ) {
-                user_data = {
-                    client_info: {}
-                };
+                user_data = { client_info: {} };
                 if (clientName) user_data.client_info.client = clientName;
                 if (projectName) user_data.client_info.project = projectName;
                 if (location) user_data.client_info.location = location;
                 if (dateIn) user_data.client_info.date_in = dateIn;
-                // New fields
                 if (transportMode) user_data.client_info.transport_mode = transportMode;
                 if (transportBy) user_data.client_info.transport_by = transportBy;
                 if (packaging) user_data.client_info.packaging = packaging;
@@ -1048,28 +1032,27 @@
                 if (overallValveCondition) user_data.client_info.overall_valve_condition = overallValveCondition;
                 if (transportComment) user_data.client_info.transport_comment = transportComment;
             }
-            
-            // Get service selections (multiple checkboxes)
-            const selectedServices = document.querySelectorAll('input[name="service_options"]:checked');
-            const serviceSelections = Array.from(selectedServices).map(checkbox => checkbox.value);
-            
-            // Get stamp selection and date
-            const stampSelection = document.getElementById('stamp_selection').value;
-            const stampDate = document.getElementById('stamp_date').value.trim();
-            
-            const requestData = {
-                identifier: identifier,
+
+            // Compose the request data
+            return {
+                identifier: valveWO,
                 user_data: user_data,
-                image_files: uploadedImages,
-                received_valve_images: receivedValveImages.filter(img => img), // Filter out empty slots
+                image_files: image_files,
+                received_valve_images: received_valve_images,
                 stamp_selection: stampSelection,
-                date_value: stampDate || '7/7/2027',  // Use default if empty
+                date_value: stampDate || '',
                 selected_services: serviceSelections
             };
+        }
 
+        function generatePDF() {
+            const requestData = collectFormData();
+            if (!requestData.identifier) {
+                showStatus('pdf_status', 'Please enter a Work Order (WO) number.', 'error');
+                return;
+            }
             // Show loading state
             showStatus('pdf_status', 'Generating PDF... Please wait.', 'info');
-
             fetch('/generate', {
                 method: 'POST',
                 headers: {
@@ -1082,16 +1065,26 @@
                 if (data.message) {
                     showStatus('pdf_status', data.message, 'success');
                     currentPDFData = data;
-                    
+
                     // Show PDF viewer section
-                    document.getElementById('pdf_viewer_section').style.display = 'block';
-                    
+                    const pdfViewerSection = document.getElementById('pdf_viewer_section');
+                    if (pdfViewerSection) {
+                        pdfViewerSection.style.display = 'block';
+                    }
+
                     // Load PDF in viewer
                     const pdfViewer = document.getElementById('pdf_viewer');
-                    pdfViewer.src = data.view_url;
-                    
+                    if (pdfViewer) {
+                        pdfViewer.src = data.view_url;
+                    }
+
                     // Scroll to PDF viewer
-                    document.getElementById('pdf_viewer_section').scrollIntoView({ behavior: 'smooth' });
+                    if (pdfViewerSection) {
+                        pdfViewerSection.scrollIntoView({ behavior: 'smooth' });
+                    }
+
+                    // Refresh the PDF list after generating a new PDF
+                    loadAvailablePDFs();
                 } else {
                     showStatus('pdf_status', data.error, 'error');
                 }
@@ -1121,13 +1114,13 @@
             const container = document.getElementById('pdf_list_container');
             const loading = document.getElementById('pdf_list_loading');
             
-            loading.style.display = 'block';
-            container.innerHTML = '<div id="pdf_list_loading" style="text-align: center; padding: 20px; color: var(--deep-teal);">Loading available PDFs...</div>';
+            if (loading) loading.style.display = 'block';
+            if (container) container.innerHTML = '<div id="pdf_list_loading" style="text-align: center; padding: 20px; color: var(--deep-teal);">Loading available PDFs...</div>';
 
             fetch('/list-pdfs')
                 .then(response => response.json())
                 .then(data => {
-                    loading.style.display = 'none';
+                    if (loading) loading.style.display = 'none';
                     
                     if (data.pdfs && data.pdfs.length > 0) {
                         let html = '<div style="display: grid; gap: 15px;">';
@@ -1154,14 +1147,14 @@
                             `;
                         });
                         html += '</div>';
-                        container.innerHTML = html;
+                        if (container) container.innerHTML = html;
                     } else {
-                        container.innerHTML = '<div style="text-align: center; padding: 20px; color: #666;">No PDF reports available yet. Generate your first report above!</div>';
+                        if (container) container.innerHTML = '<div style="text-align: center; padding: 20px; color: #666;">No PDF reports available yet. Generate your first report above!</div>';
                     }
                 })
                 .catch(error => {
-                    loading.style.display = 'none';
-                    container.innerHTML = '<div style="text-align: center; padding: 20px; color: #dc3545;">Error loading PDFs: ' + error.message + '</div>';
+                    if (loading) loading.style.display = 'none';
+                    if (container) container.innerHTML = '<div style="text-align: center; padding: 20px; color: #dc3545;">Error loading PDFs: ' + error.message + '</div>';
                 });
         }
 
@@ -1331,23 +1324,23 @@
             const select = document.getElementById(selectId);
             const otherInput = document.getElementById(selectId + '_other');
             if (select.value === 'Other') {
-                otherInput.style.display = 'block';
+                if (otherInput) otherInput.style.display = 'block';
             } else {
-                otherInput.style.display = 'none';
-                otherInput.value = '';
+                if (otherInput) otherInput.style.display = 'none';
+                if (otherInput) otherInput.value = '';
             }
         }
 
         function toggleServiceOption(checkbox) {
             const serviceOption = checkbox.closest('.service-option');
             if (checkbox.checked) {
-                serviceOption.style.background = 'rgba(44, 161, 132, 0.1)';
-                serviceOption.style.borderColor = 'var(--medium-teal)';
-                serviceOption.style.transform = 'scale(1.02)';
+                if (serviceOption) serviceOption.style.background = 'rgba(44, 161, 132, 0.1)';
+                if (serviceOption) serviceOption.style.borderColor = 'var(--medium-teal)';
+                if (serviceOption) serviceOption.style.transform = 'scale(1.02)';
             } else {
-                serviceOption.style.background = 'var(--light-gray)';
-                serviceOption.style.borderColor = 'transparent';
-                serviceOption.style.transform = 'scale(1)';
+                if (serviceOption) serviceOption.style.background = 'var(--light-gray)';
+                if (serviceOption) serviceOption.style.borderColor = 'transparent';
+                if (serviceOption) serviceOption.style.transform = 'scale(1)';
             }
         }
         
