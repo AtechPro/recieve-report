@@ -365,17 +365,7 @@
 
         {% include 'navbar.html' %}
 
-        <div class="upload-section">
-            <h2>📊 Excel Data Upload</h2>
-            <p>Upload your Excel file containing valve data to extract information for the finding report.</p>
-            
-            <div class="file-upload-area">
-                <input type="file" id="excelFile" accept=".xlsx,.xls" onchange="handleExcelUpload()">
-                <p>Drag and drop your Excel file here or click to browse</p>
-            </div>
-            
-            <div id="excelStatus" class="status" style="display: none;"></div>
-        </div>
+
 
         <div class="valve-selector">
             <h3>🔍 Valve Selection</h3>
@@ -386,6 +376,13 @@
                     <label for="valve_identifier">Valve No or WO Number:</label>
                     <input type="text" id="valve_identifier" placeholder="Enter No or WO number" list="valve_wo_list">
                     <datalist id="valve_wo_list"></datalist>
+                </div>
+                <div class="form-group">
+                    <label for="date_in">Date In:</label>
+                    <div class="date-input-group">
+                        <input type="text" id="date_in" placeholder="DD/MM/YYYY" onchange="updateCalendarFromDateIn()">
+                        <input type="date" id="date_in_calendar" onchange="updateDateInInput()">
+                    </div>
                 </div>
             </div>
         </div>
@@ -544,7 +541,7 @@
         </div>
 
         <div class="upload-section">
-            <h2>🔧 Internal Inspection Data</h2>
+            <h2>🔧 INTERNAL PARTS INSPECTION</h2>
             <p>Enter inspection findings for internal components:</p>
             
             <div id="internalInspectionContainer">
@@ -600,37 +597,7 @@
         let uploadedImages = {};
         let receivedValveImages = [];
 
-        function handleExcelUpload() {
-            const fileInput = document.getElementById('excelFile');
-            const statusDiv = document.getElementById('excelStatus');
-            
-            if (!fileInput.files[0]) {
-                showStatus('excelStatus', 'Please select a file', 'error');
-                return;
-            }
 
-            const formData = new FormData();
-            formData.append('excel', fileInput.files[0]);
-
-            showStatus('excelStatus', 'Uploading Excel file...', 'info');
-
-            fetch('/upload-excel', {
-                method: 'POST',
-                body: formData
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.message) {
-                    showStatus('excelStatus', data.message, 'success');
-                    loadAvailableNumbers();
-                } else {
-                    showStatus('excelStatus', 'Upload failed: ' + data.error, 'error');
-                }
-            })
-            .catch(error => {
-                showStatus('excelStatus', 'Upload failed: ' + error.message, 'error');
-            });
-        }
 
         function generateFindingReport() {
             const identifier = document.getElementById('valve_identifier').value;
@@ -642,6 +609,12 @@
 
             // Collect all form data
             const formData = collectFormData();
+            
+            // Debug: Log the form data being sent
+            console.log('Form data being sent:', formData);
+            console.log('Date value in form data:', formData.date_value);
+            console.log('Date value type:', typeof formData.date_value);
+            console.log('Date value length:', formData.date_value ? formData.date_value.length : 'null');
 
             showStatus('findingReportStatus', 'Generating finding report...', 'info');
 
@@ -823,6 +796,8 @@
             const container = document.getElementById('visualInspectionContainer');
             const itemId = 'visual_' + Date.now();
             
+            const isSpecial = desc === 'NAMEPLATE' || desc === 'GENERAL APPEARANCE';
+            
             const itemDiv = document.createElement('div');
             itemDiv.className = 'inspection-item';
             itemDiv.style.cssText = `
@@ -841,7 +816,22 @@
                 <div class="form-grid">
                     <div class="form-group">
                         <label>Condition:</label>
-                        <input type="text" class="inspection-condition" value="${condition}" placeholder="e.g., Good, Damaged, Corroded">
+                        ${isSpecial
+                            ? `<input type="text" class="inspection-condition" value="${condition}" placeholder="e.g., Good, Damaged, Corroded">`
+                            : `<select class="inspection-condition" style="min-width: 180px;">
+                                <option value="">-- Select --</option>
+                                <option value="OK">OK</option>
+                                <option value="NOT AVAILABLE">NOT AVAILABLE</option>
+                                <option value="NOT VISIBLE">NOT VISIBLE</option>
+                                <option value="CORRODED & DIRTY">CORRODED & DIRTY</option>
+                                <option value="NOT APPLICABLE">NOT APPLICABLE</option>
+                                <option value="IN PLACED">IN PLACED</option>
+                                <option value="DIRTY">DIRTY</option>
+                                <option value="NOT COMPLETED">NOT COMPLETED</option>
+                                <option value="MISSING">MISSING</option>
+                                <option value="NEW">NEW</option>
+                                <option value="DENTED">DENTED</option>
+                            </select>`}
                     </div>
                     <div class="form-group">
                         <label>Actions:</label>
@@ -884,6 +874,10 @@
                 actionsSelect.addEventListener('change', function() {
                     actionsSelect.setAttribute('data-selected', this.value);
                 });
+                if (!isSpecial) {
+                    const conditionSelect = itemDiv.querySelector('.inspection-condition');
+                    conditionSelect.value = condition;
+                }
             }, 0);
             
             container.appendChild(itemDiv);
@@ -932,7 +926,16 @@
                     </div>
                     <div class="form-group">
                         <label>Actions:</label>
-                        <input type="text" class="inspection-actions" value="${actions}" placeholder="e.g., Clean, Replace, Repair">
+                        <select class="inspection-actions" style="min-width: 180px;">
+                            <option value="">-- Select --</option>
+                            <option value="SAND DOWN & CLEANING">SAND DOWN & CLEANING</option>
+                            <option value="CLEANING">CLEANING</option>
+                            <option value="TO REPLACE NEW">TO REPLACE NEW</option>
+                            <option value="TO MACHINED">TO MACHINED</option>
+                            <option value="TO LAPPED">TO LAPPED</option>
+                            <option value="TO BUILD UP & MACHINE">TO BUILD UP & MACHINE</option>
+                            <option value="NOT APPLICABLE">NOT APPLICABLE</option>
+                        </select>
                     </div>
                     <div class="form-group">
                         <label>Remarks:</label>
@@ -948,6 +951,12 @@
                     </div>
                 </div>
             `;
+            
+            // Set the value if provided
+            setTimeout(() => {
+                const actionsSelect = itemDiv.querySelector('.inspection-actions');
+                actionsSelect.value = actions;
+            }, 0);
             
             container.appendChild(itemDiv);
         }
@@ -1102,13 +1111,31 @@
         }
 
         function collectFormData() {
+            // Get the date value and add debugging
+            const dateValue = document.getElementById('stamp_date').value;
+            console.log('Date value from form:', dateValue);
+            
+            // If date is empty, set current date as fallback
+            let finalDateValue = dateValue;
+            if (!dateValue || dateValue.trim() === '') {
+                const today = new Date();
+                const day = String(today.getDate()).padStart(2, '0');
+                const month = String(today.getMonth() + 1).padStart(2, '0');
+                const year = today.getFullYear();
+                finalDateValue = `${day}/${month}/${year}`;
+                console.log('Using fallback date:', finalDateValue);
+            }
+            // Get Date In value
+            const dateInValue = document.getElementById('date_in').value;
             const data = {
                 identifier: document.getElementById('valve_identifier').value,
                 stamp_selection: document.getElementById('stamp_selection').value,
-                date_value: document.getElementById('stamp_date').value,
+                date_value: finalDateValue,
                 selected_services: Array.from(document.querySelectorAll('.service-option input[type="checkbox"]:checked')).map(cb => cb.value),
                 comment: document.getElementById('additional_comment').value,  // Include comment
-                
+                client_info: {
+                    date_in: dateInValue
+                },
                 // Pre-test data
                 pretest: {
                     type_test: document.getElementById('type_test').value,
@@ -1179,6 +1206,20 @@
             loadAvailableNumbers();
             loadAvailablePDFs();
             setCurrentStampDate();
+            // Set default value for Date In
+            const today = new Date();
+            const day = String(today.getDate()).padStart(2, '0');
+            const month = String(today.getMonth() + 1).padStart(2, '0');
+            const year = today.getFullYear();
+            const formattedDate = `${day}/${month}/${year}`;
+            document.getElementById('date_in').value = formattedDate;
+            document.getElementById('date_in_calendar').value = today.toISOString().split('T')[0];
+            
+            // Debug: Check if date is set correctly
+            setTimeout(() => {
+                const dateValue = document.getElementById('stamp_date').value;
+                console.log('Date value after setCurrentStampDate:', dateValue);
+            }, 100);
             
             // Add default visual inspection items with fixed descriptions
             addVisualInspectionItem('GENERAL APPEARANCE', '', '', '');
@@ -1210,6 +1251,29 @@
             addDetailedPictureItem('ITEM 2', '', '', '', '');
             addDetailedPictureItem('ITEM 3', '', '', '', '');
         };
+        // Add sync functions for Date In
+        function updateDateInInput() {
+            const calendarInput = document.getElementById('date_in_calendar');
+            const textInput = document.getElementById('date_in');
+            if (calendarInput.value) {
+                const date = new Date(calendarInput.value);
+                const day = String(date.getDate()).padStart(2, '0');
+                const month = String(date.getMonth() + 1).padStart(2, '0');
+                const year = date.getFullYear();
+                const formattedDate = `${day}/${month}/${year}`;
+                textInput.value = formattedDate;
+            }
+        }
+        function updateCalendarFromDateIn() {
+            const textInput = document.getElementById('date_in');
+            const calendarInput = document.getElementById('date_in_calendar');
+            if (textInput.value) {
+                const date = parseDateFromDDMMYYYY(textInput.value);
+                if (date && !isNaN(date.getTime())) {
+                    calendarInput.value = date.toISOString().split('T')[0];
+                }
+            }
+        }
     </script>
 </body>
 </html> 

@@ -54,14 +54,19 @@ def extract_excel_to_json(excel_file_path, output_file_path=None):
 
 def main():
     """Main function to run the extraction"""
-    excel_file = "summary_project.xlsx"
+    # Check if a file path was provided as command line argument
+    if len(sys.argv) > 1:
+        excel_file = sys.argv[1]
+    else:
+        excel_file = "summary_project.xlsx"
     
     # Check if the Excel file exists
     if not Path(excel_file).exists():
-        print(f"Error: {excel_file} not found in the current directory.")
-        print("Available files:")
-        for file in Path('.').glob('*'):
-            print(f"  - {file.name}")
+        print(f"Error: {excel_file} not found.")
+        if len(sys.argv) == 1:
+            print("Available files:")
+            for file in Path('.').glob('*'):
+                print(f"  - {file.name}")
         return
     
     # Extract data and save to JSON file

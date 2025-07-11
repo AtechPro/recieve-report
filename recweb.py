@@ -61,6 +61,22 @@ def index():
 def finding_report():
     return render_template('finding_report.html')
 
+@app.route('/excel-converter')
+def excel_converter():
+    return render_template('excel_converter.html')
+
+@app.route('/get-converted-data')
+def get_converted_data():
+    """Get the converted JSON data"""
+    try:
+        with open('extracted_data.json', 'r', encoding='utf-8') as f:
+            data = json.load(f)
+        return jsonify(data)
+    except FileNotFoundError:
+        return jsonify({'error': 'No converted data found. Please upload an Excel file first.'}), 404
+    except Exception as e:
+        return jsonify({'error': f'Error reading converted data: {str(e)}'}), 500
+
 @app.route('/upload-image', methods=['POST'])
 def upload_image():
     if 'image' not in request.files:
@@ -105,7 +121,7 @@ def generate():
         return jsonify({'error': 'Missing required field: identifier (No or WO)'}), 400
 
     try:
-        pdf_filename = generate_pdf(identifier, user_data, image_files, received_valve_images, stamp_selection, date_value, selected_services, comment)
+        pdf_filename = generate_pdf(identifier, user_data, image_files, received_valve_images, stamp_selection, date_value, selected_services)
         pdf_path = os.path.join(PDF_FOLDER, pdf_filename)
         
         # Clean up temporary images after PDF generation
@@ -130,6 +146,11 @@ def generate_finding_report():
     selected_services = data.get('selected_services', [])
     comment = data.get('comment', '')  # Get comment from request
     
+    # Debug: Log the received data
+    print(f"DEBUG: Received date_value: '{date_value}'")
+    print(f"DEBUG: date_value type: {type(date_value)}")
+    print(f"DEBUG: date_value length: {len(date_value) if date_value else 'None'}")
+    
     # Extract additional data for finding report
     visual_inspection = data.get('visual_inspection', [])
     internal_inspection = data.get('internal_inspection', [])
@@ -145,6 +166,7 @@ def generate_finding_report():
         
         # Create user_data with the collected form data
         user_data = {
+            'client_info': data.get('client_info', {}),
             'visual_inspection': visual_inspection,
             'internal_inspection': internal_inspection,
             'detailed_pictures': detailed_pictures,
