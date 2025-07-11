@@ -356,14 +356,29 @@ class PDF(FPDF):
             row.cell(pretest_data.get('test_accordance_to', ''), align='C', colspan=3)
 
 
-    def additonal_comment(self):
-        self.cell(0, 10, 'ADDITIONAL COMMENT:')
+    def additonal_comment(self, comment=""):
         self.set_font(self.FONT_FAMILY, '', self.FONT_SIZE)
-        col_widths = [250]  # 4 columns, total 190mm
-        with self.table(col_widths=col_widths, line_height=30) as table:
-            row = table.row()
-            row.cell(' ', align='C', colspan=1)
-        self.ln(40)
+        x = self.get_x()
+        y = self.get_y()
+        width = 190
+        height = 50  # Adjust as needed
+
+        # Draw the rectangle
+        self.rect(x, y, width, height)
+
+        # Set position just inside the top-left of the box
+        self.set_xy(x + 1, y + 1)
+        self.set_font(self.FONT_FAMILY, 'B', self.FONT_SIZE)  # Bold for label
+        self.cell(0, 7, 'ADDITIONAL COMMENT:', ln=1)
+
+        # Now write the comment, a bit lower inside the box
+        self.set_font(self.FONT_FAMILY, '', self.FONT_SIZE)  # Regular for comment
+        self.set_x(x + 2)
+        self.multi_cell(width - 8, 5, comment, 0, 'J')  # Justified alignment
+
+        # Move Y to the bottom of the box for spacing after
+        self.set_xy(x, y + height)
+        self.ln(30)
 
 
     def internal_inspection(self):
@@ -539,7 +554,7 @@ class PDF(FPDF):
             self.set_xy(date_x, date_y)
             self.cell(sig_width - 4, 5, date_value, align='L')
 
-def generate_pdf(identifier, user_data=None, stamp_selection=None, date_value=None, selected_services=None):
+def generate_pdf(identifier, user_data=None, stamp_selection=None, date_value=None, selected_services=None, comment=None):
     valve_data = load_valve_data(identifier, user_data)
     pdf = PDF(valve_data, selected_services=selected_services, format='A4')
     print('FPDF units: millimeters (mm) by default for A4 size 210x297mm')
@@ -548,7 +563,8 @@ def generate_pdf(identifier, user_data=None, stamp_selection=None, date_value=No
     pdf.visual_inspection()
     pdf.internal_inspection()
     pdf.pretest()
-    pdf.additonal_comment()
+    pdf.additonal_comment(comment)
+    
     pdf.detailed_picture()
     pdf.signature_block()
     
@@ -589,12 +605,28 @@ if __name__ == "__main__":
     identifier = "1"  # Change as needed
     # Optionally, you can provide user_data, image_files, received_valve_images, stamp_selection, date_value, selected_services
     try:
+        comment = (
+            "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean vitae massa mi. "
+            "Pellentesque a pulvinar purus. Curabitur vehicula ultrices enim, eget suscipit ante venenatis quis. "
+            "Ut ullamcorper, arcu porta ultrices ultrices, mi tellus consequat ipsum, ut tempor nunc ante eget risus. "
+            "Praesent iaculis pellentesque est, ut pretium arcu pellentesque eu. Morbi quis hendrerit diam, posuere placerat turpis. "
+            "Etiam ac neque eget nulla dapibus vehicula a nec augue. Vestibulum in finibus dolor. Pellentesque vel nunc dolor. "
+            "Sed dignissim dui quis mattis laoreet. Aliquam fringilla feugiat leo vitae pulvinar. Curabitur dictum erat ex. "
+            "Proin aliquam leo nunc, eu viverra erat ultrices vel. Duis est lacus, efficitur at blandit eu, iaculis a nulla. "
+            "Aenean convallis nisl sit amet dui pellentesque dictum. In vehicula eros quis felis ornare, vitae luctus odio aliquam. "
+            "Vestibulum sodales nisl eu mi dapibus, sit amet feugiat ex tempus. In ut suscipit orci. Integer interdum id tellus quis dapibus. "
+            "Sed tempor neque at pulvinar tristique. Nunc gravida, odio vel ultricies rutrum, ex odio tristique libero, at ultrices ligula felis at turpis. "
+            "Sed mollis nibh nisl, a tempus lacus rhoncus vitae. Etiam tincidunt augue sit amet massa sodales, et vulputate ex malesuada. "
+            "Duis non nibh augue. Nullam cursus iaculis enim, at fringilla erat venenatis at."
+            "Sed dignissim dui quis mattis laoreet. Aliquam fringilla feugiat leo vitae pulvinar. Curabitur dictum erat ex. "
+        )
         output_filename = generate_pdf(
             identifier=identifier,
             user_data=None,
             stamp_selection="SAO",
             date_value="01/01/2025",
-            selected_services=["insitu_testing", "service_repair"]
+            selected_services=["insitu_testing", "service_repair"],
+            comment=comment
         )
         print(f"Test PDF generated: {output_filename}")
     except Exception as e:

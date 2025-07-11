@@ -310,12 +310,29 @@ class PDF(FPDF):
                 row.cell(part.get('actions', ''), align='C')
                 row.cell(part.get('remarks', ''), align='C')
                 
-    def additonal_comment(self):
-        self.set_font(self.FONT_FAMILY, '', self.FONT_SIZE)
-        col_widths = [250]  # 4 columns, total 190mm
-        with self.table(col_widths=col_widths, line_height=30) as table:
-            row = table.row()
-            row.cell(' ', align='L', colspan=1)
+        def additonal_comment(self, comment=""):
+            self.set_font(self.FONT_FAMILY, '', self.FONT_SIZE)
+            x = self.get_x()
+            y = self.get_y()
+            width = 190
+            height = 50  # Adjust as needed
+
+            # Draw the rectangle
+            self.rect(x, y, width, height)
+
+            # Set position just inside the top-left of the box
+            self.set_xy(x + 1, y + 1)
+            self.set_font(self.FONT_FAMILY, 'B', self.FONT_SIZE)  # Bold for label
+            self.cell(0, 7, 'ADDITIONAL COMMENT:', ln=1)
+
+            # Now write the comment, a bit lower inside the box
+            self.set_font(self.FONT_FAMILY, '', self.FONT_SIZE)  # Regular for comment
+            self.set_x(x + 2)
+            self.multi_cell(width - 8, 5, comment, 0, 'J')  # Justified alignment
+
+            # Move Y to the bottom of the box for spacing after
+            self.set_xy(x, y + height)
+            self.ln(30)
     
     def detailed_picture(self):
         self.set_font(self.FONT_FAMILY, '', self.FONT_SIZE)
