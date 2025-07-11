@@ -357,6 +357,7 @@ class PDF(FPDF):
 
 
     def additonal_comment(self):
+        self.cell(0, 10, 'ADDITIONAL COMMENT:')
         self.set_font(self.FONT_FAMILY, '', self.FONT_SIZE)
         col_widths = [250]  # 4 columns, total 190mm
         with self.table(col_widths=col_widths, line_height=30) as table:
