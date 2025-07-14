@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Excel to JSON Converter</title>
+    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='logo/lenogweb.ico') }}">
     <style>
         :root {
             --deep-teal: #167E66;
@@ -332,6 +333,291 @@
             gap: 8px;
             margin: 15px 0;
         }
+
+        /* Table Viewer Styles */
+        .table-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 5px;
+        }
+
+        .view-btn {
+            padding: 8px 16px;
+            border: 2px solid var(--light-gray-2);
+            background: var(--pure-white);
+            color: var(--very-dark-teal);
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .view-btn:hover {
+            border-color: var(--medium-teal);
+            background: rgba(44, 161, 132, 0.05);
+        }
+
+        .view-btn.active {
+            background: var(--medium-teal);
+            color: var(--pure-white);
+            border-color: var(--medium-teal);
+        }
+
+        .search-box {
+            position: relative;
+            flex: 1;
+            max-width: 400px;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid var(--light-gray-2);
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            background: var(--pure-white);
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--medium-teal);
+            box-shadow: 0 0 0 3px rgba(44, 161, 132, 0.1);
+        }
+
+        .search-results {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            background: var(--pure-white);
+            border: 1px solid var(--light-gray-2);
+            border-radius: 4px;
+            padding: 8px 12px;
+            font-size: 12px;
+            color: var(--deep-teal);
+            z-index: 10;
+            display: none;
+        }
+
+        .table-info {
+            display: flex;
+            align-items: center;
+        }
+
+        .table-info-text {
+            font-size: 14px;
+            color: var(--deep-teal);
+            font-weight: 500;
+        }
+
+        .table-container {
+            background: var(--pure-white);
+            border-radius: 8px;
+            overflow: auto; /* enables both x and y scroll */
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            margin: 20px 0;
+            max-height: 450px;   /* vertical scroll */
+            max-width: 100%;     /* horizontal scroll if needed */
+            height: 450px;
+            position: relative;
+        }
+        .data-table {
+            min-width: 1200px;
+        }
+        .data-table thead {
+            background: linear-gradient(135deg, var(--deep-teal) 0%, var(--dark-teal) 100%);
+            color: var(--pure-white);
+            position: sticky;
+            top: 0;
+            z-index: 5;
+        }
+
+        .data-table th {
+            padding: 12px 8px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 12px;
+            white-space: nowrap;
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .data-table th:last-child {
+            border-right: none;
+        }
+
+        .data-table tbody tr {
+            border-bottom: 1px solid var(--light-gray-2);
+            transition: background-color 0.2s ease;
+        }
+
+        .data-table tbody tr:hover {
+            background-color: rgba(44, 161, 132, 0.05);
+        }
+
+        .data-table tbody tr:nth-child(even) {
+            background-color: var(--light-mint);
+        }
+
+        .data-table tbody tr:nth-child(even):hover {
+            background-color: rgba(44, 161, 132, 0.08);
+        }
+
+        .data-table td {
+            padding: 10px 8px;
+            border-right: 1px solid var(--light-gray-2);
+            max-width: 200px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            font-size: 12px;
+        }
+
+        .data-table td:last-child {
+            border-right: none;
+        }
+
+        .data-table td.highlight {
+            background-color: rgba(255, 255, 0, 0.3);
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .page-info {
+            font-weight: 600;
+            color: var(--deep-teal);
+            font-size: 14px;
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        .btn:disabled:hover {
+            box-shadow: none;
+        }
+
+        /* Card View Styles */
+        .card-container {
+            margin: 20px 0;
+        }
+
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+            gap: 20px;
+        }
+
+        .data-card {
+            background: var(--pure-white);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            border: 1px solid var(--light-gray-2);
+            transition: all 0.3s ease;
+        }
+
+        .data-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        .card-header {
+            background: linear-gradient(135deg, var(--medium-teal) 0%, var(--deep-teal) 100%);
+            color: var(--pure-white);
+            padding: 15px 20px;
+            margin: -20px -20px 20px -20px;
+            border-radius: 12px 12px 0 0;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .card-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .card-field {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .card-field-label {
+            font-weight: 600;
+            color: var(--deep-teal);
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .card-field-value {
+            color: var(--very-dark-teal);
+            font-size: 13px;
+            word-break: break-word;
+            line-height: 1.4;
+        }
+
+        .card-field-value.empty {
+            color: #999;
+            font-style: italic;
+        }
+
+        /* Responsive table */
+        @media (max-width: 768px) {
+            .table-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .search-box {
+                max-width: none;
+            }
+            
+            .table-container {
+                max-height: 400px;
+            }
+            
+            .data-table {
+                font-size: 11px;
+            }
+            
+            .data-table th,
+            .data-table td {
+                padding: 8px 4px;
+            }
+
+            .card-grid {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+
+            .data-card {
+                padding: 15px;
+            }
+
+            .card-content {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -368,6 +654,53 @@
             <div class="spinner-border"></div>
             <h5 style="color: var(--deep-teal); margin-bottom: 10px;">Processing your Excel file...</h5>
             <p style="color: #666;">Please wait while we convert your data</p>
+        </div>
+
+        <!-- Data Table Viewer Section -->
+        <div class="upload-section">
+            <h2>📋 Extracted Data Viewer</h2>
+            <p>View and search through the extracted valve service data from extracted_data.json</p>
+            
+            <div class="table-controls">
+                <div class="view-toggle">
+                    <button id="tableViewBtn" class="view-btn active" onclick="switchView('table')">
+                        📊 Table View
+                    </button>
+                    <button id="cardViewBtn" class="view-btn" onclick="switchView('card')">
+                        📋 Card View
+                    </button>
+                </div>
+                <div class="search-box">
+                    <input type="text" id="tableSearch" placeholder="🔍 Search in table..." class="search-input">
+                    <span id="searchResults" class="search-results"></span>
+                </div>
+                <div class="table-info">
+                    <span id="tableInfo" class="table-info-text">Loading data...</span>
+                </div>
+            </div>
+            
+            <div class="table-container" id="tableContainer">
+                <table id="dataTable" class="data-table">
+                    <thead id="tableHeader">
+                        <!-- Headers will be populated here -->
+                    </thead>
+                    <tbody id="tableBody">
+                        <!-- Data will be populated here -->
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="card-container" id="cardContainer" style="display: none;">
+                <div id="cardGrid" class="card-grid">
+                    <!-- Cards will be populated here -->
+                </div>
+            </div>
+            
+            <div class="pagination">
+                <button id="prevPage" class="btn btn-secondary">← Previous</button>
+                <span id="pageInfo" class="page-info">Page 1 of 1</span>
+                <button id="nextPage" class="btn btn-secondary">Next →</button>
+            </div>
         </div>
 
         <!-- Results Section -->
@@ -560,6 +893,234 @@
             element.className = 'status ' + type;
             element.style.display = 'block';
         }
+
+        // Table Viewer functionality
+        let tableData = [];
+        let filteredData = [];
+        let currentPage = 1;
+        const rowsPerPage = 20;
+        let currentView = 'table'; // 'table' or 'card'
+
+        // Load table data when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            loadTableData();
+        });
+
+        function loadTableData() {
+            fetch('/get-extracted-data')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        document.getElementById('tableInfo').textContent = 'Error loading data: ' + data.error;
+                    } else {
+                        tableData = data.data || [];
+                        filteredData = [...tableData];
+                        if (currentView === 'table') {
+                            displayTable();
+                        } else {
+                            displayCards();
+                        }
+                        updateTableInfo();
+                    }
+                })
+                .catch(error => {
+                    document.getElementById('tableInfo').textContent = 'Error loading data: ' + error.message;
+                });
+        }
+
+        function switchView(view) {
+            currentView = view;
+            
+            // Update button states
+            document.getElementById('tableViewBtn').classList.toggle('active', view === 'table');
+            document.getElementById('cardViewBtn').classList.toggle('active', view === 'card');
+            
+            // Show/hide containers
+            document.getElementById('tableContainer').style.display = view === 'table' ? 'block' : 'none';
+            document.getElementById('cardContainer').style.display = view === 'card' ? 'block' : 'none';
+            
+            // Display data in current view
+            if (view === 'table') {
+                displayTable();
+            } else {
+                displayCards();
+            }
+        }
+
+        function displayTable() {
+            const tableHeader = document.getElementById('tableHeader');
+            const tableBody = document.getElementById('tableBody');
+            
+            if (filteredData.length === 0) {
+                tableHeader.innerHTML = '<tr><th>No data available</th></tr>';
+                tableBody.innerHTML = '<tr><td colspan="1" style="text-align: center; padding: 40px;">No data found</td></tr>';
+                return;
+            }
+
+            // Create headers
+            const headers = Object.keys(filteredData[0]);
+            const headerRow = document.createElement('tr');
+            headers.forEach(header => {
+                const th = document.createElement('th');
+                th.textContent = header;
+                headerRow.appendChild(th);
+            });
+            tableHeader.innerHTML = '';
+            tableHeader.appendChild(headerRow);
+
+            // Create paginated rows
+            const startIndex = (currentPage - 1) * rowsPerPage;
+            const endIndex = startIndex + rowsPerPage;
+            const pageData = filteredData.slice(startIndex, endIndex);
+
+            tableBody.innerHTML = '';
+            pageData.forEach(row => {
+                const tr = document.createElement('tr');
+                headers.forEach(header => {
+                    const td = document.createElement('td');
+                    let cellValue = row[header];
+                    if (!cellValue || cellValue === 'nan' || cellValue === 'NaT') {
+                        td.textContent = 'No data';
+                        td.classList.add('empty');
+                    } else {
+                        td.textContent = cellValue;
+                    }
+                    tr.appendChild(td);
+                });
+                tableBody.appendChild(tr);
+            });
+
+            updatePagination();
+        }
+
+        function displayCards() {
+            const cardGrid = document.getElementById('cardGrid');
+            
+            if (filteredData.length === 0) {
+                cardGrid.innerHTML = '<div style="text-align: center; padding: 40px; color: #666;">No data found</div>';
+                return;
+            }
+
+            // Create paginated cards
+            const startIndex = (currentPage - 1) * rowsPerPage;
+            const endIndex = startIndex + rowsPerPage;
+            const pageData = filteredData.slice(startIndex, endIndex);
+
+            cardGrid.innerHTML = '';
+            pageData.forEach((row, index) => {
+                const card = document.createElement('div');
+                card.className = 'data-card';
+                
+                // Create card header with record number
+                const header = document.createElement('div');
+                header.className = 'card-header';
+                header.textContent = `Record ${startIndex + index + 1}`;
+                card.appendChild(header);
+                
+                // Create card content
+                const content = document.createElement('div');
+                content.className = 'card-content';
+                
+                // Add all fields to the card
+                Object.entries(row).forEach(([key, value]) => {
+                    const field = document.createElement('div');
+                    field.className = 'card-field';
+                    
+                    const label = document.createElement('div');
+                    label.className = 'card-field-label';
+                    label.textContent = key;
+                    
+                    const fieldValue = document.createElement('div');
+                    fieldValue.className = 'card-field-value';
+                    if (!value || value === 'nan' || value === 'NaT') {
+                        fieldValue.textContent = 'No data';
+                        fieldValue.classList.add('empty');
+                    } else {
+                        fieldValue.textContent = value;
+                    }
+                    
+                    field.appendChild(label);
+                    field.appendChild(fieldValue);
+                    content.appendChild(field);
+                });
+                
+                card.appendChild(content);
+                cardGrid.appendChild(card);
+            });
+
+            updatePagination();
+        }
+
+        function updateTableInfo() {
+            const totalRows = filteredData.length;
+            const totalPages = Math.ceil(totalRows / rowsPerPage);
+            document.getElementById('tableInfo').textContent = 
+                `Showing ${filteredData.length} of ${tableData.length} records`;
+        }
+
+        function updatePagination() {
+            const totalPages = Math.ceil(filteredData.length / rowsPerPage);
+            const pageInfo = document.getElementById('pageInfo');
+            const prevBtn = document.getElementById('prevPage');
+            const nextBtn = document.getElementById('nextPage');
+
+            pageInfo.textContent = `Page ${currentPage} of ${totalPages}`;
+            prevBtn.disabled = currentPage === 1;
+            nextBtn.disabled = currentPage === totalPages;
+        }
+
+        // Search functionality
+        document.getElementById('tableSearch').addEventListener('input', function(e) {
+            const searchTerm = e.target.value.toLowerCase();
+            const searchResults = document.getElementById('searchResults');
+            
+            if (searchTerm.length === 0) {
+                filteredData = [...tableData];
+                searchResults.style.display = 'none';
+            } else {
+                filteredData = tableData.filter(row => {
+                    return Object.values(row).some(value => 
+                        String(value).toLowerCase().includes(searchTerm)
+                    );
+                });
+                
+                // Highlight search results
+                searchResults.textContent = `Found ${filteredData.length} matching records`;
+                searchResults.style.display = 'block';
+            }
+            
+            currentPage = 1;
+            if (currentView === 'table') {
+                displayTable();
+            } else {
+                displayCards();
+            }
+            updateTableInfo();
+        });
+
+        // Pagination controls
+        document.getElementById('prevPage').addEventListener('click', function() {
+            if (currentPage > 1) {
+                currentPage--;
+                if (currentView === 'table') {
+                    displayTable();
+                } else {
+                    displayCards();
+                }
+            }
+        });
+
+        document.getElementById('nextPage').addEventListener('click', function() {
+            const totalPages = Math.ceil(filteredData.length / rowsPerPage);
+            if (currentPage < totalPages) {
+                currentPage++;
+                if (currentView === 'table') {
+                    displayTable();
+                } else {
+                    displayCards();
+                }
+            }
+        });
     </script>
 </body>
 </html> 

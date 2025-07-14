@@ -77,6 +77,18 @@ def get_converted_data():
     except Exception as e:
         return jsonify({'error': f'Error reading converted data: {str(e)}'}), 500
 
+@app.route('/get-extracted-data')
+def get_extracted_data():
+    """Get the extracted data for table viewer"""
+    try:
+        with open('extracted_data.json', 'r', encoding='utf-8') as f:
+            data = json.load(f)
+        return jsonify(data)
+    except FileNotFoundError:
+        return jsonify({'error': 'extracted_data.json file not found'}), 404
+    except Exception as e:
+        return jsonify({'error': f'Error reading extracted data: {str(e)}'}), 500
+
 @app.route('/upload-image', methods=['POST'])
 def upload_image():
     if 'image' not in request.files:
