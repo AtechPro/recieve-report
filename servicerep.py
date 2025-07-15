@@ -333,55 +333,46 @@ class PDF(FPDF):
 
         # Move Y to the bottom of the box for spacing after
         self.set_xy(x, y + height)
-        self.ln(30)
+        self.ln(50)
     
     def detailed_picture(self):
         self.set_font(self.FONT_FAMILY, '', self.FONT_SIZE)
         col_widths = [140, 50]  # Two columns: ITEM (wide), DESCRIPTION OF SERVICES (narrow)
+        header_height = 5
+        cell_height = 35
         line_height = 3
-        image_height = 35
-
-        grey = (128, 128, 128)
-        headings_style = FontFace(emphasis="B", fill_color=grey)
-        # Table header (full width)
-        with self.table(col_widths=col_widths, line_height=4, headings_style=headings_style) as table:
-            row = table.row()
-            row.cell('DETAILS PICTURE OF SERVICED ITEM', align='C', colspan=2)
-
-        # Section header row (drawn manually for perfect alignment)
-        x_start = self.l_margin
-        y_start = self.get_y()
-        self.set_xy(x_start, y_start)
-        self.set_font(self.FONT_FAMILY, 'B', self.FONT_SIZE)
-        self.cell(col_widths[0], line_height * 2, 'ITEM:', border=1, align='C')
-        self.cell(col_widths[1], line_height * 2, 'DESCRIPTION OF SERVICES', border=1, align='C')
-        self.ln(line_height * 2)
-        self.set_font(self.FONT_FAMILY, '', self.FONT_SIZE)
 
         detailed_pictures = self.valve_data.get('detailed_pictures', [])
-        for i, picture_data in enumerate(detailed_pictures):
-            proposed_action = picture_data.get('proposed_action', '')
-            image_path_1 = picture_data.get('image_path_1', '')
-            image_path_2 = picture_data.get('image_path_2', '')
+        for i in range(4):
+            if i < len(detailed_pictures):
+                picture_data = detailed_pictures[i]
+                proposed_action = picture_data.get('proposed_action', '')
+                image_path_1 = picture_data.get('image_path_1', '')
+                image_path_2 = picture_data.get('image_path_2', '')
+            else:
+                proposed_action = ''
+                image_path_1 = ''
+                image_path_2 = ''
 
-            # Calculate required height for each cell
-            y_start = self.get_y()
             x_start = self.l_margin
+            y_start = self.get_y()
+            # Draw header row
             self.set_xy(x_start, y_start)
-            action_height = self.get_string_height(col_widths[1], proposed_action, line_height)
-            row_height = max(action_height, image_height)
+            self.set_font(self.FONT_FAMILY, 'B', self.FONT_SIZE)
+            self.cell(col_widths[0], header_height, 'ITEM:', border=1, align='C')
+            self.cell(col_widths[1], header_height, 'DESCRIPTION OF SERVICES', border=1, align='C')
+            self.ln(header_height)
+            self.set_font(self.FONT_FAMILY, '', self.FONT_SIZE)
 
-            # Page break if needed
-            if self.get_y() + row_height > self.page_break_trigger:
-                self.add_page()
-                y_start = self.get_y()
+            # Draw cell area
+            y_cell = self.get_y()
+            self.set_xy(x_start, y_cell)
+            self.cell(col_widths[0], cell_height, '', border=1)
+            self.cell(col_widths[1], cell_height, '', border=1)
 
-            # Draw ITEM cell (first column, for images)
-            self.set_xy(x_start, y_start)
-            self.cell(col_widths[0], row_height, '', border=1)
             # Draw images if any
             image_x = x_start + 2
-            image_y = y_start + 2
+            image_y = y_cell + 2
             uploaded_images = []
             if image_path_1 and image_path_1 != 'goodvalve.png' and os.path.exists(image_path_1):
                 uploaded_images.append(image_path_1)
@@ -393,17 +384,13 @@ class PDF(FPDF):
                 elif idx == 1:
                     self.image(img_path, x=image_x + 65, y=image_y, w=60, h=30)
 
-            # Draw DESCRIPTION OF SERVICES cell (second column)
-            self.set_xy(x_start + col_widths[0], y_start)
-            self.multi_cell(col_widths[1], line_height, proposed_action, border=0, align='L')
-            y_after_action = self.get_y()
-            if y_after_action < y_start + row_height:
-                self.set_xy(x_start + col_widths[0], y_after_action)
-                self.cell(col_widths[1], y_start + row_height - y_after_action, '', border=0)
-            self.rect(x_start + col_widths[0], y_start, col_widths[1], row_height)
+            # Draw description text if any
+            self.set_xy(x_start + col_widths[0] + 2, y_cell + 2)
+            if proposed_action:
+                self.multi_cell(col_widths[1] - 4, line_height, proposed_action, border=0, align='L')
 
-            # Move to the start of the next row
-            self.set_y(y_start + row_height)
+            # Move to the start of the next block
+            self.set_y(y_cell + cell_height)
 
     def get_string_height(self, w, txt, line_height):
         # Helper to calculate the height a multicell would take
