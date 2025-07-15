@@ -55,6 +55,16 @@ def load_valve_data(identifier, user_data=None):
         return str(value)
     
     # Combine user-defined data with extracted data
+    # Handle detailed_pictures with up to 3 images, blank if missing
+    detailed_pictures = []
+    if user_data and user_data.get('detailed_pictures'):
+        for pic in user_data['detailed_pictures']:
+            detailed_pictures.append({
+                'proposed_action': pic.get('proposed_action', ''),
+                'image_path_1': pic.get('image_path_1', '') or '',
+                'image_path_2': pic.get('image_path_2', '') or '',
+                'image_path_3': pic.get('image_path_3', '') or ''
+            })
     mapped_data = {
         'client_info': {
             'client': user_data.get('client_info', {}).get('client', 'PETRONAS CHEMICALS FERTILISER SABAH SDN BHD'),
@@ -103,7 +113,8 @@ def load_valve_data(identifier, user_data=None):
             {"desc": "GLAND BUSHING", "condition": "", "actions": "", "remarks": ""},
             {"desc": "BACK SEAT", "condition": "", "actions": "", "remarks": ""},
             {"desc": "GLAND NUT", "condition": "", "actions": "", "remarks": ""},
-        ]
+        ],
+        'detailed_pictures': detailed_pictures
     }
     
     return mapped_data
@@ -349,10 +360,12 @@ class PDF(FPDF):
                 proposed_action = picture_data.get('proposed_action', '')
                 image_path_1 = picture_data.get('image_path_1', '')
                 image_path_2 = picture_data.get('image_path_2', '')
+                image_path_3 = picture_data.get('image_path_3', '')
             else:
                 proposed_action = ''
                 image_path_1 = ''
                 image_path_2 = ''
+                image_path_3 = ''
 
             x_start = self.l_margin
             y_start = self.get_y()
@@ -370,19 +383,20 @@ class PDF(FPDF):
             self.cell(col_widths[0], cell_height, '', border=1)
             self.cell(col_widths[1], cell_height, '', border=1)
 
-            # Draw images if any
+            # Draw images if any (up to 3 in a row)
             image_x = x_start + 2
             image_y = y_cell + 2
+            image_width = 42  # 3 images: (140-6)/3 ~ 44, leave some margin
+            image_height = 30
             uploaded_images = []
             if image_path_1 and image_path_1 != 'goodvalve.png' and os.path.exists(image_path_1):
                 uploaded_images.append(image_path_1)
             if image_path_2 and image_path_2 != 'goodvalve.png' and os.path.exists(image_path_2):
                 uploaded_images.append(image_path_2)
+            if image_path_3 and image_path_3 != 'goodvalve.png' and os.path.exists(image_path_3):
+                uploaded_images.append(image_path_3)
             for idx, img_path in enumerate(uploaded_images):
-                if idx == 0:
-                    self.image(img_path, x=image_x, y=image_y, w=60, h=30)
-                elif idx == 1:
-                    self.image(img_path, x=image_x + 65, y=image_y, w=60, h=30)
+                self.image(img_path, x=image_x + idx * (image_width + 2), y=image_y, w=image_width, h=image_height)
 
             # Draw description text if any
             self.set_xy(x_start + col_widths[0] + 2, y_cell + 2)
@@ -548,13 +562,28 @@ def generate_pdf(identifier, user_data=None, stamp_selection=None, date_value=No
 
 
 if __name__ == "__main__":
-    # Example identifier (replace with a valid No or WO from your extracted_data.json)
-    identifier = "1"  # Change as needed
-    # Optionally, you can provide user_data, image_files, received_valve_images, stamp_selection, date_value, selected_services
+    identifier = "1"  # Use a valid identifier from your extracted_data.json
+    # Prepare test user_data with detailed_pictures
+    user_data = {
+        "detailed_pictures": [
+            {
+                "proposed_action": "Replace gasket and clean surface.",
+                "image_path_1": "badvalve.png",
+                "image_path_2": "badvalve.png",
+                "image_path_3": "badvalve.png"
+            },
+            {
+                "proposed_action": "Replace gasket and clean surface.",
+                "image_path_1": "badvalve.png",
+                "image_path_2": "badvalve.png",
+                "image_path_3": "badvalve.png"
+            }
+        ]
+    }
     try:
         output_filename = generate_pdf(
             identifier=identifier,
-            user_data=None,
+            user_data=user_data,
             stamp_selection="SAO",
             date_value="01/01/2025",
             selected_services=["insitu_testing", "service_repair"]
