@@ -60,3 +60,11 @@ generated_pdfs/*.pdf
 # Temporary images (will be created at runtime)
 static/temp_images/*
 static/temp_excel/*
+
+badvalve.png
+goodvalve.png
+image.png
+readme.md
+test.pdf
+
+summary_project.xlsx
