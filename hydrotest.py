@@ -383,6 +383,50 @@ class PDF(FPDF):
                 row.cell(part.get('actions', ''), align='C')
                 row.cell(part.get('remarks', ''), align='C')
     
+    def posttest(self):
+        self.set_font(self.FONT_FAMILY, '', self.FONT_SIZE)
+        col_widths = [10,45,45,45,45]  # 4 columns, total 190mm
+        grey = (128, 128, 128)
+        headings_style = FontFace(emphasis="B", fill_color=grey)
+        
+        # Get pretest data from mapped data
+        pretest_data = self.valve_data.get('pretest', {})
+        
+        with self.table(col_widths=col_widths, line_height=4, headings_style=headings_style) as table:
+            row = table.row()
+            row.cell('PRE-TEST (HYDROTEST/LEAKED TEST)', align='C', colspan=5)
+            row = table.row()
+            row.cell('TYPE TEST', align='C', colspan=2)
+            row.cell(pretest_data.get('type_test', ''), align='C')
+            row.cell('TEST MEDIUM', align='C')
+            row.cell(pretest_data.get('test_medium', ''), align='C')
+            row = table.row()
+            row.cell('DESCRIPTION', align='C', colspan=2)
+            row.cell('PRESSURE', align='C')
+            row.cell('DURATION', align='C')
+            row.cell('RESULT & REMARKS', align='C')
+            row = table.row()
+            row.cell('A', align='C')
+            row.cell('SHELL', align='C')
+            row.cell(pretest_data.get('shell', {}).get('pressure', ''), align='C')
+            row.cell(pretest_data.get('shell', {}).get('duration', ''), align='C')
+            row.cell(pretest_data.get('shell', {}).get('result_remarks', ''), align='C')
+            row = table.row()
+            row.cell('B', align='C')
+            row.cell('BACKSEAT', align='C')
+            row.cell(pretest_data.get('backseat', {}).get('pressure', ''), align='C')
+            row.cell(pretest_data.get('backseat', {}).get('duration', ''), align='C')
+            row.cell(pretest_data.get('backseat', {}).get('result_remarks', ''), align='C')
+            row = table.row()
+            row.cell('C', align='C')
+            row.cell('SEAT', align='C')
+            row.cell(pretest_data.get('seat', {}).get('pressure', ''), align='C')
+            row.cell(pretest_data.get('seat', {}).get('duration', ''), align='C')
+            row.cell(pretest_data.get('seat', {}).get('result_remarks', ''), align='C')
+            row = table.row()
+            row.cell('TEST ACCORDANCE TO', align='C', colspan=2)
+            row.cell(pretest_data.get('test_accordance_to', ''), align='C', colspan=3)
+
 
     def signature_block(self, date_value=""):
             self.set_font(self.FONT_FAMILY, 'B', self.FONT_SIZE)
@@ -490,7 +534,7 @@ def generate_pdf(identifier, user_data=None, stamp_selection=None, date_value=No
     pdf.visual_inspection()
     pdf.pretest()
     pdf.internal_inspection()
-    
+    pdf.posttest()
     pdf.signature_block()
     
     # Map stamp selection to stamp path and prepared name
