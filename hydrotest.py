@@ -324,7 +324,7 @@ class PDF(FPDF):
         
         with self.table(col_widths=col_widths, line_height=4, headings_style=headings_style) as table:
             row = table.row()
-            row.cell('PRE-TEST (HYDROTEST/LEAKED TEST)', align='C', colspan=5)
+            row.cell('PRE-TEST (HYDROTEST/LEAKED TEST) - AS RECEIVED', align='C', colspan=5)
             row = table.row()
             row.cell('TYPE TEST', align='C', colspan=2)
             row.cell(pretest_data.get('type_test', ''), align='C')
@@ -349,7 +349,13 @@ class PDF(FPDF):
             row.cell(pretest_data.get('backseat', {}).get('result_remarks', ''), align='C')
             row = table.row()
             row.cell('C', align='C')
-            row.cell('SEAT', align='C')
+            row.cell('SEAT A', align='C')
+            row.cell(pretest_data.get('seat', {}).get('pressure', ''), align='C')
+            row.cell(pretest_data.get('seat', {}).get('duration', ''), align='C')
+            row.cell(pretest_data.get('seat', {}).get('result_remarks', ''), align='C')
+            row = table.row()
+            row.cell('D', align='C')
+            row.cell('SEAT B', align='C')
             row.cell(pretest_data.get('seat', {}).get('pressure', ''), align='C')
             row.cell(pretest_data.get('seat', {}).get('duration', ''), align='C')
             row.cell(pretest_data.get('seat', {}).get('result_remarks', ''), align='C')
@@ -382,6 +388,8 @@ class PDF(FPDF):
                 row.cell(part.get('condition', ''), align='C')
                 row.cell(part.get('actions', ''), align='C')
                 row.cell(part.get('remarks', ''), align='C')
+
+        self.ln(60)
     
     def posttest(self):
         self.set_font(self.FONT_FAMILY, '', self.FONT_SIZE)
@@ -394,7 +402,7 @@ class PDF(FPDF):
         
         with self.table(col_widths=col_widths, line_height=4, headings_style=headings_style) as table:
             row = table.row()
-            row.cell('PRE-TEST (HYDROTEST/LEAKED TEST)', align='C', colspan=5)
+            row.cell('FINAL TEST (HYDROTEST/LEAKED TEST) - AFTER SERVICING', align='C', colspan=5)
             row = table.row()
             row.cell('TYPE TEST', align='C', colspan=2)
             row.cell(pretest_data.get('type_test', ''), align='C')
@@ -419,13 +427,21 @@ class PDF(FPDF):
             row.cell(pretest_data.get('backseat', {}).get('result_remarks', ''), align='C')
             row = table.row()
             row.cell('C', align='C')
-            row.cell('SEAT', align='C')
+            row.cell('SEAT A', align='C')
+            row.cell(pretest_data.get('seat', {}).get('pressure', ''), align='C')
+            row.cell(pretest_data.get('seat', {}).get('duration', ''), align='C')
+            row.cell(pretest_data.get('seat', {}).get('result_remarks', ''), align='C')
+            row = table.row()
+            row.cell('D', align='C')
+            row.cell('SEAT B', align='C')
             row.cell(pretest_data.get('seat', {}).get('pressure', ''), align='C')
             row.cell(pretest_data.get('seat', {}).get('duration', ''), align='C')
             row.cell(pretest_data.get('seat', {}).get('result_remarks', ''), align='C')
             row = table.row()
             row.cell('TEST ACCORDANCE TO', align='C', colspan=2)
             row.cell(pretest_data.get('test_accordance_to', ''), align='C', colspan=3)
+        
+        
 
 
     def signature_block(self, date_value=""):
