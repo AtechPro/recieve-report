@@ -81,7 +81,7 @@ def load_valve_data(identifier, user_data=None):
         },
         'visual_inspection': user_data.get('visual_inspection') if user_data and user_data.get('visual_inspection') else [
             {"desc": "GENERAL APPEARANCE", "condition": "", "actions": "", "remarks": ""},
-            {"desc": "NAMEPLATE", "condition": "", "actions": "", "remarks": ""}, # needs use record.get('Nameplate')
+            {"desc": "NAMEPLATE", "condition": "", "actions": "", "remarks": ""},
             {"desc": "OVERALL FLANGE/CONNECTION CONDITION", "condition": "", "actions": "", "remarks": ""},
             {"desc": "STEM", "condition": "", "actions": "", "remarks": ""},
             {"desc": "VALVE BODY", "condition": "", "actions": "", "remarks": ""},
@@ -130,7 +130,27 @@ def load_valve_data(identifier, user_data=None):
             },
             'test_accordance_to': ''
         },
-        'comment': user_data.get('comment', '') if user_data else ''
+        'posttest': user_data.get('posttest') if user_data and user_data.get('posttest') else {
+            'type_test': '',
+            'test_medium': '',
+            'shell': {
+                'pressure': '',
+                'duration': '',
+                'result_remarks': ''
+            },
+            'backseat': {
+                'pressure': '',
+                'duration': '',
+                'result_remarks': ''
+            },
+            'seat': {
+                'pressure': '',
+                'duration': '',
+                'result_remarks': ''
+            },
+            'test_accordance_to': ''
+        },
+        'comment': user_data.get('comment', '')
     }
     
     return mapped_data
@@ -324,7 +344,7 @@ class PDF(FPDF):
         
         with self.table(col_widths=col_widths, line_height=4, headings_style=headings_style) as table:
             row = table.row()
-            row.cell('PRE-TEST (HYDROTEST/LEAKED TEST)', align='C', colspan=5)
+            row.cell('PRE-TEST (HYDROTEST/LEAKED TEST) - AS RECEIVED', align='C', colspan=5)
             row = table.row()
             row.cell('TYPE TEST', align='C', colspan=2)
             row.cell(pretest_data.get('type_test', ''), align='C')
@@ -382,7 +402,83 @@ class PDF(FPDF):
                 row.cell(part.get('condition', ''), align='C')
                 row.cell(part.get('actions', ''), align='C')
                 row.cell(part.get('remarks', ''), align='C')
+
+        self.ln(60)
     
+    def posttest(self):
+        self.set_font(self.FONT_FAMILY, '', self.FONT_SIZE)
+        col_widths = [10,45,45,45,45]  # 4 columns, total 190mm
+        grey = (128, 128, 128)
+        headings_style = FontFace(emphasis="B", fill_color=grey)
+        
+        # Get pretest data from mapped data
+        pretest_data = self.valve_data.get('posttest', {})
+        
+        with self.table(col_widths=col_widths, line_height=4, headings_style=headings_style) as table:
+            row = table.row()
+            row.cell('FINAL TEST (HYDROTEST/LEAKED TEST) - AFTER SERVICING', align='C', colspan=5)
+            row = table.row()
+            row.cell('TYPE TEST', align='C', colspan=2)
+            row.cell(pretest_data.get('type_test', ''), align='C')
+            row.cell('TEST MEDIUM', align='C')
+            row.cell(pretest_data.get('test_medium', ''), align='C')
+            row = table.row()
+            row.cell('DESCRIPTION', align='C', colspan=2)
+            row.cell('PRESSURE', align='C')
+            row.cell('DURATION', align='C')
+            row.cell('RESULT & REMARKS', align='C')
+            row = table.row()
+            row.cell('A', align='C')
+            row.cell('SHELL', align='C')
+            row.cell(pretest_data.get('shell', {}).get('pressure', ''), align='C')
+            row.cell(pretest_data.get('shell', {}).get('duration', ''), align='C')
+            row.cell(pretest_data.get('shell', {}).get('result_remarks', ''), align='C')
+            row = table.row()
+            row.cell('B', align='C')
+            row.cell('BACKSEAT', align='C')
+            row.cell(pretest_data.get('backseat', {}).get('pressure', ''), align='C')
+            row.cell(pretest_data.get('backseat', {}).get('duration', ''), align='C')
+            row.cell(pretest_data.get('backseat', {}).get('result_remarks', ''), align='C')
+            row = table.row()
+            row.cell('C', align='C')
+            row.cell('SEAT', align='C')
+            row.cell(pretest_data.get('seat', {}).get('pressure', ''), align='C')
+            row.cell(pretest_data.get('seat', {}).get('duration', ''), align='C')
+            row.cell(pretest_data.get('seat', {}).get('result_remarks', ''), align='C')
+            row = table.row()
+            row.cell('TEST ACCORDANCE TO', align='C', colspan=2)
+            row.cell(pretest_data.get('test_accordance_to', ''), align='C', colspan=3)
+        
+    def recommendation(self):
+        self.set_font(self.FONT_FAMILY, '', self.FONT_SIZE)
+        col_widths = [190]
+        grey = (128, 128, 128)
+        headings_style = FontFace(emphasis="B", fill_color=grey)
+        with self.table(col_widths=col_widths, line_height=4, headings_style=headings_style) as table:
+            row = table.row()
+            row.cell('COMMENTS AND RECOMMENDATION', align='C')
+        
+        # Add a larger text area below the header using multicell
+        self.set_font(self.FONT_FAMILY, '', self.FONT_SIZE)
+        # Get comment from valve_data
+        comment = self.valve_data.get('comment', '')
+        
+        # Create a bordered area for the comment
+        x_start = self.get_x()
+        y_start = self.get_y()
+        cell_width = 190
+        cell_height = 25  # Increased height for larger text area
+        
+        # Draw border around the comment area
+        self.rect(x_start, y_start, cell_width, cell_height)
+        
+        # Add the comment text using multicell
+        self.set_xy(x_start + 2, y_start + 2)  # Small margin inside the border
+        self.multi_cell(cell_width - 4, 4, comment, align='L')  # 4mm line height
+        
+        # Move cursor below the comment area
+        self.set_y(y_start + cell_height)
+
 
     def signature_block(self, date_value=""):
             self.set_font(self.FONT_FAMILY, 'B', self.FONT_SIZE)
@@ -488,8 +584,10 @@ def generate_pdf(identifier, user_data=None, stamp_selection=None, date_value=No
     pdf.add_page()
     # Service info is now part of the header, so no need to call service_info() separately
     pdf.visual_inspection()
-    pdf.internal_inspection()
     pdf.pretest()
+    pdf.internal_inspection()
+    pdf.posttest()
+    pdf.recommendation()
     pdf.signature_block()
     
     # Map stamp selection to stamp path and prepared name
@@ -512,10 +610,10 @@ def generate_pdf(identifier, user_data=None, stamp_selection=None, date_value=No
     # Determine if identifier is a No or WO for filename
     record = get_record_by_no_or_wo(identifier)
     if record.get('No') == str(identifier):
-        output_filename = f'Valve_Certificate_No_{identifier}.pdf'
+        output_filename = f'Valve_Cert_No_{identifier}.pdf'
         print(f'PDF report "{output_filename}" created successfully for No = {identifier}.')
     else:
-        output_filename = f'Valve_Certificate_WO_{identifier}.pdf'
+        output_filename = f'Valve_Cert_WO_{identifier}.pdf'
         print(f'PDF report "{output_filename}" created successfully for WO = {identifier}.')
     
     output_path = os.path.join('generated_pdfs', output_filename)
@@ -537,6 +635,7 @@ if __name__ == "__main__":
                 'location': 'Sipitang',
                 'date_in': '01/01/2025'
             },
+            'comment': 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum iaculis non est quis tincidunt. Pellentesque congue varius lobortis. Phasellus faucibus nisi ut rutrum imperdiet. Integer nec molestie ipsum, et bibendum lacus. Proin id sem non leo ornare dictum vel at leo. Mauris non pellentesque leo. Ut eget placerat elit. Integer at est in nunc efficitur elementum auctor et quam.'
         }
         output_filename = generate_pdf(
             identifier=identifier,

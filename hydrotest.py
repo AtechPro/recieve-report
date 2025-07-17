@@ -123,14 +123,44 @@ def load_valve_data(identifier, user_data=None):
                 'duration': '',
                 'result_remarks': ''
             },
-            'seat': {
+            'seatA': {
+                'pressure': '',
+                'duration': '',
+                'result_remarks': ''
+            },
+            'seatB': {
                 'pressure': '',
                 'duration': '',
                 'result_remarks': ''
             },
             'test_accordance_to': ''
         },
-        'comment': user_data.get('comment', 'Testing Only on the new gate valve. Valve was found in a good condition. No leak or pressure drop during each test. Valve was accepted and ready to be install.') if user_data else 'Testing Only on the new gate valve. Valve was found in a good condition. No leak or pressure drop during each test. Valve was accepted and ready to be install.'
+        'posttest': user_data.get('posttest') if user_data and user_data.get('posttest') else {
+            'type_test': '',
+            'test_medium': '',
+            'shell': {
+                'pressure': '',
+                'duration': '',
+                'result_remarks': ''
+            },
+            'backseat': {
+                'pressure': '',
+                'duration': '',
+                'result_remarks': ''
+            },
+            'seatA': {
+                'pressure': '',
+                'duration': '',
+                'result_remarks': ''
+            },
+            'seatB': {
+                'pressure': '',
+                'duration': '',
+                'result_remarks': ''
+            },
+            'test_accordance_to': ''
+        },
+        'comment': user_data.get('comment', '')
     }
     
     return mapped_data
@@ -350,15 +380,15 @@ class PDF(FPDF):
             row = table.row()
             row.cell('C', align='C')
             row.cell('SEAT A', align='C')
-            row.cell(pretest_data.get('seat', {}).get('pressure', ''), align='C')
-            row.cell(pretest_data.get('seat', {}).get('duration', ''), align='C')
-            row.cell(pretest_data.get('seat', {}).get('result_remarks', ''), align='C')
+            row.cell(pretest_data.get('seatA', {}).get('pressure', ''), align='C')
+            row.cell(pretest_data.get('seatA', {}).get('duration', ''), align='C')
+            row.cell(pretest_data.get('seatA', {}).get('result_remarks', ''), align='C')
             row = table.row()
             row.cell('D', align='C')
             row.cell('SEAT B', align='C')
-            row.cell(pretest_data.get('seat', {}).get('pressure', ''), align='C')
-            row.cell(pretest_data.get('seat', {}).get('duration', ''), align='C')
-            row.cell(pretest_data.get('seat', {}).get('result_remarks', ''), align='C')
+            row.cell(pretest_data.get('seatB', {}).get('pressure', ''), align='C')
+            row.cell(pretest_data.get('seatB', {}).get('duration', ''), align='C')
+            row.cell(pretest_data.get('seatB', {}).get('result_remarks', ''), align='C')
             row = table.row()
             row.cell('TEST ACCORDANCE TO', align='C', colspan=2)
             row.cell(pretest_data.get('test_accordance_to', ''), align='C', colspan=3)
@@ -398,7 +428,7 @@ class PDF(FPDF):
         headings_style = FontFace(emphasis="B", fill_color=grey)
         
         # Get pretest data from mapped data
-        pretest_data = self.valve_data.get('pretest', {})
+        pretest_data = self.valve_data.get('posttest', {})
         
         with self.table(col_widths=col_widths, line_height=4, headings_style=headings_style) as table:
             row = table.row()
@@ -428,15 +458,15 @@ class PDF(FPDF):
             row = table.row()
             row.cell('C', align='C')
             row.cell('SEAT A', align='C')
-            row.cell(pretest_data.get('seat', {}).get('pressure', ''), align='C')
-            row.cell(pretest_data.get('seat', {}).get('duration', ''), align='C')
-            row.cell(pretest_data.get('seat', {}).get('result_remarks', ''), align='C')
+            row.cell(pretest_data.get('seatA', {}).get('pressure', ''), align='C')
+            row.cell(pretest_data.get('seatA', {}).get('duration', ''), align='C')
+            row.cell(pretest_data.get('seatA', {}).get('result_remarks', ''), align='C')
             row = table.row()
             row.cell('D', align='C')
             row.cell('SEAT B', align='C')
-            row.cell(pretest_data.get('seat', {}).get('pressure', ''), align='C')
-            row.cell(pretest_data.get('seat', {}).get('duration', ''), align='C')
-            row.cell(pretest_data.get('seat', {}).get('result_remarks', ''), align='C')
+            row.cell(pretest_data.get('seatB', {}).get('pressure', ''), align='C')
+            row.cell(pretest_data.get('seatB', {}).get('duration', ''), align='C')
+            row.cell(pretest_data.get('seatB', {}).get('result_remarks', ''), align='C')
             row = table.row()
             row.cell('TEST ACCORDANCE TO', align='C', colspan=2)
             row.cell(pretest_data.get('test_accordance_to', ''), align='C', colspan=3)
@@ -627,7 +657,7 @@ if __name__ == "__main__":
                 'location': 'Sipitang',
                 'date_in': '01/01/2025'
             },
-            'comment': 'Testing Only on the new gate valve. Valve was found in a good condition. No leak or pressure drop during each test. Valve was accepted and ready to be install.'
+            'comment': 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum iaculis non est quis tincidunt. Pellentesque congue varius lobortis. Phasellus faucibus nisi ut rutrum imperdiet. Integer nec molestie ipsum, et bibendum lacus. Proin id sem non leo ornare dictum vel at leo. Mauris non pellentesque leo. Ut eget placerat elit. Integer at est in nunc efficitur elementum auctor et quam.'
         }
         output_filename = generate_pdf(
             identifier=identifier,
