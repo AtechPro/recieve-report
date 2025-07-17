@@ -130,7 +130,7 @@ def load_valve_data(identifier, user_data=None):
             },
             'test_accordance_to': ''
         },
-        'comment': user_data.get('comment', '') if user_data else ''
+        'comment': user_data.get('comment', 'Testing Only on the new gate valve. Valve was found in a good condition. No leak or pressure drop during each test. Valve was accepted and ready to be install.') if user_data else 'Testing Only on the new gate valve. Valve was found in a good condition. No leak or pressure drop during each test. Valve was accepted and ready to be install.'
     }
     
     return mapped_data
@@ -441,7 +441,35 @@ class PDF(FPDF):
             row.cell('TEST ACCORDANCE TO', align='C', colspan=2)
             row.cell(pretest_data.get('test_accordance_to', ''), align='C', colspan=3)
         
+    def recommendation(self):
+        self.set_font(self.FONT_FAMILY, '', self.FONT_SIZE)
+        col_widths = [190]
+        grey = (128, 128, 128)
+        headings_style = FontFace(emphasis="B", fill_color=grey)
+        with self.table(col_widths=col_widths, line_height=4, headings_style=headings_style) as table:
+            row = table.row()
+            row.cell('COMMENTS AND RECOMMENDATION', align='C')
         
+        # Add a larger text area below the header using multicell
+        self.set_font(self.FONT_FAMILY, '', self.FONT_SIZE)
+        # Get comment from valve_data
+        comment = self.valve_data.get('comment', '')
+        
+        # Create a bordered area for the comment
+        x_start = self.get_x()
+        y_start = self.get_y()
+        cell_width = 190
+        cell_height = 25  # Increased height for larger text area
+        
+        # Draw border around the comment area
+        self.rect(x_start, y_start, cell_width, cell_height)
+        
+        # Add the comment text using multicell
+        self.set_xy(x_start + 2, y_start + 2)  # Small margin inside the border
+        self.multi_cell(cell_width - 4, 4, comment, align='L')  # 4mm line height
+        
+        # Move cursor below the comment area
+        self.set_y(y_start + cell_height)
 
 
     def signature_block(self, date_value=""):
@@ -551,6 +579,7 @@ def generate_pdf(identifier, user_data=None, stamp_selection=None, date_value=No
     pdf.pretest()
     pdf.internal_inspection()
     pdf.posttest()
+    pdf.recommendation()
     pdf.signature_block()
     
     # Map stamp selection to stamp path and prepared name
@@ -598,6 +627,7 @@ if __name__ == "__main__":
                 'location': 'Sipitang',
                 'date_in': '01/01/2025'
             },
+            'comment': 'Testing Only on the new gate valve. Valve was found in a good condition. No leak or pressure drop during each test. Valve was accepted and ready to be install.'
         }
         output_filename = generate_pdf(
             identifier=identifier,

@@ -81,7 +81,7 @@ def load_valve_data(identifier, user_data=None):
         },
         'visual_inspection': user_data.get('visual_inspection') if user_data and user_data.get('visual_inspection') else [
             {"desc": "GENERAL APPEARANCE", "condition": "", "actions": "", "remarks": ""},
-            {"desc": "NAMEPLATE", "condition": "", "actions": "", "remarks": ""},
+            {"desc": "NAMEPLATE", "condition": "", "actions": "", "remarks": ""}, # needs use record.get('Nameplate')
             {"desc": "OVERALL FLANGE/CONNECTION CONDITION", "condition": "", "actions": "", "remarks": ""},
             {"desc": "STEM", "condition": "", "actions": "", "remarks": ""},
             {"desc": "VALVE BODY", "condition": "", "actions": "", "remarks": ""},

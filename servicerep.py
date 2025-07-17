@@ -573,7 +573,7 @@ if __name__ == "__main__":
                 "image_path_3": "badvalve.png"
             },
             {
-                "proposed_action": "Replace gasket and clean surface.",
+                "proposed_action": "Replace gasket and clean surface. jhkjhlkjhkljhjkhlkjhjklhjklhkljhlkjhjkhlkhjlhlkhlkhkjhlkjh",
                 "image_path_1": "badvalve.png",
                 "image_path_2": "badvalve.png",
                 "image_path_3": "badvalve.png"
