@@ -114,7 +114,8 @@ def load_valve_data(identifier, user_data=None):
             {"desc": "BACK SEAT", "condition": "", "actions": "", "remarks": ""},
             {"desc": "GLAND NUT", "condition": "", "actions": "", "remarks": ""},
         ],
-        'detailed_pictures': detailed_pictures
+        'detailed_pictures': detailed_pictures,
+        'comment': user_data.get('comment', '')
     }
     
     return mapped_data
@@ -321,7 +322,7 @@ class PDF(FPDF):
                 row.cell(part.get('actions', ''), align='C')
                 row.cell(part.get('remarks', ''), align='C')
                 
-    def additonal_comment(self):
+    def additional_comment(self):
         comment = self.valve_data.get('comment', '')
         self.set_font(self.FONT_FAMILY, '', self.FONT_SIZE)
         x = self.get_x()
@@ -335,7 +336,8 @@ class PDF(FPDF):
         # Set position just inside the top-left of the box
         self.set_xy(x + 1, y + 1)
         self.set_font(self.FONT_FAMILY, 'B', self.FONT_SIZE)  # Bold for label
-        self.cell(0, 7, 'ADDITIONAL COMMENT:', ln=1)
+        self.cell(0, 7, 'ADDITIONAL COMMENT:')
+        self.ln(5)  # Add spacing after the label
 
         # Now write the comment, a bit lower inside the box
         self.set_font(self.FONT_FAMILY, '', self.FONT_SIZE)  # Regular for comment
@@ -525,7 +527,7 @@ def generate_pdf(identifier, user_data=None, stamp_selection=None, date_value=No
     # Service info is now part of the header, so no need to call service_info() separately
     pdf.visual_inspection()
     pdf.internal_inspection()
-    pdf.additonal_comment()
+    pdf.additional_comment()
     pdf.detailed_picture()
     pdf.signature_block()
     
@@ -569,7 +571,6 @@ if __name__ == "__main__":
             {
                 "proposed_action": "Replace gasket and clean surface.",
                 "image_path_1": "badvalve.png",
-                "image_path_2": "badvalve.png",
                 "image_path_3": "badvalve.png"
             },
             {
@@ -578,7 +579,8 @@ if __name__ == "__main__":
                 "image_path_2": "badvalve.png",
                 "image_path_3": "badvalve.png"
             }
-        ]
+        ],
+        "comment": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean tristique, libero id molestie aliquam, massa neque vestibulum leo, molestie tempus nulla libero vitae nunc. Donec a arcu finibus, interdum sem sit amet, tristique neque. Nulla facilisis ipsum quis arcu maximus laoreet. Fusce vel diam nunc. Mauris felis risus, consectetur eget eros id, ultrices lobortis tellus. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. In urna nisi, bibendum ac felis id, ultrices rhoncus nisl. Aenean rutrum sollicitudin urna, at molestie nisi rhoncus ut. Proin vehicula sodales libero sit amet ornare. Mauris ante sapien, facilisis nec consectetur in, tempus ut risus. Aenean viverra sem id lorem porttitor, ut tincidunt magna pretium. Vivamus at enim elementum, luctus lectus eu, rutrum erat. Integer vitae metus non leo pellentesque suscipit sed sit amet mi. Nulla et ipsum ultrices, vestibulum magna scelerisque, sagittis purus. Vestibulum eget blandit purus, non dignissim elit."
     }
     try:
         output_filename = generate_pdf(
