@@ -713,7 +713,10 @@
             
                     <div class="image-upload">
             <label for="inlet_connection">Inlet Connection Image</label>
-            <input type="file" id="inlet_connection" accept="image/*" onchange="uploadImage('inlet_connection')">
+            <button type="button" onclick="triggerCameraInput('inlet_connection')">📷 Photo</button>
+            <button type="button" onclick="triggerGalleryInput('inlet_connection')">🖼️ Gallery</button>
+            <input type="file" id="camera_input_inlet_connection" accept="image/*" capture="environment" style="display:none" onchange="uploadImage('inlet_connection', this)">
+            <input type="file" id="gallery_input_inlet_connection" accept="image/*" style="display:none" onchange="uploadImage('inlet_connection', this)">
             <div id="inlet_connection_status"></div>
             <div class="image-preview-container" id="inlet_connection_container" style="display: none;">
                 <img id="inlet_connection_preview" class="image-preview">
@@ -723,7 +726,10 @@
 
         <div class="image-upload">
             <label for="outlet_connection">Outlet Connection Image</label>
-            <input type="file" id="outlet_connection" accept="image/*" onchange="uploadImage('outlet_connection')">
+            <button type="button" onclick="triggerCameraInput('outlet_connection')">📷 Photo</button>
+            <button type="button" onclick="triggerGalleryInput('outlet_connection')">🖼️ Gallery</button>
+            <input type="file" id="camera_input_outlet_connection" accept="image/*" capture="environment" style="display:none" onchange="uploadImage('outlet_connection', this)">
+            <input type="file" id="gallery_input_outlet_connection" accept="image/*" style="display:none" onchange="uploadImage('outlet_connection', this)">
             <div id="outlet_connection_status"></div>
             <div class="image-preview-container" id="outlet_connection_container" style="display: none;">
                 <img id="outlet_connection_preview" class="image-preview">
@@ -733,7 +739,10 @@
 
         <div class="image-upload">
             <label for="defect_connection">Defect Connection Image</label>
-            <input type="file" id="defect_connection" accept="image/*" onchange="uploadImage('defect_connection')">
+            <button type="button" onclick="triggerCameraInput('defect_connection')">📷 Photo</button>
+            <button type="button" onclick="triggerGalleryInput('defect_connection')">🖼️ Gallery</button>
+            <input type="file" id="camera_input_defect_connection" accept="image/*" capture="environment" style="display:none" onchange="uploadImage('defect_connection', this)">
+            <input type="file" id="gallery_input_defect_connection" accept="image/*" style="display:none" onchange="uploadImage('defect_connection', this)">
             <div id="defect_connection_status"></div>
             <div class="image-preview-container" id="defect_connection_container" style="display: none;">
                 <img id="defect_connection_preview" class="image-preview">
@@ -743,7 +752,10 @@
 
         <div class="image-upload">
             <label for="defect_body">Defect on Body Image</label>
-            <input type="file" id="defect_body" accept="image/*" onchange="uploadImage('defect_body')">
+            <button type="button" onclick="triggerCameraInput('defect_body')">📷 Photo</button>
+            <button type="button" onclick="triggerGalleryInput('defect_body')">🖼️ Gallery</button>
+            <input type="file" id="camera_input_defect_body" accept="image/*" capture="environment" style="display:none" onchange="uploadImage('defect_body', this)">
+            <input type="file" id="gallery_input_defect_body" accept="image/*" style="display:none" onchange="uploadImage('defect_body', this)">
             <div id="defect_body_status"></div>
             <div class="image-preview-container" id="defect_body_container" style="display: none;">
                 <img id="defect_body_preview" class="image-preview">
@@ -832,9 +844,8 @@
 
         
 
-        function uploadImage(imageType) {
-            const fileInput = document.getElementById(imageType);
-            const file = fileInput.files[0];
+        function uploadImage(imageType, inputElement) {
+            const file = inputElement.files[0];
             
             if (!file) {
                 showStatus(imageType + '_status', 'Please select a file first.', 'error');
@@ -914,9 +925,11 @@
             const container = document.getElementById(imageType + '_container');
             if (container) container.style.display = 'none';
             
-            // Clear file input
-            const fileInput = document.getElementById(imageType);
-            fileInput.value = '';
+            // Clear both camera and gallery inputs
+            const cameraInput = document.getElementById('camera_input_' + imageType);
+            const galleryInput = document.getElementById('gallery_input_' + imageType);
+            if (cameraInput) cameraInput.value = '';
+            if (galleryInput) galleryInput.value = '';
             
             // Clear status
             const statusDiv = document.getElementById(imageType + '_status');
@@ -1351,11 +1364,11 @@
             }
         }
         
-        function triggerCameraInput(num) {
-            document.getElementById('camera_input_' + num).click();
+        function triggerCameraInput(identifier) {
+            document.getElementById('camera_input_' + identifier).click();
         }
-        function triggerGalleryInput(num) {
-            document.getElementById('gallery_input_' + num).click();
+        function triggerGalleryInput(identifier) {
+            document.getElementById('gallery_input_' + identifier).click();
         }
 
         window.onload = function() {
