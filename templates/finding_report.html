@@ -389,6 +389,26 @@
         </div>
 
         <div class="upload-section">
+            <h2>🏢 Client Information</h2>
+            <p>Enter the client and project details:</p>
+            
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="client_name">Client Name:</label>
+                    <input type="text" id="client_name" placeholder="PETRONAS CHEMICALS FERTILISER SABAH SDN BHD">
+                </div>
+                <div class="form-group">
+                    <label for="project_name">Project Name:</label>
+                    <input type="text" id="project_name" placeholder="VALVE MAINTENANCE PROJECT 2025">
+                </div>
+                <div class="form-group">
+                    <label for="location">Location:</label>
+                    <input type="text" id="location" placeholder="Sipitang">
+                </div>
+            </div>
+        </div>
+
+        <div class="upload-section">
             <h2>⚙️ Service Configuration</h2>
             <p>Select the services that were performed for this valve:</p>
             
@@ -1134,6 +1154,9 @@
                 selected_services: Array.from(document.querySelectorAll('.service-option input[type="checkbox"]:checked')).map(cb => cb.value),
                 comment: document.getElementById('additional_comment').value,  // Include comment
                 client_info: {
+                    client: document.getElementById('client_name')?.value.trim() || 'PETRONAS CHEMICALS FERTILISER SABAH SDN BHD',
+                    project: document.getElementById('project_name')?.value.trim() || 'VALVE MAINTENANCE PROJECT 2025',
+                    location: document.getElementById('location')?.value.trim() || 'Sipitang',
                     date_in: dateInValue
                 },
                 // Pre-test data
