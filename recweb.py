@@ -61,6 +61,10 @@ def index():
 def finding_report():
     return render_template('finding_report.html')
 
+@app.route('/service-report')
+def service_report():
+    return render_template('service_report.html')
+
 @app.route('/excel-converter')
 def excel_converter():
     return render_template('excel_converter.html')
@@ -200,6 +204,59 @@ def generate_finding_report():
         
         return jsonify({
             'message': f'Finding report generated successfully for identifier = {identifier}.',
+            'pdf_filename': pdf_filename,
+            'pdf_path': pdf_path,
+            'download_url': f'/download-pdf/{pdf_filename}',
+            'view_url': f'/view-pdf/{pdf_filename}'
+        }), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/generate-service-report', methods=['POST'])
+def generate_service_report():
+    data = request.get_json()
+    identifier = data.get('identifier')
+    stamp_selection = data.get('stamp_selection', 'SAO')
+    date_value = data.get('date_value', '')
+    selected_services = data.get('selected_services', [])
+    comment = data.get('comment', '')  # Get comment from request
+    
+    # Extract additional data for service report
+    visual_inspection = data.get('visual_inspection', [])
+    internal_inspection = data.get('internal_inspection', [])
+    detailed_pictures = data.get('detailed_pictures', [])
+    
+    if not identifier:
+        return jsonify({'error': 'Missing required field: identifier (No or WO)'}), 400
+
+    try:
+        # Import the service report generation function
+        from servicerep import generate_pdf as generate_service_pdf
+        
+        # Create user_data with the collected form data
+        user_data = {
+            'client_info': data.get('client_info', {}),
+            'visual_inspection': visual_inspection,
+            'internal_inspection': internal_inspection,
+            'detailed_pictures': detailed_pictures,
+            'comment': comment,  # Include comment in user_data
+            'stamp_info': {
+                'date_value': date_value
+            }
+        }
+        
+        pdf_filename = generate_service_pdf(
+            identifier=identifier,
+            user_data=user_data,
+            stamp_selection=stamp_selection,
+            date_value=date_value,
+            selected_services=selected_services,
+            comment=comment
+        )
+        pdf_path = os.path.join(PDF_FOLDER, pdf_filename)
+        
+        return jsonify({
+            'message': f'Service report generated successfully for identifier = {identifier}.',
             'pdf_filename': pdf_filename,
             'pdf_path': pdf_path,
             'download_url': f'/download-pdf/{pdf_filename}',
