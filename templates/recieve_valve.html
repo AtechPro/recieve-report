@@ -664,35 +664,44 @@
                 📱 <strong>Mobile Users:</strong> Tap any image field to open your camera and take photos directly!
             </p>
             
-                    <div class="image-upload">
-            <label for="received_valve_1">AS RECEIVED VALVE Image 1</label>
-            <input type="file" id="received_valve_1" accept="image/*" onchange="uploadReceivedValveImage(1)">
-            <div id="received_valve_1_status"></div>
-            <div class="image-preview-container" id="received_valve_1_container" style="display: none;">
-                <img id="received_valve_1_preview" class="image-preview">
-                <button type="button" class="delete-image-btn" onclick="deleteReceivedValveImage(1)" title="Delete image">×</button>
+            <div class="image-upload">
+                <label>AS RECEIVED VALVE Image 1</label>
+                <button type="button" onclick="triggerCameraInput(1)">📷 Photo</button>
+                <button type="button" onclick="triggerGalleryInput(1)">🖼️ Gallery</button>
+                <input type="file" id="camera_input_1" accept="image/*" capture="environment" style="display:none" onchange="uploadReceivedValveImage(1, this)">
+                <input type="file" id="gallery_input_1" accept="image/*" style="display:none" onchange="uploadReceivedValveImage(1, this)">
+                <div id="received_valve_1_status"></div>
+                <div class="image-preview-container" id="received_valve_1_container" style="display: none;">
+                    <img id="received_valve_1_preview" class="image-preview">
+                    <button type="button" class="delete-image-btn" onclick="deleteReceivedValveImage(1)" title="Delete image">×</button>
+                </div>
             </div>
-        </div>
 
-        <div class="image-upload">
-            <label for="received_valve_2">AS RECEIVED VALVE Image 2</label>
-            <input type="file" id="received_valve_2" accept="image/*" onchange="uploadReceivedValveImage(2)">
-            <div id="received_valve_2_status"></div>
-            <div class="image-preview-container" id="received_valve_2_container" style="display: none;">
-                <img id="received_valve_2_preview" class="image-preview">
-                <button type="button" class="delete-image-btn" onclick="deleteReceivedValveImage(2)" title="Delete image">×</button>
+            <div class="image-upload">
+                <label>AS RECEIVED VALVE Image 2</label>
+                <button type="button" onclick="triggerCameraInput(2)">📷 Photo</button>
+                <button type="button" onclick="triggerGalleryInput(2)">🖼️ Gallery</button>
+                <input type="file" id="camera_input_2" accept="image/*" capture="environment" style="display:none" onchange="uploadReceivedValveImage(2, this)">
+                <input type="file" id="gallery_input_2" accept="image/*" style="display:none" onchange="uploadReceivedValveImage(2, this)">
+                <div id="received_valve_2_status"></div>
+                <div class="image-preview-container" id="received_valve_2_container" style="display: none;">
+                    <img id="received_valve_2_preview" class="image-preview">
+                    <button type="button" class="delete-image-btn" onclick="deleteReceivedValveImage(2)" title="Delete image">×</button>
+                </div>
             </div>
-        </div>
 
-        <div class="image-upload">
-            <label for="received_valve_3">AS RECEIVED VALVE Image 3</label>
-            <input type="file" id="received_valve_3" accept="image/*" onchange="uploadReceivedValveImage(3)">
-            <div id="received_valve_3_status"></div>
-            <div class="image-preview-container" id="received_valve_3_container" style="display: none;">
-                <img id="received_valve_3_preview" class="image-preview">
-                <button type="button" class="delete-image-btn" onclick="deleteReceivedValveImage(3)" title="Delete image">×</button>
+            <div class="image-upload">
+                <label>AS RECEIVED VALVE Image 3</label>
+                <button type="button" onclick="triggerCameraInput(3)">📷 Photo</button>
+                <button type="button" onclick="triggerGalleryInput(3)">🖼️ Gallery</button>
+                <input type="file" id="camera_input_3" accept="image/*" capture="environment" style="display:none" onchange="uploadReceivedValveImage(3, this)">
+                <input type="file" id="gallery_input_3" accept="image/*" style="display:none" onchange="uploadReceivedValveImage(3, this)">
+                <div id="received_valve_3_status"></div>
+                <div class="image-preview-container" id="received_valve_3_container" style="display: none;">
+                    <img id="received_valve_3_preview" class="image-preview">
+                    <button type="button" class="delete-image-btn" onclick="deleteReceivedValveImage(3)" title="Delete image">×</button>
+                </div>
             </div>
-        </div>
         </div>
 
         <div class="upload-section">
@@ -860,15 +869,12 @@
             });
         }
 
-        function uploadReceivedValveImage(imageNumber) {
-            const fileInput = document.getElementById('received_valve_' + imageNumber);
-            const file = fileInput.files[0];
-            
+        function uploadReceivedValveImage(imageNumber, inputElement) {
+            const file = inputElement.files[0];
             if (!file) {
                 showStatus('received_valve_' + imageNumber + '_status', 'Please select a file first.', 'error');
                 return;
             }
-
             const formData = new FormData();
             formData.append('image', file);
             formData.append('image_type', 'received_valve_' + imageNumber);
@@ -1345,6 +1351,13 @@
             }
         }
         
+        function triggerCameraInput(num) {
+            document.getElementById('camera_input_' + num).click();
+        }
+        function triggerGalleryInput(num) {
+            document.getElementById('gallery_input_' + num).click();
+        }
+
         window.onload = function() {
             loadAvailableNumbers();
             loadAvailablePDFs();
