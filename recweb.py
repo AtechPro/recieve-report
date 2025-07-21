@@ -136,12 +136,13 @@ def generate():
     date_value = data.get('date_value', '7/7/2027')  # Default date
     selected_services = data.get('selected_services', [])  # Service selections from user (array)
     comment = data.get('comment', '')  # Get the comment from the request
+    override_mode = data.get('override_mode', False)  # Get override_mode from request
     
     if not identifier:
         return jsonify({'error': 'Missing required field: identifier (No or WO)'}), 400
 
     try:
-        pdf_filename = generate_pdf(identifier, user_data, image_files, received_valve_images, stamp_selection, date_value, selected_services)
+        pdf_filename = generate_pdf(identifier, user_data, image_files, received_valve_images, stamp_selection, date_value, selected_services, override_mode=override_mode)
         pdf_path = os.path.join(PDF_FOLDER, pdf_filename)
         
         # Clean up temporary images after PDF generation

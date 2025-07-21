@@ -26,8 +26,8 @@ def get_record_by_no(no_value):
     """Backward compatibility function - use get_record_by_no_or_wo instead"""
     return get_record_by_no_or_wo(no_value)
 
-def load_valve_data(identifier, user_data=None):
-    """Load valve data from both valve_data.json (user-defined) and extracted_data.json (actual records)"""
+def load_valve_data(identifier, user_data=None, override_mode=False):
+    """Load valve data from both valve_data.json (user-defined) and extracted_data.json (actual records), with optional override mode."""
     
     # Load user-defined data
     if user_data is None:
@@ -45,57 +45,77 @@ def load_valve_data(identifier, user_data=None):
                 }
             }
     
-    # Fetch the record by No or WO
-    record = get_record_by_no_or_wo(identifier)
+    # Fetch the record by No or WO, but allow missing if override_mode
+    record = None
+    if not override_mode:
+        record = get_record_by_no_or_wo(identifier)
+    else:
+        try:
+            record = get_record_by_no_or_wo(identifier)
+        except Exception:
+            # In override mode, allow missing record
+            record = {}
     
     def clean_value(value):
         """Clean NaN values and convert to empty string"""
         if value is None or value == 'nan' or value == 'NaT':
             return ''
         return str(value)
-    
-    # Combine user-defined data with extracted data
+
+    # Helper to get value with override logic
+    def get_field(user_key, record_key, section='client_info'):
+        if override_mode:
+            # Always prefer user_data if present, else fallback to record
+            val = user_data.get(section, {}).get(user_key)
+            if val is not None and val != '':
+                return val
+            return clean_value(record.get(record_key))
+        else:
+            # Current behavior: user_data overrides only if present, else fallback
+            return user_data.get(section, {}).get(user_key, clean_value(record.get(record_key)))
+
     mapped_data = {
         'client_info': {
-            'client': user_data.get('client_info', {}).get('client', 'PETRONAS CHEMICALS FERTILISER SABAH SDN BHD'),
-            'project': user_data.get('client_info', {}).get('project', 'VALVE MAINTENANCE PROJECT 2025'),
-            'doc_info': clean_value(record.get('Service Type')),
-            'location': user_data.get('client_info', {}).get('location', 'Sipitang'),
-            'size_inlet': clean_value(record.get('Inlet (Size)')),
-            'inlet_rating': clean_value(record.get('Inlet (Rating)')),
-            'inlet_type': user_data.get('client_info', {}).get('inlet_type', clean_value(record.get('Inlet (Type)'))),
-            'date_in': clean_value(user_data.get('client_info', {}).get('date_in', '')),
-            'size_outlet': clean_value(record.get('Outlet (Size)')),
-            'outlet_rating': clean_value(record.get('Outlet (Rating)')),
-            'outlet_type': user_data.get('client_info', {}).get('outlet_type', clean_value(record.get('Outlet (Type)'))),
-            'wo_number': clean_value(record.get('WO ')),
-            'manufacturer': clean_value(record.get('Manufacturer')),
-            'tag_no': clean_value(record.get('Tag Number (Valve No)')),
-            'valve_type': clean_value(record.get('Type of Valve')),
-            'valve_operated_type': clean_value(record.get('Valve Operated Type'))
+            'client': get_field('client', 'Client'),
+            'project': get_field('project', 'Project'),
+            'doc_info': get_field('doc_info', 'Service Type'),
+            'location': get_field('location', 'Location'),
+            'size_inlet': get_field('size_inlet', 'Inlet (Size)'),
+            'inlet_rating': get_field('inlet_rating', 'Inlet (Rating)'),
+            'inlet_type': get_field('inlet_type', 'Inlet (Type)'),
+            'date_in': get_field('date_in', 'Date In'),
+            'size_outlet': get_field('size_outlet', 'Outlet (Size)'),
+            'outlet_rating': get_field('outlet_rating', 'Outlet (Rating)'),
+            'outlet_type': get_field('outlet_type', 'Outlet (Type)'),
+            'wo_number': get_field('wo_number', 'WO '),
+            'manufacturer': get_field('manufacturer', 'Manufacturer'),
+            'tag_no': get_field('tag_no', 'Tag Number (Valve No)'),
+            'valve_type': get_field('valve_type', 'Type of Valve'),
+            'valve_operated_type': get_field('valve_operated_type', 'Valve Operated Type')
         },
         'transportation_details': {
-            'transport_mode': user_data.get('client_info', {}).get('transport_mode', clean_value(record.get('Transport Mode'))),
-            'packaging': user_data.get('client_info', {}).get('packaging', clean_value(record.get('Packaging '))),
-            'transport_by': user_data.get('client_info', {}).get('transport_by', clean_value(record.get('Transport By'))),
-            'received_by': user_data.get('client_info', {}).get('received_by', clean_value(record.get('Received By'))),
-            'transport_comment': user_data.get('client_info', {}).get('transport_comment', clean_value(record.get('TRANSPORTATION (COMMENT)')))
+            'transport_mode': get_field('transport_mode', 'Transport Mode'),
+            'packaging': get_field('packaging', 'Packaging '),
+            'transport_by': get_field('transport_by', 'Transport By'),
+            'received_by': get_field('received_by', 'Received By'),
+            'transport_comment': get_field('transport_comment', 'TRANSPORTATION (COMMENT)')
         },
         'received_valve_condition': {
-            'inlet_connection_type': user_data.get('client_info', {}).get('inlet_type', clean_value(record.get('Inlet (Type)'))),
-            'outlet_connection_type': user_data.get('client_info', {}).get('outlet_type', clean_value(record.get('Outlet (Type)'))),
-            'nameplate': clean_value(record.get('Tag Number (Valve No)')),
-            'tag_number': clean_value(record.get('Tag Number (Valve No)')),
-            'inlet_connection_condition': user_data.get('client_info', {}).get('inlet_connection_condition', clean_value(record.get('Inlet Connection Condition'))),
-            'outlet_connection_condition': user_data.get('client_info', {}).get('outlet_connection_condition', clean_value(record.get('Outlet Connection Condition'))),
-            'connection_major_defect': user_data.get('client_info', {}).get('connection_major_damage', clean_value(record.get(' Connection Major Damage'))),
-            'valve_body_condition': user_data.get('client_info', {}).get('valve_body_condition', clean_value(record.get('Valve Body Condition'))),
-            'major_defect_body': user_data.get('client_info', {}).get('major_defect_on_body', clean_value(record.get('Major Defect on Body')))
+            'inlet_connection_type': get_field('inlet_type', 'Inlet (Type)'),
+            'outlet_connection_type': get_field('outlet_type', 'Outlet (Type)'),
+            'nameplate': get_field('tag_no', 'Tag Number (Valve No)'),
+            'tag_number': get_field('tag_no', 'Tag Number (Valve No)'),
+            'inlet_connection_condition': get_field('inlet_connection_condition', 'Inlet Connection Condition'),
+            'outlet_connection_condition': get_field('outlet_connection_condition', 'Outlet Connection Condition'),
+            'connection_major_defect': get_field('connection_major_damage', ' Connection Major Damage'),
+            'valve_body_condition': get_field('valve_body_condition', 'Valve Body Condition'),
+            'major_defect_body': get_field('major_defect_on_body', 'Major Defect on Body')
         },
         'overall_condition': {
-            'description': user_data.get('client_info', {}).get('overall_valve_condition', clean_value(record.get('Overall Valve Condition')))
+            'description': get_field('overall_valve_condition', 'Overall Valve Condition')
         },
         'stamp_info': {
+            # Always use user_data['stamp_info'] if present, else fallback to defaults
             'stamp_path': user_data.get('stamp_info', {}).get('stamp_path', 'stamp/sao.png'),
             'prepared_name': user_data.get('stamp_info', {}).get('prepared_name', 'Sao Lip Zhou'),
             'date_value': user_data.get('stamp_info', {}).get('date_value', '')
@@ -564,8 +584,8 @@ class PDF(FPDF):
             self.cell(sig_width - 4, 5, date_value, align='L')
 
 
-def generate_pdf(identifier, user_data=None, image_files=None, received_valve_images=None, stamp_selection=None, date_value=None, selected_services=None):
-    valve_data = load_valve_data(identifier, user_data)
+def generate_pdf(identifier, user_data=None, image_files=None, received_valve_images=None, stamp_selection=None, date_value=None, selected_services=None, override_mode=False):
+    valve_data = load_valve_data(identifier, user_data, override_mode=override_mode)
     pdf = PDF(valve_data, format='A4')
     print('FPDF units: millimeters (mm) by default for A4 size 210x297mm')
     pdf.add_page()
@@ -595,14 +615,18 @@ def generate_pdf(identifier, user_data=None, image_files=None, received_valve_im
     # Create generated_pdfs directory if it doesn't exist
     os.makedirs('generated_pdfs', exist_ok=True)
     
-    # Determine if identifier is a No or WO for filename
-    record = get_record_by_no_or_wo(identifier)
-    if record.get('No') == str(identifier):
-        output_filename = f'Recieved_report_No_{identifier}.pdf'
-        print(f'PDF report "{output_filename}" created successfully for No = {identifier}.')
+    # Determine output filename
+    if override_mode:
+        output_filename = f'Recieved_report_Manual_{identifier}.pdf'
+        print(f'PDF report "{output_filename}" created successfully in override/manual mode for identifier = {identifier}.')
     else:
-        output_filename = f'Recieved_report_WO_{identifier}.pdf'
-        print(f'PDF report "{output_filename}" created successfully for WO = {identifier}.')
+        record = get_record_by_no_or_wo(identifier)
+        if record.get('No') == str(identifier):
+            output_filename = f'Recieved_report_No_{identifier}.pdf'
+            print(f'PDF report "{output_filename}" created successfully for No = {identifier}.')
+        else:
+            output_filename = f'Recieved_report_WO_{identifier}.pdf'
+            print(f'PDF report "{output_filename}" created successfully for WO = {identifier}.')
     
     output_path = os.path.join('generated_pdfs', output_filename)
     pdf.output(output_path)
