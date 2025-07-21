@@ -369,6 +369,18 @@
 
         {% include 'navbar.html' %}
 
+
+        <div class="upload-section">
+            <h2>🔍 Valve Selection</h2>
+            <p>Select the valve by entering its No or WO number:</p>
+            
+            <div class="form-group">
+                <label for="valve_identifier">Valve No or WO Number *</label>
+                <input type="text" id="valve_identifier" placeholder="Enter No or WO number" list="valve_wo_list" class="form-control" required>
+                <datalist id="valve_wo_list"></datalist>
+            </div>
+        </div>
+        
         <div class="upload-section">
             <h2>🏢 Client Information</h2>
             <div class="form-grid">
@@ -392,15 +404,34 @@
         </div>
 
         <div class="upload-section">
-            <h2>🔍 Valve Selection</h2>
-            <p>Select the valve by entering its No or WO number:</p>
-            
-            <div class="form-group">
-                <label for="valve_identifier">Valve No or WO Number *</label>
-                <input type="text" id="valve_identifier" placeholder="Enter No or WO number" list="valve_wo_list" class="form-control" required>
-                <datalist id="valve_wo_list"></datalist>
+            <h2>🔗 Valve End Connection Types</h2>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="inlet_type">Inlet (Type)</label>
+                    <select id="inlet_type" class="form-control" onchange="toggleOtherInput('inlet_type')">
+                        <option value="">-- Select Inlet Type --</option>
+                        <option value="Flanged">Flanged</option>
+                        <option value="Threaded">Threaded</option>
+                        <option value="Welded">Welded</option>
+                        <option value="Other">Other</option>
+                    </select>
+                    <input type="text" id="inlet_type_other" class="form-control" placeholder="Please specify" style="display:none; margin-top:6px;" />
+                </div>
+                <div class="form-group">
+                    <label for="outlet_type">Outlet (Type)</label>
+                    <select id="outlet_type" class="form-control" onchange="toggleOtherInput('outlet_type')">
+                        <option value="">-- Select Outlet Type --</option>
+                        <option value="Flanged">Flanged</option>
+                        <option value="Threaded">Threaded</option>
+                        <option value="Welded">Welded</option>
+                        <option value="Other">Other</option>
+                    </select>
+                    <input type="text" id="outlet_type_other" class="form-control" placeholder="Please specify" style="display:none; margin-top:6px;" />
+                </div>
             </div>
         </div>
+
+
 
         <div class="upload-section">
             <h2>⚙️ Service Configuration</h2>
@@ -495,7 +526,11 @@
                     </div>
                     <div class="form-group">
                         <label for="pretest_shell_result">Result & Remarks:</label>
-                        <input type="text" id="pretest_shell_result" placeholder="e.g., Pass/Fail" class="form-control">
+                        <select id="pretest_shell_result" class="form-control">
+                            <option value="NO LEAK & ACCEPTED">NO LEAK & ACCEPTED</option>
+                            <option value="LEAKED">LEAKED</option>
+                            <option value="MINOR LEAKED & ACCEPTED">MINOR LEAKED & ACCEPTED</option>
+                        </select>
                     </div>
                 </div>
             </div>
@@ -513,7 +548,11 @@
                     </div>
                     <div class="form-group">
                         <label for="pretest_backseat_result">Result & Remarks:</label>
-                        <input type="text" id="pretest_backseat_result" placeholder="e.g., Pass/Fail" class="form-control">
+                        <select id="pretest_backseat_result" class="form-control">
+                            <option value="NO LEAK & ACCEPTED">NO LEAK & ACCEPTED</option>
+                            <option value="LEAKED">LEAKED</option>
+                            <option value="MINOR LEAKED & ACCEPTED">MINOR LEAKED & ACCEPTED</option>
+                        </select>
                     </div>
                 </div>
             </div>
@@ -531,7 +570,11 @@
                     </div>
                     <div class="form-group">
                         <label for="pretest_seatA_result">Result & Remarks:</label>
-                        <input type="text" id="pretest_seatA_result" placeholder="e.g., Pass/Fail" class="form-control">
+                        <select id="pretest_seatA_result" class="form-control">
+                            <option value="NO LEAK & ACCEPTED">NO LEAK & ACCEPTED</option>
+                            <option value="LEAKED">LEAKED</option>
+                            <option value="MINOR LEAKED & ACCEPTED">MINOR LEAKED & ACCEPTED</option>
+                        </select>
                     </div>
                 </div>
             </div>
@@ -549,7 +592,11 @@
                     </div>
                     <div class="form-group">
                         <label for="pretest_seatB_result">Result & Remarks:</label>
-                        <input type="text" id="pretest_seatB_result" placeholder="e.g., Pass/Fail" class="form-control">
+                        <select id="pretest_seatB_result" class="form-control">
+                            <option value="NO LEAK & ACCEPTED">NO LEAK & ACCEPTED</option>
+                            <option value="LEAKED">LEAKED</option>
+                            <option value="MINOR LEAKED & ACCEPTED">MINOR LEAKED & ACCEPTED</option>
+                        </select>
                     </div>
                 </div>
             </div>
@@ -612,7 +659,11 @@
                     </div>
                     <div class="form-group">
                         <label for="posttest_shell_result">Result & Remarks:</label>
-                        <input type="text" id="posttest_shell_result" placeholder="e.g., Pass/Fail" class="form-control">
+                        <select id="posttest_shell_result" class="form-control">
+                            <option value="NO LEAK & ACCEPTED">NO LEAK & ACCEPTED</option>
+                            <option value="LEAKED">LEAKED</option>
+                            <option value="MINOR LEAKED & ACCEPTED">MINOR LEAKED & ACCEPTED</option>
+                        </select>
                     </div>
                 </div>
             </div>
@@ -630,7 +681,11 @@
                     </div>
                     <div class="form-group">
                         <label for="posttest_backseat_result">Result & Remarks:</label>
-                        <input type="text" id="posttest_backseat_result" placeholder="e.g., Pass/Fail" class="form-control">
+                        <select id="posttest_backseat_result" class="form-control">
+                            <option value="NO LEAK & ACCEPTED">NO LEAK & ACCEPTED</option>
+                            <option value="LEAKED">LEAKED</option>
+                            <option value="MINOR LEAKED & ACCEPTED">MINOR LEAKED & ACCEPTED</option>
+                        </select>
                     </div>
                 </div>
             </div>
@@ -648,7 +703,11 @@
                     </div>
                     <div class="form-group">
                         <label for="posttest_seatA_result">Result & Remarks:</label>
-                        <input type="text" id="posttest_seatA_result" placeholder="e.g., Pass/Fail" class="form-control">
+                        <select id="posttest_seatA_result" class="form-control">
+                            <option value="NO LEAK & ACCEPTED">NO LEAK & ACCEPTED</option>
+                            <option value="LEAKED">LEAKED</option>
+                            <option value="MINOR LEAKED & ACCEPTED">MINOR LEAKED & ACCEPTED</option>
+                        </select>
                     </div>
                 </div>
             </div>
@@ -666,7 +725,11 @@
                     </div>
                     <div class="form-group">
                         <label for="posttest_seatB_result">Result & Remarks:</label>
-                        <input type="text" id="posttest_seatB_result" placeholder="e.g., Pass/Fail" class="form-control">
+                        <select id="posttest_seatB_result" class="form-control">
+                            <option value="NO LEAK & ACCEPTED">NO LEAK & ACCEPTED</option>
+                            <option value="LEAKED">LEAKED</option>
+                            <option value="MINOR LEAKED & ACCEPTED">MINOR LEAKED & ACCEPTED</option>
+                        </select>
                     </div>
                 </div>
             </div>
@@ -868,6 +931,17 @@
             container.appendChild(itemDiv);
         }
 
+        function toggleOtherInput(type) {
+            const select = document.getElementById(type);
+            const otherInput = document.getElementById(type + '_other');
+            if (select.value === "Other") {
+                otherInput.style.display = '';
+            } else {
+                otherInput.style.display = 'none';
+                otherInput.value = '';
+            }
+        }
+
         function generateReport() {
             const identifier = document.getElementById('valve_identifier').value;
             if (!identifier) {
@@ -881,6 +955,11 @@
             document.getElementById('pdfActions').style.display = 'none';
 
             // Collect form data
+            let inletType = document.getElementById('inlet_type').value;
+            if (inletType === "Other") inletType = document.getElementById('inlet_type_other').value.trim();
+            let outletType = document.getElementById('outlet_type').value;
+            if (outletType === "Other") outletType = document.getElementById('outlet_type_other').value.trim();
+
             const data = {
                 identifier: identifier,
                 stamp_selection: document.getElementById('stamp_selection').value,
@@ -890,7 +969,15 @@
                 internal_inspection: getInternalInspectionData(),
                 pretest: getPretestData(),
                 posttest: getPosttestData(),
-                comment: document.getElementById('comment').value
+                comment: document.getElementById('comment').value,
+                client_info: {
+                    client: document.getElementById('client_name').value,
+                    project: document.getElementById('project_name').value,
+                    location: document.getElementById('location').value,
+                    date_in: formatDateDMY(document.getElementById('date_in').value),
+                    inlet_type: inletType,
+                    outlet_type: outletType
+                }
             };
 
             // Send request
@@ -918,6 +1005,12 @@
             .finally(() => {
                 document.getElementById('loading').style.display = 'none';
             });
+        }
+
+        function formatDateDMY(dateStr) {
+            if (!dateStr) return '';
+            const [year, month, day] = dateStr.split('-');
+            return `${day}/${month}/${year}`;
         }
 
         function getSelectedServices() {

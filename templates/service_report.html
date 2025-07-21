@@ -500,6 +500,34 @@
         </div>
 
         <div class="upload-section">
+            <h2>🔗 Valve End Connection Types</h2>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="inlet_type">Inlet (Type)</label>
+                    <select id="inlet_type" class="form-control" onchange="toggleOtherInput('inlet_type')">
+                        <option value="">-- Select Inlet Type --</option>
+                        <option value="Flanged">Flanged</option>
+                        <option value="Threaded">Threaded</option>
+                        <option value="Welded">Welded</option>
+                        <option value="Other">Other</option>
+                    </select>
+                    <input type="text" id="inlet_type_other" class="form-control" placeholder="Please specify" style="display:none; margin-top:6px;" />
+                </div>
+                <div class="form-group">
+                    <label for="outlet_type">Outlet (Type)</label>
+                    <select id="outlet_type" class="form-control" onchange="toggleOtherInput('outlet_type')">
+                        <option value="">-- Select Outlet Type --</option>
+                        <option value="Flanged">Flanged</option>
+                        <option value="Threaded">Threaded</option>
+                        <option value="Welded">Welded</option>
+                        <option value="Other">Other</option>
+                    </select>
+                    <input type="text" id="outlet_type_other" class="form-control" placeholder="Please specify" style="display:none; margin-top:6px;" />
+                </div>
+            </div>
+        </div>
+
+        <div class="upload-section">
             <h2>⚙️ Service Configuration</h2>
             <p>Select the services that were performed for this valve:</p>
             
@@ -808,12 +836,12 @@
                     <td>
                         <select style="width: 100%; padding: 8px 12px; border: 1px solid var(--light-gray-2); border-radius: 4px; font-size: 0.9rem;">
                             <option value="">-- Select --</option>
-                            <option value="REUSEABLE">REUSEABLE</option>
-                            <option value="BADLY DAMAGED">BADLY DAMAGED</option>
-                            <option value="NEED TO REPLACED">NEED TO REPLACED</option>
-                            <option value="NO SPARE KIT">NO SPARE KIT</option>
+                            <option value="CLEANED">CLEANED</option>
+                            <option value="NO SPARE">NO SPARE</option>
+                            <option value="SERVICED & CLEANED">SERVICED & CLEANED</option>
                             <option value="N/A">N/A</option>
-                            <option value="TO FABRICATE">TO FABRICATE</option>
+                            <option value="NEW">NEW</option>
+                            <option value="REUSED">REUSED</option>
                         </select>
                     </td>
                 `;
@@ -973,6 +1001,17 @@
             }
         }
 
+        function toggleOtherInput(type) {
+            const select = document.getElementById(type);
+            const otherInput = document.getElementById(type + '_other');
+            if (select.value === "Other") {
+                otherInput.style.display = '';
+            } else {
+                otherInput.style.display = 'none';
+                otherInput.value = '';
+            }
+        }
+
         function updateCalendarFromDateIn() {
             const dateInput = document.getElementById('date_in');
             const calendarInput = document.getElementById('date_in_calendar');
@@ -1111,6 +1150,11 @@
                 return;
             }
             
+            let inletType = document.getElementById('inlet_type').value;
+            if (inletType === "Other") inletType = document.getElementById('inlet_type_other').value.trim();
+            let outletType = document.getElementById('outlet_type').value;
+            if (outletType === "Other") outletType = document.getElementById('outlet_type_other').value.trim();
+
             const visualInspection = collectVisualInspectionData();
             const internalInspection = collectInternalInspectionData();
             const detailedPictures = collectDetailedPicturesData();
@@ -1125,7 +1169,9 @@
                     client: document.getElementById('client_name')?.value.trim() || 'PETRONAS CHEMICALS FERTILISER SABAH SDN BHD',
                     project: document.getElementById('project_name')?.value.trim() || 'VALVE MAINTENANCE PROJECT 2025',
                     location: document.getElementById('location')?.value.trim() || 'Sipitang',
-                    date_in: document.getElementById('date_in')?.value.trim() || ''
+                    date_in: document.getElementById('date_in')?.value.trim() || '',
+                    inlet_type: inletType,
+                    outlet_type: outletType
                 },
                 visual_inspection: visualInspection,
                 internal_inspection: internalInspection,
