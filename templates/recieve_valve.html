@@ -1076,6 +1076,13 @@
                 }
                 user_data.client_info.overall_valve_condition = overallValveCondition;
 
+                // Transport details
+                user_data.client_info.transport_mode = document.getElementById('transport_mode')?.value || '';
+                user_data.client_info.packaging = document.getElementById('packaging')?.value || '';
+                user_data.client_info.transport_by = document.getElementById('transport_by')?.value || '';
+                user_data.client_info.received_by = document.getElementById('received_by')?.value || '';
+                user_data.client_info.transport_comment = document.getElementById('transport_comment')?.value || '';
+
                 // Add other fields as needed
                 // Compose the rest of the data as before
                 const stampSelection = document.getElementById('stamp_selection')?.value || '';
@@ -1152,6 +1159,7 @@
                     if (transportBy) user_data.client_info.transport_by = transportBy;
                     if (packaging) user_data.client_info.packaging = packaging;
                     if (receivedBy) user_data.client_info.received_by = receivedBy;
+                    if (transportComment) user_data.client_info.transport_comment = transportComment;
                     if (inletType) user_data.client_info.inlet_type = inletType;
                     if (outletType) user_data.client_info.outlet_type = outletType;
                     if (inletConnectionCondition) user_data.client_info.inlet_connection_condition = inletConnectionCondition;
@@ -1160,7 +1168,6 @@
                     if (valveBodyCondition) user_data.client_info.valve_body_condition = valveBodyCondition;
                     if (majorDefectOnBody) user_data.client_info.major_defect_on_body = majorDefectOnBody;
                     if (overallValveCondition) user_data.client_info.overall_valve_condition = overallValveCondition;
-                    if (transportComment) user_data.client_info.transport_comment = transportComment;
                 }
 
                 // Get override mode
