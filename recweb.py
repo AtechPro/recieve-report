@@ -65,6 +65,10 @@ def finding_report():
 def service_report():
     return render_template('service_report.html')
 
+@app.route('/hydrotest')
+def hydrotest():
+    return render_template('hydrotest.html')
+
 @app.route('/excel-converter')
 def excel_converter():
     return render_template('excel_converter.html')
@@ -204,6 +208,65 @@ def generate_finding_report():
         
         return jsonify({
             'message': f'Finding report generated successfully for identifier = {identifier}.',
+            'pdf_filename': pdf_filename,
+            'pdf_path': pdf_path,
+            'download_url': f'/download-pdf/{pdf_filename}',
+            'view_url': f'/view-pdf/{pdf_filename}'
+        }), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/generate-hydrotest', methods=['POST'])
+def generate_hydrotest():
+    data = request.get_json()
+    identifier = data.get('identifier')
+    stamp_selection = data.get('stamp_selection', 'SAO')
+    date_value = data.get('date_value', '')
+    selected_services = data.get('selected_services', [])
+    comment = data.get('comment', '')  # Get comment from request
+    
+    # Debug: Log the received data
+    print(f"DEBUG: Received date_value: '{date_value}'")
+    print(f"DEBUG: date_value type: {type(date_value)}")
+    print(f"DEBUG: date_value length: {len(date_value) if date_value else 'None'}")
+    
+    # Extract additional data for hydrotest report
+    visual_inspection = data.get('visual_inspection', [])
+    internal_inspection = data.get('internal_inspection', [])
+    pretest = data.get('pretest', {})
+    posttest = data.get('posttest', {})
+    
+    if not identifier:
+        return jsonify({'error': 'Missing required field: identifier (No or WO)'}), 400
+
+    try:
+        # Import the hydrotest generation function
+        from hydrotest import generate_pdf as generate_hydrotest_pdf
+        
+        # Create user_data with the collected form data
+        user_data = {
+            'client_info': data.get('client_info', {}),
+            'visual_inspection': visual_inspection,
+            'internal_inspection': internal_inspection,
+            'pretest': pretest,
+            'posttest': posttest,
+            'comment': comment,  # Include comment in user_data
+            'stamp_info': {
+                'date_value': date_value
+            }
+        }
+        
+        pdf_filename = generate_hydrotest_pdf(
+            identifier=identifier,
+            user_data=user_data,
+            stamp_selection=stamp_selection,
+            date_value=date_value,
+            selected_services=selected_services
+        )
+        pdf_path = os.path.join(PDF_FOLDER, pdf_filename)
+        
+        return jsonify({
+            'message': f'Hydrotest report generated successfully for identifier = {identifier}.',
             'pdf_filename': pdf_filename,
             'pdf_path': pdf_path,
             'download_url': f'/download-pdf/{pdf_filename}',

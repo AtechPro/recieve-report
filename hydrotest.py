@@ -635,7 +635,7 @@ def generate_pdf(identifier, user_data=None, stamp_selection=None, date_value=No
         output_filename = f'Hydrotest_Report_No_{identifier}.pdf'
         print(f'PDF report "{output_filename}" created successfully for No = {identifier}.')
     else:
-        output_filename = f'_WO_{identifier}.pdf'
+        output_filename = f'Hydrotest_Report_WO_{identifier}.pdf'
         print(f'PDF report "{output_filename}" created successfully for WO = {identifier}.')
     
     output_path = os.path.join('generated_pdfs', output_filename)
