@@ -1022,10 +1022,59 @@
                 // Inlet/Outlet fields
                 user_data.client_info.size_inlet = document.getElementById('manual_size_inlet').value || '';
                 user_data.client_info.inlet_rating = document.getElementById('manual_inlet_rating').value || '';
-                user_data.client_info.inlet_type = document.getElementById('inlet_type')?.value || '';
+                user_data.client_info.inlet_type = (function() {
+                    let val = document.getElementById('inlet_type')?.value || '';
+                    if (val === 'Other') {
+                        val = document.getElementById('inlet_type_other')?.value.trim() || '';
+                    }
+                    return val;
+                })();
                 user_data.client_info.size_outlet = document.getElementById('manual_size_outlet').value || '';
                 user_data.client_info.outlet_rating = document.getElementById('manual_outlet_rating').value || '';
-                user_data.client_info.outlet_type = document.getElementById('outlet_type')?.value || '';
+                user_data.client_info.outlet_type = (function() {
+                    let val = document.getElementById('outlet_type')?.value || '';
+                    if (val === 'Other') {
+                        val = document.getElementById('outlet_type_other')?.value.trim() || '';
+                    }
+                    return val;
+                })();
+
+                // AS RECEIVED VALVE CONDITION fields from default form (handle 'Other')
+                let inletConnectionCondition = document.getElementById('inlet_connection_condition')?.value || '';
+                if (inletConnectionCondition === 'Other') {
+                    inletConnectionCondition = document.getElementById('inlet_connection_condition_other')?.value.trim() || '';
+                }
+                user_data.client_info.inlet_connection_condition = inletConnectionCondition;
+
+                let outletConnectionCondition = document.getElementById('outlet_connection_condition')?.value || '';
+                if (outletConnectionCondition === 'Other') {
+                    outletConnectionCondition = document.getElementById('outlet_connection_condition_other')?.value.trim() || '';
+                }
+                user_data.client_info.outlet_connection_condition = outletConnectionCondition;
+
+                let connectionMajorDamage = document.getElementById('connection_major_damage')?.value || '';
+                if (connectionMajorDamage === 'Other') {
+                    connectionMajorDamage = document.getElementById('connection_major_damage_other')?.value.trim() || '';
+                }
+                user_data.client_info.connection_major_damage = connectionMajorDamage;
+
+                let valveBodyCondition = document.getElementById('valve_body_condition')?.value || '';
+                if (valveBodyCondition === 'Other') {
+                    valveBodyCondition = document.getElementById('valve_body_condition_other')?.value.trim() || '';
+                }
+                user_data.client_info.valve_body_condition = valveBodyCondition;
+
+                let majorDefectOnBody = document.getElementById('major_defect_on_body')?.value || '';
+                if (majorDefectOnBody === 'Other') {
+                    majorDefectOnBody = document.getElementById('major_defect_on_body_other')?.value.trim() || '';
+                }
+                user_data.client_info.major_defect_on_body = majorDefectOnBody;
+
+                let overallValveCondition = document.getElementById('overall_valve_condition')?.value || '';
+                if (overallValveCondition === 'Other') {
+                    overallValveCondition = document.getElementById('overall_valve_condition_other')?.value.trim() || '';
+                }
+                user_data.client_info.overall_valve_condition = overallValveCondition;
 
                 // Add other fields as needed
                 // Compose the rest of the data as before
