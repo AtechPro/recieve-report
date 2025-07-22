@@ -26,7 +26,7 @@ def get_record_by_no(no_value):
     """Backward compatibility function - use get_record_by_no_or_wo instead"""
     return get_record_by_no_or_wo(no_value)
 
-def load_valve_data(identifier, user_data=None):
+def load_valve_data(identifier, user_data=None, override_mode=False):
     """Load valve data from both valve_data.json (user-defined) and extracted_data.json (actual records)"""
     
     # Load user-defined data
@@ -45,8 +45,14 @@ def load_valve_data(identifier, user_data=None):
                 }
             }
     
-    # Fetch the record by No or WO
-    record = get_record_by_no_or_wo(identifier)
+    # Fetch the record by No or WO, but allow missing if override_mode
+    if not override_mode:
+        record = get_record_by_no_or_wo(identifier)
+    else:
+        try:
+            record = get_record_by_no_or_wo(identifier)
+        except Exception:
+            record = {}  # Use empty record if not found in override mode
     
     def clean_value(value):
         """Clean NaN values and convert to empty string"""
@@ -59,20 +65,20 @@ def load_valve_data(identifier, user_data=None):
         'client_info': {
             'client': user_data.get('client_info', {}).get('client', 'PETRONAS CHEMICALS FERTILISER SABAH SDN BHD'),
             'project': user_data.get('client_info', {}).get('project', 'VALVE MAINTENANCE PROJECT 2025'),
-            'doc_info': clean_value(record.get('Service Type')),
+            'doc_info': user_data.get('client_info', {}).get('doc_info', clean_value(record.get('Service Type'))),
             'location': user_data.get('client_info', {}).get('location', 'Sipitang'),
-            'size_inlet': clean_value(record.get('Inlet (Size)')),
-            'inlet_rating': clean_value(record.get('Inlet (Rating)')),
+            'size_inlet': user_data.get('client_info', {}).get('size_inlet', clean_value(record.get('Inlet (Size)'))),
+            'inlet_rating': user_data.get('client_info', {}).get('inlet_rating', clean_value(record.get('Inlet (Rating)'))),
             'inlet_type': user_data.get('client_info', {}).get('inlet_type', clean_value(record.get('Inlet (Type)'))),
             'date_in': clean_value(user_data.get('client_info', {}).get('date_in', '')),
-            'size_outlet': clean_value(record.get('Outlet (Size)')),
-            'outlet_rating': clean_value(record.get('Outlet (Rating)')),
+            'size_outlet': user_data.get('client_info', {}).get('size_outlet', clean_value(record.get('Outlet (Size)'))),
+            'outlet_rating': user_data.get('client_info', {}).get('outlet_rating', clean_value(record.get('Outlet (Rating)'))),
             'outlet_type': user_data.get('client_info', {}).get('outlet_type', clean_value(record.get('Outlet (Type)'))),
-            'wo_number': clean_value(record.get('WO ')),
-            'manufacturer': clean_value(record.get('Manufacturer')),
-            'tag_no': clean_value(record.get('Tag Number (Valve No)')),
-            'valve_type': clean_value(record.get('Type of Valve')),
-            'valve_operated_type': clean_value(record.get('Valve Operated Type'))
+            'wo_number': user_data.get('client_info', {}).get('wo_number', clean_value(record.get('WO '))),
+            'manufacturer': user_data.get('client_info', {}).get('manufacturer', clean_value(record.get('Manufacturer'))),
+            'tag_no': user_data.get('client_info', {}).get('tag_no', clean_value(record.get('Tag Number (Valve No)'))),
+            'valve_type': user_data.get('client_info', {}).get('valve_type', clean_value(record.get('Type of Valve'))),
+            'valve_operated_type': user_data.get('client_info', {}).get('valve_operated_type', clean_value(record.get('Valve Operated Type')))
         },
         'stamp_info': {
             'stamp_path': user_data.get('stamp_info', {}).get('stamp_path', 'stamp/sao.png'),
@@ -317,7 +323,7 @@ class PDF(FPDF):
         headings_style = FontFace(emphasis="B", fill_color=grey)
         with self.table(col_widths=col_widths, line_height=4, headings_style=headings_style) as table:
             row = table.row()
-            row.cell('AS RECEIVED VISUAL INSPECTION (EXTERNAL)', align='C', colspan=4)
+            row.cell('AS RECEIVED VISUAL INSPECTION & SERVICES', align='C', colspan=4)
             row = table.row()
             row.cell('DESCRIPTION', align='C')
             row.cell('CONDITION', align='C')
@@ -386,7 +392,7 @@ class PDF(FPDF):
         headings_style = FontFace(emphasis="B", fill_color=grey)
         with self.table(col_widths=col_widths, line_height=4, headings_style=headings_style) as table:
             row = table.row()
-            row.cell('INTERNAL PARTS INSPECTION', align='C', colspan=4)
+            row.cell('INTERNAL PARTS INSPECTION & SERVICES', align='C', colspan=4)
             row = table.row()
             self.set_font(self.FONT_FAMILY, 'B', self.FONT_SIZE)
             row.cell('DESCRIPTION', align='C')
@@ -577,8 +583,8 @@ class PDF(FPDF):
             self.set_xy(date_x, date_y)
             self.cell(sig_width - 4, 5, date_value, align='L')
 
-def generate_pdf(identifier, user_data=None, stamp_selection=None, date_value=None, selected_services=None):
-    valve_data = load_valve_data(identifier, user_data)
+def generate_pdf(identifier, user_data=None, stamp_selection=None, date_value=None, selected_services=None, override_mode=False):
+    valve_data = load_valve_data(identifier, user_data, override_mode=override_mode)
     pdf = PDF(valve_data, selected_services=selected_services, format='A4')
     print('FPDF units: millimeters (mm) by default for A4 size 210x297mm')
     pdf.add_page()
@@ -608,13 +614,17 @@ def generate_pdf(identifier, user_data=None, stamp_selection=None, date_value=No
     os.makedirs('generated_pdfs', exist_ok=True)
     
     # Determine if identifier is a No or WO for filename
-    record = get_record_by_no_or_wo(identifier)
-    if record.get('No') == str(identifier):
-        output_filename = f'Valve_Cert_No_{identifier}.pdf'
-        print(f'PDF report "{output_filename}" created successfully for No = {identifier}.')
+    if not override_mode:
+        record = get_record_by_no_or_wo(identifier)
+        if record.get('No') == str(identifier):
+            output_filename = f'Valve_Cert_No_{identifier}.pdf'
+            print(f'PDF report "{output_filename}" created successfully for No = {identifier}.')
+        else:
+            output_filename = f'Valve_Cert_WO_{identifier}.pdf'
+            print(f'PDF report "{output_filename}" created successfully for WO = {identifier}.')
     else:
-        output_filename = f'Valve_Cert_WO_{identifier}.pdf'
-        print(f'PDF report "{output_filename}" created successfully for WO = {identifier}.')
+        output_filename = f'Valve_Cert_Manual_{identifier}.pdf'
+        print(f'PDF report "{output_filename}" created successfully in override/manual mode for identifier = {identifier}.')
     
     output_path = os.path.join('generated_pdfs', output_filename)
     pdf.output(output_path)

@@ -453,5 +453,57 @@ def cleanup_temp():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
+@app.route('/valvecert')
+def valvecert():
+    return render_template('valvecert.html')
+
+@app.route('/generate-valvecert', methods=['POST'])
+def generate_valvecert():
+    data = request.get_json()
+    identifier = data.get('identifier')
+    stamp_selection = data.get('stamp_selection', 'SAO')
+    date_value = data.get('date_value', '')
+    selected_services = data.get('selected_services', [])
+    comment = data.get('comment', '')
+    override_mode = data.get('override_mode', False)
+    # Extract additional data for valve cert report
+    visual_inspection = data.get('visual_inspection', [])
+    internal_inspection = data.get('internal_inspection', [])
+    pretest = data.get('pretest', {})
+    posttest = data.get('posttest', {})
+    if not identifier:
+        return jsonify({'error': 'Missing required field: identifier (No or WO)'}), 400
+    try:
+        from valvecert import generate_pdf as generate_valvecert_pdf
+        user_data = {
+            'client_info': data.get('client_info', {}),
+            'visual_inspection': visual_inspection,
+            'internal_inspection': internal_inspection,
+            'pretest': pretest,
+            'posttest': posttest,
+            'comment': comment,
+            'stamp_info': {
+                'date_value': date_value
+            }
+        }
+        pdf_filename = generate_valvecert_pdf(
+            identifier=identifier,
+            user_data=user_data,
+            stamp_selection=stamp_selection,
+            date_value=date_value,
+            selected_services=selected_services,
+            override_mode=override_mode
+        )
+        pdf_path = os.path.join(PDF_FOLDER, pdf_filename)
+        return jsonify({
+            'message': f'Valve certificate generated successfully for identifier = {identifier}.',
+            'pdf_filename': pdf_filename,
+            'pdf_path': pdf_path,
+            'download_url': f'/download-pdf/{pdf_filename}',
+            'view_url': f'/view-pdf/{pdf_filename}'
+        }), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
 if __name__ == '__main__':
     app.run(debug=True, port=5300, host='0.0.0.0') 
