@@ -26,7 +26,7 @@ def get_record_by_no(no_value):
     """Backward compatibility function - use get_record_by_no_or_wo instead"""
     return get_record_by_no_or_wo(no_value)
 
-def load_valve_data(identifier, user_data=None):
+def load_valve_data(identifier, user_data=None, override_mode=False):
     """Load valve data from both valve_data.json (user-defined) and extracted_data.json (actual records)"""
     
     # Load user-defined data
@@ -45,8 +45,14 @@ def load_valve_data(identifier, user_data=None):
                 }
             }
     
-    # Fetch the record by No or WO
-    record = get_record_by_no_or_wo(identifier)
+    # Fetch the record by No or WO, but allow missing if override_mode
+    if not override_mode:
+        record = get_record_by_no_or_wo(identifier)
+    else:
+        try:
+            record = get_record_by_no_or_wo(identifier)
+        except Exception:
+            record = {}  # Use empty record if not found in override mode
     
     def clean_value(value):
         """Clean NaN values and convert to empty string"""
@@ -54,25 +60,33 @@ def load_valve_data(identifier, user_data=None):
             return ''
         return str(value)
     
-    # Combine user-defined data with extracted data
+    # Combine user-defined data with extracted data, with full override for client_info fields
+    def get_client_info_field(field, extracted_key=None, default=None):
+        # Use user_data['client_info'][field] if present, else extracted data, else default
+        if user_data and 'client_info' in user_data and field in user_data['client_info']:
+            return clean_value(user_data['client_info'][field])
+        if extracted_key and extracted_key in record:
+            return clean_value(record.get(extracted_key))
+        return clean_value(default)
+
     mapped_data = {
         'client_info': {
-            'client': user_data.get('client_info', {}).get('client', 'PETRONAS CHEMICALS FERTILISER SABAH SDN BHD'),
-            'project': user_data.get('client_info', {}).get('project', 'VALVE MAINTENANCE PROJECT 2025'),
-            'doc_info': clean_value(record.get('Service Type')),
-            'location': user_data.get('client_info', {}).get('location', 'Sipitang'),
-            'size_inlet': clean_value(record.get('Inlet (Size)')),
-            'inlet_rating': clean_value(record.get('Inlet (Rating)')),
-            'inlet_type': user_data.get('client_info', {}).get('inlet_type', clean_value(record.get('Inlet (Type)'))),
-            'date_in': clean_value(user_data.get('client_info', {}).get('date_in', '')),
-            'size_outlet': clean_value(record.get('Outlet (Size)')),
-            'outlet_rating': clean_value(record.get('Outlet (Rating)')),
-            'outlet_type': user_data.get('client_info', {}).get('outlet_type', clean_value(record.get('Outlet (Type)'))),
-            'wo_number': clean_value(record.get('WO ')),
-            'manufacturer': clean_value(record.get('Manufacturer')),
-            'tag_no': clean_value(record.get('Tag Number (Valve No)')),
-            'valve_type': clean_value(record.get('Type of Valve')),
-            'valve_operated_type': clean_value(record.get('Valve Operated Type'))
+            'client': get_client_info_field('client', default='PETRONAS CHEMICALS FERTILISER SABAH SDN BHD'),
+            'project': get_client_info_field('project', default='VALVE MAINTENANCE PROJECT 2025'),
+            'doc_info': get_client_info_field('doc_info', extracted_key='Service Type'),
+            'location': get_client_info_field('location', default='Sipitang'),
+            'size_inlet': get_client_info_field('size_inlet', extracted_key='Inlet (Size)'),
+            'inlet_rating': get_client_info_field('inlet_rating', extracted_key='Inlet (Rating)'),
+            'inlet_type': get_client_info_field('inlet_type', extracted_key='Inlet (Type)'),
+            'date_in': get_client_info_field('date_in'),
+            'size_outlet': get_client_info_field('size_outlet', extracted_key='Outlet (Size)'),
+            'outlet_rating': get_client_info_field('outlet_rating', extracted_key='Outlet (Rating)'),
+            'outlet_type': get_client_info_field('outlet_type', extracted_key='Outlet (Type)'),
+            'wo_number': get_client_info_field('wo_number', extracted_key='WO '),
+            'manufacturer': get_client_info_field('manufacturer', extracted_key='Manufacturer'),
+            'tag_no': get_client_info_field('tag_no', extracted_key='Tag Number (Valve No)'),
+            'valve_type': get_client_info_field('valve_type', extracted_key='Type of Valve'),
+            'valve_operated_type': get_client_info_field('valve_operated_type', extracted_key='Valve Operated Type'),
         },
         'stamp_info': {
             'stamp_path': user_data.get('stamp_info', {}).get('stamp_path', 'stamp/sao.png'),
@@ -600,8 +614,8 @@ class PDF(FPDF):
             self.set_xy(date_x, date_y)
             self.cell(sig_width - 4, 5, date_value, align='L')
 
-def generate_pdf(identifier, user_data=None, stamp_selection=None, date_value=None, selected_services=None):
-    valve_data = load_valve_data(identifier, user_data)
+def generate_pdf(identifier, user_data=None, stamp_selection=None, date_value=None, selected_services=None, override_mode=False):
+    valve_data = load_valve_data(identifier, user_data, override_mode=override_mode)
     pdf = PDF(valve_data, selected_services=selected_services, format='A4')
     print('FPDF units: millimeters (mm) by default for A4 size 210x297mm')
     pdf.add_page()
@@ -632,13 +646,17 @@ def generate_pdf(identifier, user_data=None, stamp_selection=None, date_value=No
     os.makedirs('generated_pdfs', exist_ok=True)
     
     # Determine if identifier is a No or WO for filename
-    record = get_record_by_no_or_wo(identifier)
-    if record.get('No') == str(identifier):
-        output_filename = f'Finding_report_No_{identifier}.pdf'
-        print(f'PDF report "{output_filename}" created successfully for No = {identifier}.')
+    if not override_mode:
+        record = get_record_by_no_or_wo(identifier)
+        if record.get('No') == str(identifier):
+            output_filename = f'Finding_report_No_{identifier}.pdf'
+            print(f'PDF report "{output_filename}" created successfully for No = {identifier}.')
+        else:
+            output_filename = f'Finding_report_WO_{identifier}.pdf'
+            print(f'PDF report "{output_filename}" created successfully for WO = {identifier}.')
     else:
-        output_filename = f'Finding_report_WO_{identifier}.pdf'
-        print(f'PDF report "{output_filename}" created successfully for WO = {identifier}.')
+        output_filename = f'Finding_report_Manual_{identifier}.pdf'
+        print(f'PDF report "{output_filename}" created successfully in override/manual mode for identifier = {identifier}.')
     
     output_path = os.path.join('generated_pdfs', output_filename)
     pdf.output(output_path)
