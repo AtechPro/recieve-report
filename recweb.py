@@ -279,7 +279,7 @@ def generate_service_report():
     date_value = data.get('date_value', '')
     selected_services = data.get('selected_services', [])
     comment = data.get('comment', '')  # Get comment from request
-    
+    override_mode = data.get('override_mode', False)  # Accept override_mode from request
     # Extract additional data for service report
     visual_inspection = data.get('visual_inspection', [])
     internal_inspection = data.get('internal_inspection', [])
@@ -291,7 +291,6 @@ def generate_service_report():
     try:
         # Import the service report generation function
         from servicerep import generate_pdf as generate_service_pdf
-        
         # Create user_data with the collected form data
         user_data = {
             'client_info': data.get('client_info', {}),
@@ -303,17 +302,16 @@ def generate_service_report():
                 'date_value': date_value
             }
         }
-        
         pdf_filename = generate_service_pdf(
             identifier=identifier,
             user_data=user_data,
             stamp_selection=stamp_selection,
             date_value=date_value,
             selected_services=selected_services,
-            comment=comment
+            comment=comment,
+            override_mode=override_mode  # Pass override_mode to PDF generator
         )
         pdf_path = os.path.join(PDF_FOLDER, pdf_filename)
-        
         return jsonify({
             'message': f'Service report generated successfully for identifier = {identifier}.',
             'pdf_filename': pdf_filename,

@@ -469,14 +469,29 @@
                     <input type="text" id="valve_identifier" placeholder="Enter No or WO number" list="valve_wo_list">
                     <datalist id="valve_wo_list"></datalist>
                 </div>
-                <div class="form-group">
-                    <label for="date_in">Date In:</label>
-                    <div class="date-input-group">
-                        <input type="text" id="date_in" placeholder="DD/MM/YYYY" onchange="updateCalendarFromDateIn()">
-                        <input type="date" id="date_in_calendar" onchange="updateDateInInput()">
-                    </div>
-                </div>
+                
             </div>
+        </div>
+
+        <div class="valve-selector" style="margin-top: 20px;">
+            <label>
+                <input type="checkbox" id="override_mode" onchange="toggleOverrideMode()">
+                <span style="font-weight:600; color:#167E66;">Override all data with my input</span>
+            </label>
+        </div>
+
+        <div id="manual_override_section" class="valve-selector" style="margin-top: 20px; display: none;">
+            <h3 style="margin-top:0; color:#167E66;">Manual Input (Override Mode)</h3>
+            <div class="form-group"><label for="manual_doc_no">Doc No</label><input type="text" id="manual_doc_no"></div>
+            <div class="form-group"><label for="manual_size_inlet">Size Inlet</label><input type="text" id="manual_size_inlet"></div>
+            <div class="form-group"><label for="manual_inlet_rating">Inlet Rating</label><input type="text" id="manual_inlet_rating"></div>
+            <div class="form-group"><label for="manual_size_outlet">Size Outlet</label><input type="text" id="manual_size_outlet"></div>
+            <div class="form-group"><label for="manual_outlet_rating">Outlet Rating</label><input type="text" id="manual_outlet_rating"></div>
+            <div class="form-group"><label for="manual_wo">WO</label><input type="text" id="manual_wo"></div>
+            <div class="form-group"><label for="manual_manufacturer">Manufacturer</label><input type="text" id="manual_manufacturer"></div>
+            <div class="form-group"><label for="manual_tag_no">Tag No</label><input type="text" id="manual_tag_no"></div>
+            <div class="form-group"><label for="manual_valve_type">Type of Valve</label><input type="text" id="manual_valve_type"></div>
+            <div class="form-group"><label for="manual_valve_operated_type">Valve Operated Type</label><input type="text" id="manual_valve_operated_type"></div>
         </div>
 
         <div class="upload-section">
@@ -495,6 +510,13 @@
                 <div class="form-group">
                     <label for="location">Location:</label>
                     <input type="text" id="location" placeholder="Sipitang">
+                </div>
+                <div class="form-group">
+                    <label for="date_in">Date In:</label>
+                    <div class="date-input-group">
+                        <input type="text" id="date_in" placeholder="DD/MM/YYYY" onchange="updateCalendarFromDateIn()">
+                        <input type="date" id="date_in_calendar" onchange="updateDateInInput()">
+                    </div>
                 </div>
             </div>
         </div>
@@ -1001,15 +1023,29 @@
             }
         }
 
-        function toggleOtherInput(type) {
-            const select = document.getElementById(type);
-            const otherInput = document.getElementById(type + '_other');
-            if (select.value === "Other") {
-                otherInput.style.display = '';
+        function toggleOverrideMode() {
+            const overrideCheckbox = document.getElementById('override_mode');
+            const manualSection = document.getElementById('manual_override_section');
+            if (overrideCheckbox.checked) {
+                manualSection.style.display = '';
             } else {
-                otherInput.style.display = 'none';
-                otherInput.value = '';
+                manualSection.style.display = 'none';
             }
+        }
+
+        function collectManualOverrideData() {
+            return {
+                doc_info: document.getElementById('manual_doc_no').value,
+                size_inlet: document.getElementById('manual_size_inlet').value,
+                inlet_rating: document.getElementById('manual_inlet_rating').value,
+                size_outlet: document.getElementById('manual_size_outlet').value,
+                outlet_rating: document.getElementById('manual_outlet_rating').value,
+                wo_number: document.getElementById('manual_wo').value,
+                manufacturer: document.getElementById('manual_manufacturer').value,
+                tag_no: document.getElementById('manual_tag_no').value,
+                valve_type: document.getElementById('manual_valve_type').value,
+                valve_operated_type: document.getElementById('manual_valve_operated_type').value
+            };
         }
 
         function updateCalendarFromDateIn() {
@@ -1135,51 +1171,79 @@
         }
 
         function generateServiceReport() {
-            const identifier = document.getElementById('valve_identifier').value;
-            const stampDate = document.getElementById('stamp_date').value;
-            const stampSelection = document.getElementById('stamp_selection').value;
-            const additionalComment = document.getElementById('additional_comment').value;
-            
+            const overrideMode = document.getElementById('override_mode').checked;
+            let identifier = '';
+            if (overrideMode) {
+                identifier = document.getElementById('manual_wo')?.value.trim();
+            } else {
+                identifier = document.getElementById('valve_identifier').value;
+            }
             if (!identifier) {
-                showStatus('Please enter a valve No or WO number.', 'error');
+                showStatus('Please enter a ' + (overrideMode ? 'WO number in manual input' : 'valve No or WO number') + '.', 'error');
                 return;
             }
-            
-            if (!stampDate) {
-                showStatus('Please enter a report date.', 'error');
-                return;
+            const stampDate = document.getElementById('stamp_date').value;
+            let finalDateValue = stampDate;
+            if (!stampDate || stampDate.trim() === '') {
+                const today = new Date();
+                const day = String(today.getDate()).padStart(2, '0');
+                const month = String(today.getMonth() + 1).padStart(2, '0');
+                const year = today.getFullYear();
+                finalDateValue = `${day}/${month}/${year}`;
             }
-            
+            const dateInValue = document.getElementById('date_in').value;
             let inletType = document.getElementById('inlet_type').value;
             if (inletType === "Other") inletType = document.getElementById('inlet_type_other').value.trim();
             let outletType = document.getElementById('outlet_type').value;
             if (outletType === "Other") outletType = document.getElementById('outlet_type_other').value.trim();
-
-            const visualInspection = collectVisualInspectionData();
-            const internalInspection = collectInternalInspectionData();
-            const detailedPictures = collectDetailedPicturesData();
-            
-            const requestData = {
-                identifier: identifier,
-                stamp_selection: stampSelection,
-                date_value: stampDate,
-                selected_services: selectedServices,
-                comment: additionalComment,
-                client_info: {
+            let clientInfo = {};
+            if (overrideMode) {
+                clientInfo = {
                     client: document.getElementById('client_name')?.value.trim() || 'PETRONAS CHEMICALS FERTILISER SABAH SDN BHD',
                     project: document.getElementById('project_name')?.value.trim() || 'VALVE MAINTENANCE PROJECT 2025',
                     location: document.getElementById('location')?.value.trim() || 'Sipitang',
-                    date_in: document.getElementById('date_in')?.value.trim() || '',
+                    date_in: dateInValue,
+                    inlet_type: inletType,
+                    outlet_type: outletType,
+                    doc_info: document.getElementById('manual_doc_no')?.value.trim() || '',
+                    size_inlet: document.getElementById('manual_size_inlet')?.value.trim() || '',
+                    inlet_rating: document.getElementById('manual_inlet_rating')?.value.trim() || '',
+                    size_outlet: document.getElementById('manual_size_outlet')?.value.trim() || '',
+                    outlet_rating: document.getElementById('manual_outlet_rating')?.value.trim() || '',
+                    wo_number: document.getElementById('manual_wo')?.value.trim() || '',
+                    manufacturer: document.getElementById('manual_manufacturer')?.value.trim() || '',
+                    tag_no: document.getElementById('manual_tag_no')?.value.trim() || '',
+                    valve_type: document.getElementById('manual_valve_type')?.value.trim() || '',
+                    valve_operated_type: document.getElementById('manual_valve_operated_type')?.value.trim() || ''
+                };
+            } else {
+                clientInfo = {
+                    client: document.getElementById('client_name')?.value.trim() || 'PETRONAS CHEMICALS FERTILISER SABAH SDN BHD',
+                    project: document.getElementById('project_name')?.value.trim() || 'VALVE MAINTENANCE PROJECT 2025',
+                    location: document.getElementById('location')?.value.trim() || 'Sipitang',
+                    date_in: dateInValue,
                     inlet_type: inletType,
                     outlet_type: outletType
-                },
+                };
+            }
+            const visualInspection = collectVisualInspectionData();
+            const internalInspection = collectInternalInspectionData();
+            const detailedPictures = collectDetailedPicturesData();
+            const stampSelection = document.getElementById('stamp_selection').value;
+            const additionalComment = document.getElementById('additional_comment').value;
+            const requestData = {
+                identifier: identifier,
+                override_mode: overrideMode,
+                stamp_selection: stampSelection,
+                date_value: finalDateValue,
+                selected_services: selectedServices,
+                comment: additionalComment,
+                client_info: clientInfo,
                 visual_inspection: visualInspection,
                 internal_inspection: internalInspection,
                 detailed_pictures: detailedPictures
             };
-            
             showStatus('Generating service report...', 'info');
-            
             fetch('/generate-service-report', {
                 method: 'POST',
                 headers: {
