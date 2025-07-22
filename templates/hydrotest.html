@@ -380,6 +380,27 @@
                 <datalist id="valve_wo_list"></datalist>
             </div>
         </div>
+
+        <div class="upload-section" style="margin-top: 0;">
+            <label>
+                <input type="checkbox" id="override_mode" onchange="toggleOverrideMode()">
+                <span style="font-weight:600; color:#167E66;">Override all data with my input</span>
+            </label>
+        </div>
+
+        <div id="manual_override_section" class="upload-section" style="margin-top: 0; display: none;">
+            <h3 style="margin-top:0; color:#167E66;">Manual Input (Override Mode)</h3>
+            <div class="form-group"><label for="manual_doc_no">Doc No</label><input type="text" id="manual_doc_no" class="form-control"></div>
+            <div class="form-group"><label for="manual_size_inlet">Size Inlet</label><input type="text" id="manual_size_inlet" class="form-control"></div>
+            <div class="form-group"><label for="manual_inlet_rating">Inlet Rating</label><input type="text" id="manual_inlet_rating" class="form-control"></div>
+            <div class="form-group"><label for="manual_size_outlet">Size Outlet</label><input type="text" id="manual_size_outlet" class="form-control"></div>
+            <div class="form-group"><label for="manual_outlet_rating">Outlet Rating</label><input type="text" id="manual_outlet_rating" class="form-control"></div>
+            <div class="form-group"><label for="manual_wo">WO</label><input type="text" id="manual_wo" class="form-control"></div>
+            <div class="form-group"><label for="manual_manufacturer">Manufacturer</label><input type="text" id="manual_manufacturer" class="form-control"></div>
+            <div class="form-group"><label for="manual_tag_no">Tag No</label><input type="text" id="manual_tag_no" class="form-control"></div>
+            <div class="form-group"><label for="manual_valve_type">Type of Valve</label><input type="text" id="manual_valve_type" class="form-control"></div>
+            <div class="form-group"><label for="manual_valve_operated_type">Valve Operated Type</label><input type="text" id="manual_valve_operated_type" class="form-control"></div>
+        </div>
         
         <div class="upload-section">
             <h2>🏢 Client Information</h2>
@@ -931,6 +952,31 @@
             container.appendChild(itemDiv);
         }
 
+        function toggleOverrideMode() {
+            const overrideCheckbox = document.getElementById('override_mode');
+            const manualSection = document.getElementById('manual_override_section');
+            if (overrideCheckbox.checked) {
+                manualSection.style.display = '';
+            } else {
+                manualSection.style.display = 'none';
+            }
+        }
+
+        function collectManualOverrideData() {
+            return {
+                doc_info: document.getElementById('manual_doc_no').value,
+                size_inlet: document.getElementById('manual_size_inlet').value,
+                inlet_rating: document.getElementById('manual_inlet_rating').value,
+                size_outlet: document.getElementById('manual_size_outlet').value,
+                outlet_rating: document.getElementById('manual_outlet_rating').value,
+                wo_number: document.getElementById('manual_wo').value,
+                manufacturer: document.getElementById('manual_manufacturer').value,
+                tag_no: document.getElementById('manual_tag_no').value,
+                valve_type: document.getElementById('manual_valve_type').value,
+                valve_operated_type: document.getElementById('manual_valve_operated_type').value
+            };
+        }
+
         function toggleOtherInput(type) {
             const select = document.getElementById(type);
             const otherInput = document.getElementById(type + '_other');
@@ -943,9 +989,15 @@
         }
 
         function generateReport() {
-            const identifier = document.getElementById('valve_identifier').value;
+            const overrideMode = document.getElementById('override_mode').checked;
+            let identifier = '';
+            if (overrideMode) {
+                identifier = document.getElementById('manual_wo')?.value.trim();
+            } else {
+                identifier = document.getElementById('valve_identifier').value;
+            }
             if (!identifier) {
-                showAlert('error', 'Please enter a valve No or WO number');
+                showAlert('error', 'Please enter a ' + (overrideMode ? 'WO number in manual input' : 'valve No or WO number'));
                 return;
             }
 
@@ -959,9 +1011,31 @@
             if (inletType === "Other") inletType = document.getElementById('inlet_type_other').value.trim();
             let outletType = document.getElementById('outlet_type').value;
             if (outletType === "Other") outletType = document.getElementById('outlet_type_other').value.trim();
+            let clientInfo = {};
+            if (overrideMode) {
+                clientInfo = {
+                    client: document.getElementById('client_name').value,
+                    project: document.getElementById('project_name').value,
+                    location: document.getElementById('location').value,
+                    date_in: formatDateDMY(document.getElementById('date_in').value),
+                    inlet_type: inletType,
+                    outlet_type: outletType,
+                    ...collectManualOverrideData()
+                };
+            } else {
+                clientInfo = {
+                    client: document.getElementById('client_name').value,
+                    project: document.getElementById('project_name').value,
+                    location: document.getElementById('location').value,
+                    date_in: formatDateDMY(document.getElementById('date_in').value),
+                    inlet_type: inletType,
+                    outlet_type: outletType
+                };
+            }
 
             const data = {
                 identifier: identifier,
+                override_mode: overrideMode,
                 stamp_selection: document.getElementById('stamp_selection').value,
                 date_value: document.getElementById('stamp_date').value,
                 selected_services: getSelectedServices(),
@@ -970,14 +1044,7 @@
                 pretest: getPretestData(),
                 posttest: getPosttestData(),
                 comment: document.getElementById('comment').value,
-                client_info: {
-                    client: document.getElementById('client_name').value,
-                    project: document.getElementById('project_name').value,
-                    location: document.getElementById('location').value,
-                    date_in: formatDateDMY(document.getElementById('date_in').value),
-                    inlet_type: inletType,
-                    outlet_type: outletType
-                }
+                client_info: clientInfo
             };
 
             // Send request

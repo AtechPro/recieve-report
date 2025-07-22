@@ -220,25 +220,17 @@ def generate_hydrotest():
     date_value = data.get('date_value', '')
     selected_services = data.get('selected_services', [])
     comment = data.get('comment', '')  # Get comment from request
-    
-    # Debug: Log the received data
-    print(f"DEBUG: Received date_value: '{date_value}'")
-    print(f"DEBUG: date_value type: {type(date_value)}")
-    print(f"DEBUG: date_value length: {len(date_value) if date_value else 'None'}")
-    
+    override_mode = data.get('override_mode', False)  # Accept override_mode from request
     # Extract additional data for hydrotest report
     visual_inspection = data.get('visual_inspection', [])
     internal_inspection = data.get('internal_inspection', [])
     pretest = data.get('pretest', {})
     posttest = data.get('posttest', {})
-    
     if not identifier:
         return jsonify({'error': 'Missing required field: identifier (No or WO)'}), 400
-
     try:
         # Import the hydrotest generation function
         from hydrotest import generate_pdf as generate_hydrotest_pdf
-        
         # Create user_data with the collected form data
         user_data = {
             'client_info': data.get('client_info', {}),
@@ -251,16 +243,15 @@ def generate_hydrotest():
                 'date_value': date_value
             }
         }
-        
         pdf_filename = generate_hydrotest_pdf(
             identifier=identifier,
             user_data=user_data,
             stamp_selection=stamp_selection,
             date_value=date_value,
-            selected_services=selected_services
+            selected_services=selected_services,
+            override_mode=override_mode  # Pass override_mode to PDF generator
         )
         pdf_path = os.path.join(PDF_FOLDER, pdf_filename)
-        
         return jsonify({
             'message': f'Hydrotest report generated successfully for identifier = {identifier}.',
             'pdf_filename': pdf_filename,
