@@ -302,7 +302,7 @@ class PDF(FPDF):
         data = self.valve_data['received_valve_condition']
         self.set_font(self.FONT_FAMILY, '', self.FONT_SIZE)
         col_widths = [63.33, 63.33, 63.33]
-        box_height = 40
+        box_height = 38
 
         x = self.get_x()
         y = self.get_y()
@@ -392,7 +392,7 @@ class PDF(FPDF):
     def detailed_picture(self, image_files=None):
         self.set_font(self.FONT_FAMILY, '', self.FONT_SIZE)
         col_widths = [47.5, 47.5, 47.5, 47.5]
-        row_height = 35
+        row_height = 33
         margin = 1  # mm gap from cell borders
         image_width = col_widths[1] - 2 * margin
         image_height = row_height - 2 * margin
@@ -466,7 +466,7 @@ class PDF(FPDF):
             row.cell('CLIENT REPRESENTATIVE', align='C')
             row.cell('APPROVED BY', align='C')
 
-        sig_height = 30
+        sig_height = 28
         y_sig = self.get_y()
         self.rect(x_start, y_sig, table_width, sig_height)
 
@@ -486,42 +486,6 @@ class PDF(FPDF):
 
         self.set_y(y_sig + sig_height)
 
-    def signature_block(self, date_value=""):
-            self.set_font(self.FONT_FAMILY, 'B', self.FONT_SIZE)
-            col_widths = [63.33, 63.33, 63.33]
-            table_width = sum(col_widths)
-            x_start = self.get_x()
-            y_start = self.get_y()
-            grey = (128, 128, 128)
-            headings_style = FontFace(emphasis="B", fill_color=grey)
-
-            with self.table(col_widths=col_widths, line_height=5, headings_style=headings_style) as table:
-                row = table.row()
-                row.cell('PREPARED BY', align='C')
-                row.cell('CLIENT REPRESENTATIVE', align='C')
-                row.cell('APPROVED BY', align='C')
-
-            sig_height = 30
-            y_sig = self.get_y()
-            self.rect(x_start, y_sig, table_width, sig_height)
-
-            for i in range(1, len(col_widths)):
-                x = x_start + sum(col_widths[:i])
-                self.line(x, y_sig, x, y_sig + sig_height)
-
-            label_x_offsets = [x_start + 2, x_start + col_widths[0] + 2, x_start + col_widths[0] + col_widths[1] + 2]
-            label_y_name = y_sig + sig_height - 15
-            label_y_date = y_sig + sig_height - 8
-
-            for x in label_x_offsets:
-                self.set_xy(x, label_y_name)
-                self.cell(0, 5, "NAME:")
-                self.set_xy(x, label_y_date)
-                self.cell(0, 5, "DATE:")
-
-            self.set_y(y_sig + sig_height)
-
-
 
     def stamp(self, stamp_path=None, prepared_name=None, date_value=None):
         stamp_data = self.valve_data.get('stamp_info', {})
@@ -534,7 +498,7 @@ class PDF(FPDF):
         current_y = self.get_y()
         
         sig_width = 63.33
-        sig_height = 30
+        sig_height = 28
 
         stamp_x = current_x + 20  # Small offset from left edge
         stamp_y = current_y - sig_height + 2   # Position within signature box
