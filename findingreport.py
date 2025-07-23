@@ -567,7 +567,7 @@ class PDF(FPDF):
         sig_width = 63.33
         sig_height = 30
 
-        stamp_x = current_x + 20  # Small offset from left edge
+        stamp_x = current_x + 10  # Small offset from left edge
         stamp_y = current_y - sig_height + 2   # Position within signature box
         
         # Position name and date text
@@ -577,29 +577,18 @@ class PDF(FPDF):
         date_y = current_y - 8   # Near bottom of signature box
         
         if stamp_path and os.path.exists(stamp_path):
-            # Get image dimensions to calculate aspect ratio
             try:
                 with Image.open(stamp_path) as img:
                     img_width, img_height = img.size
                     aspect_ratio = img_width / img_height
-                    
-                    # Set target size around 15mm to fit in signature box
-                    target_size = 15
-                    
-                    # Calculate dimensions that maintain aspect ratio
-                    if aspect_ratio > 1:  # Landscape
-                        stamp_width = target_size
-                        stamp_height = target_size / aspect_ratio
-                    else:  # Portrait or square
-                        stamp_height = target_size
-                        stamp_width = target_size * aspect_ratio
-                    
-                    # Position stamp in the first column of signature block
+
+                    # Always fix the height, scale width to maintain aspect ratio
+                    stamp_height = 15  # mm
+                    stamp_width = stamp_height * aspect_ratio
+
                     self.image(stamp_path, x=stamp_x, y=stamp_y, w=stamp_width, h=stamp_height)
-                    
             except Exception as e:
                 print(f"Error loading stamp image: {e}")
-                # Fallback to fixed size if image loading fails
                 self.image(stamp_path, x=stamp_x, y=stamp_y, w=15, h=15)
         else:
             print("Stamp image not found")

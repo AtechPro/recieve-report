@@ -524,64 +524,53 @@ class PDF(FPDF):
 
 
     def stamp(self, stamp_path=None, prepared_name=None, date_value=None):
-        stamp_data = self.valve_data.get('stamp_info', {})
-        
-        stamp_path = stamp_path or stamp_data.get('stamp_path')
-        prepared_name = prepared_name or stamp_data.get('prepared_name')
-        date_value = date_value or stamp_data.get('date_value')
+            stamp_data = self.valve_data.get('stamp_info', {})
+            
+            stamp_path = stamp_path or stamp_data.get('stamp_path')
+            prepared_name = prepared_name or stamp_data.get('prepared_name')
+            date_value = date_value or stamp_data.get('date_value')
 
-        current_x = self.get_x()
-        current_y = self.get_y()
-        
-        sig_width = 63.33
-        sig_height = 30
+            current_x = self.get_x()
+            current_y = self.get_y()
+            
+            sig_width = 63.33
+            sig_height = 30
 
-        stamp_x = current_x + 20  # Small offset from left edge
-        stamp_y = current_y - sig_height + 2   # Position within signature box
-        
-        # Position name and date text
-        name_x = current_x + 15
-        name_y = current_y - 15  # Near bottom of signature box
-        date_x = current_x + 15
-        date_y = current_y - 8   # Near bottom of signature box
-        
-        if stamp_path and os.path.exists(stamp_path):
-            # Get image dimensions to calculate aspect ratio
-            try:
-                with Image.open(stamp_path) as img:
-                    img_width, img_height = img.size
-                    aspect_ratio = img_width / img_height
-                    
-                    # Set target size around 15mm to fit in signature box
-                    target_size = 15
-                    
-                    # Calculate dimensions that maintain aspect ratio
-                    if aspect_ratio > 1:  # Landscape
-                        stamp_width = target_size
-                        stamp_height = target_size / aspect_ratio
-                    else:  # Portrait or square
-                        stamp_height = target_size
-                        stamp_width = target_size * aspect_ratio
-                    
-                    # Position stamp in the first column of signature block
-                    self.image(stamp_path, x=stamp_x, y=stamp_y, w=stamp_width, h=stamp_height)
-                    
-            except Exception as e:
-                print(f"Error loading stamp image: {e}")
-                # Fallback to fixed size if image loading fails
-                self.image(stamp_path, x=stamp_x, y=stamp_y, w=15, h=15)
-        else:
-            print("Stamp image not found")
+            stamp_x = current_x + 10  # Small offset from left edge
+            stamp_y = current_y - sig_height + 2   # Position within signature box
+            
+            # Position name and date text
+            name_x = current_x + 15
+            name_y = current_y - 15  # Near bottom of signature box
+            date_x = current_x + 15
+            date_y = current_y - 8   # Near bottom of signature box
+            
+            if stamp_path and os.path.exists(stamp_path):
+                try:
+                    with Image.open(stamp_path) as img:
+                        img_width, img_height = img.size
+                        aspect_ratio = img_width / img_height
 
-        # Position text in the first column of signature block
-        if prepared_name:
-            self.set_xy(name_x, name_y)
-            self.set_font(self.FONT_FAMILY, 'B', self.FONT_SIZE)
-            self.cell(sig_width - 4, 5, prepared_name, align='L')
-        
-        if date_value:
-            self.set_xy(date_x, date_y)
-            self.cell(sig_width - 4, 5, date_value, align='L')
+                        # Always fix the height, scale width to maintain aspect ratio
+                        stamp_height = 15  # mm
+                        stamp_width = stamp_height * aspect_ratio
+
+                        self.image(stamp_path, x=stamp_x, y=stamp_y, w=stamp_width, h=stamp_height)
+                except Exception as e:
+                    print(f"Error loading stamp image: {e}")
+                    self.image(stamp_path, x=stamp_x, y=stamp_y, w=15, h=15)
+            else:
+                print("Stamp image not found")
+
+            # Position text in the first column of signature block
+            if prepared_name:
+                self.set_xy(name_x, name_y)
+                self.set_font(self.FONT_FAMILY, 'B', self.FONT_SIZE)
+                self.cell(sig_width - 4, 5, prepared_name, align='L')
+            
+            if date_value:
+                self.set_xy(date_x, date_y)
+                self.cell(sig_width - 4, 5, date_value, align='L')
 
 def generate_pdf(identifier, user_data=None, stamp_selection=None, date_value=None, selected_services=None, override_mode=False):
     valve_data = load_valve_data(identifier, user_data, override_mode=override_mode)
