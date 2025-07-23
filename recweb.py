@@ -552,5 +552,64 @@ def generate_valvecert():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
+@app.route('/edit-stamps')
+def edit_stamps():
+    try:
+        with open('stamp_mapping.json', 'r') as f:
+            stamp_mapping = json.load(f)
+    except Exception as e:
+        print(f"Error loading stamp mapping: {e}")
+        stamp_mapping = {}
+    return render_template('edit_stamps.html', stamps=stamp_mapping)
+
+@app.route('/upload-stamp', methods=['POST'])
+def upload_stamp():
+    name = request.form.get('prepared_name')
+    file = request.files.get('stamp_image')
+    key = request.form.get('stamp_key') or name.upper().replace(' ', '_')
+    if not name or not file:
+        return 'Missing name or file', 400
+    # Save file
+    ext = os.path.splitext(file.filename)[1]
+    filename = f"{key}{ext}"
+    save_path = os.path.join('stamp', filename)
+    file.save(save_path)
+    # Update JSON
+    try:
+        with open('stamp_mapping.json', 'r') as f:
+            stamp_mapping = json.load(f)
+    except Exception:
+        stamp_mapping = {}
+    stamp_mapping[key] = {
+        'stamp_path': f'stamp/{filename}',
+        'prepared_name': name
+    }
+    with open('stamp_mapping.json', 'w') as f:
+        json.dump(stamp_mapping, f, indent=2)
+    return 'OK', 200
+
+@app.route('/delete-stamp', methods=['POST'])
+def delete_stamp():
+    key = request.form.get('stamp_key')
+    if not key:
+        return 'Missing stamp_key', 400
+    # Update JSON
+    try:
+        with open('stamp_mapping.json', 'r') as f:
+            stamp_mapping = json.load(f)
+    except Exception:
+        return 'Could not load mapping', 500
+    stamp = stamp_mapping.pop(key, None)
+    if stamp:
+        # Remove file
+        try:
+            os.remove(stamp['stamp_path'])
+        except Exception as e:
+            print(f"Warning: could not delete file {stamp['stamp_path']}: {e}")
+        with open('stamp_mapping.json', 'w') as f:
+            json.dump(stamp_mapping, f, indent=2)
+        return 'OK', 200
+    return 'Not found', 404
+
 if __name__ == '__main__':
     app.run(debug=True, port=5300, host='0.0.0.0') 

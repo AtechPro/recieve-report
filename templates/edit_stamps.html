@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Custom Stamps</title>
+    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='logo/lenogweb.ico') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='edit_stamps.css') }}">
+</head>
+<body>
+    <div class="stamp-container">
+        <div class="stamp-header">
+            <h1>Edit Custom Stamps</h1>
+            <p>Manage, upload, and delete stamp images for your reports</p>
+        </div>
+        {% include 'navbar.html' %}
+        <div class="stamp-section">
+            <form id="stampUploadForm" class="stamp-upload-form" enctype="multipart/form-data">
+                <label for="prepared_name">Prepared Name</label>
+                <input type="text" id="prepared_name" name="prepared_name" required>
+                <label for="stamp_image">Stamp Image (PNG/JPG)</label>
+                <input type="file" id="stamp_image" name="stamp_image" accept="image/*" required>
+                <button type="submit">Upload Stamp</button>
+            </form>
+            <div id="status"></div>
+        </div>
+        <div class="stamp-section">
+            <h2>Current Stamps</h2>
+            <div class="stamp-list">
+                {% for key, stamp in stamps.items() %}
+                <div class="stamp-item" id="stamp-{{ key }}">
+                    <img src="/{{ stamp.stamp_path }}" alt="{{ stamp.prepared_name }}">
+                    <div><strong>{{ stamp.prepared_name }}</strong></div>
+                    <div style="font-size: 0.9em; color: #888;">Key: {{ key }}</div>
+                    <button class="delete-btn" onclick="deleteStamp('{{ key }}')">Delete</button>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    <script>
+    document.getElementById('stampUploadForm').onsubmit = async function(e) {
+        e.preventDefault();
+        const form = e.target;
+        const formData = new FormData(form);
+        document.getElementById('status').textContent = 'Uploading...';
+        const resp = await fetch('/upload-stamp', { method: 'POST', body: formData });
+        if (resp.ok) {
+            document.getElementById('status').textContent = 'Upload successful! Reloading...';
+            setTimeout(() => location.reload(), 1000);
+        } else {
+            document.getElementById('status').textContent = 'Upload failed.';
+        }
+    };
+    function deleteStamp(key) {
+        if (!confirm('Delete this stamp?')) return;
+        const formData = new FormData();
+        formData.append('stamp_key', key);
+        fetch('/delete-stamp', { method: 'POST', body: formData })
+            .then(resp => {
+                if (resp.ok) {
+                    document.getElementById('stamp-' + key).remove();
+                } else {
+                    alert('Delete failed');
+                }
+            });
+    }
+    </script>
+</body>
+</html> 

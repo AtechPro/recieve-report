@@ -1,0 +1,215 @@
+/* Edit Custom Stamps Page - Custom CSS (Finding Report Inspired) */
+:root {
+    --deep-teal: #167E66;
+    --muted-green: #8CB8AC;
+    --pure-white: #FFFFFF;
+    --dark-teal: #20735F;
+    --medium-teal: #2CA184;
+    --very-dark-teal: #235647;
+    --almost-white: #FEFEFE;
+    --light-mint: #FAFCFB;
+    --light-gray: #F5F5F5;
+    --light-gray-2: #f0f0f0;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, var(--light-mint) 0%, var(--almost-white) 100%);
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+    color: var(--very-dark-teal);
+    line-height: 1.6;
+}
+
+.stamp-container {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.stamp-header {
+    text-align: center;
+    margin-bottom: 40px;
+    padding: 30px 0;
+    background: linear-gradient(135deg, var(--deep-teal) 0%, var(--dark-teal) 100%);
+    color: var(--pure-white);
+    border-radius: 15px;
+    box-shadow: 0 8px 32px rgba(22, 126, 102, 0.15);
+}
+
+.stamp-header h1 {
+    margin: 0;
+    font-size: 2.5rem;
+    font-weight: 300;
+    letter-spacing: 1px;
+}
+
+.stamp-header p {
+    margin: 10px 0 0 0;
+    opacity: 0.9;
+    font-size: 1.1rem;
+}
+
+.stamp-section {
+    background: var(--pure-white);
+    border-radius: 12px;
+    padding: 30px;
+    margin: 25px 0;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    border: 1px solid rgba(140, 184, 172, 0.2);
+    transition: all 0.3s ease;
+}
+
+.stamp-section h2 {
+    color: var(--deep-teal);
+    margin: 0 0 20px 0;
+    font-size: 1.5rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.stamp-upload-form label {
+    font-weight: 600;
+    color: var(--deep-teal);
+    margin-bottom: 8px;
+    font-size: 0.9rem;
+    display: block;
+}
+
+.stamp-upload-form input[type="text"],
+.stamp-upload-form input[type="file"] {
+    padding: 12px 16px;
+    border: 2px solid var(--light-gray-2);
+    border-radius: 8px;
+    font-size: 14px;
+    margin-bottom: 16px;
+    width: 100%;
+    background: var(--pure-white);
+}
+
+.stamp-upload-form input[type="text"]:focus,
+.stamp-upload-form input[type="file"]:focus {
+    outline: none;
+    border-color: var(--medium-teal);
+    box-shadow: 0 0 0 3px rgba(44, 161, 132, 0.1);
+}
+
+.stamp-upload-form button {
+    background: linear-gradient(135deg, var(--medium-teal) 0%, var(--deep-teal) 100%);
+    color: var(--pure-white);
+    padding: 14px 28px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(44, 161, 132, 0.3);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.stamp-upload-form button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(44, 161, 132, 0.4);
+}
+
+#status {
+    margin-bottom: 20px;
+    color: var(--deep-teal);
+    font-weight: bold;
+}
+
+.stamp-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 24px;
+    margin-top: 0;
+}
+
+.stamp-item {
+    border: 1px solid #eee;
+    border-radius: 12px;
+    padding: 18px 12px 16px 12px;
+    width: 220px;
+    text-align: center;
+    background: var(--light-gray);
+    box-shadow: 0 2px 8px rgba(44, 161, 132, 0.07);
+    transition: box-shadow 0.2s, transform 0.2s;
+    position: relative;
+}
+
+.stamp-item:hover {
+    box-shadow: 0 6px 24px rgba(44, 161, 132, 0.13);
+    transform: translateY(-2px);
+}
+
+.stamp-item img {
+    max-width: 90px;
+    max-height: 90px;
+    display: block;
+    margin: 0 auto 10px;
+    border-radius: 6px;
+    border: 1px solid #ddd;
+    background: var(--pure-white);
+}
+
+.stamp-item strong {
+    color: var(--deep-teal);
+    font-size: 1.1em;
+    font-weight: 700;
+}
+
+.stamp-item .delete-btn {
+    background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+    color: #fff;
+    border: none;
+    padding: 8px 18px;
+    border-radius: 6px;
+    cursor: pointer;
+    margin-top: 10px;
+    font-size: 1em;
+    font-weight: 600;
+    box-shadow: 0 2px 8px rgba(220, 53, 69, 0.13);
+    transition: background 0.2s, box-shadow 0.2s;
+}
+
+.stamp-item .delete-btn:hover {
+    background: linear-gradient(135deg, #b52b27 0%, #a71d2a 100%);
+    box-shadow: 0 4px 16px rgba(220, 53, 69, 0.18);
+}
+
+/* Navigation Bar Styles (copied from finding.css for consistency) */
+.nav-tabs {
+    display: flex;
+    background: var(--pure-white);
+    border-radius: 12px;
+    margin: 25px 0;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    overflow: hidden;
+}
+
+.nav-tab {
+    flex: 1;
+    padding: 20px;
+    text-align: center;
+    background: var(--light-gray);
+    color: var(--very-dark-teal);
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    border: none;
+    cursor: pointer;
+}
+
+.nav-tab:hover {
+    background: var(--light-gray-2);
+}
+
+.nav-tab.active {
+    background: var(--medium-teal);
+    color: var(--pure-white);
+} 
