@@ -55,19 +55,57 @@ def cleanup_all_temp_images():
 
 @app.route('/')
 def index():
-    return render_template('recieve_valve.html')
+    # Load stamp mapping from JSON
+    try:
+        with open('stamp_mapping.json', 'r') as f:
+            stamp_mapping = json.load(f)
+        # Prepare options as a list of dicts: {value: key, label: prepared_name}
+        stamp_options = [
+            {'value': key, 'label': value['prepared_name']} for key, value in stamp_mapping.items()
+        ]
+    except Exception as e:
+        print(f"Error loading stamp mapping: {e}")
+        stamp_options = [{'value': 'SAO', 'label': 'Sao Lip Zhou'}]
+    return render_template('recieve_valve.html', stamp_options=stamp_options)
 
 @app.route('/finding-report')
 def finding_report():
-    return render_template('finding_report.html')
+    try:
+        with open('stamp_mapping.json', 'r') as f:
+            stamp_mapping = json.load(f)
+        stamp_options = [
+            {'value': key, 'label': value['prepared_name']} for key, value in stamp_mapping.items()
+        ]
+    except Exception as e:
+        print(f"Error loading stamp mapping: {e}")
+        stamp_options = [{'value': 'SAO', 'label': 'Sao Lip Zhou'}]
+    return render_template('finding_report.html', stamp_options=stamp_options)
 
 @app.route('/service-report')
 def service_report():
-    return render_template('service_report.html')
+    try:
+        with open('stamp_mapping.json', 'r') as f:
+            stamp_mapping = json.load(f)
+        stamp_options = [
+            {'value': key, 'label': value['prepared_name']} for key, value in stamp_mapping.items()
+        ]
+    except Exception as e:
+        print(f"Error loading stamp mapping: {e}")
+        stamp_options = [{'value': 'SAO', 'label': 'Sao Lip Zhou'}]
+    return render_template('service_report.html', stamp_options=stamp_options)
 
 @app.route('/hydrotest')
 def hydrotest():
-    return render_template('hydrotest.html')
+    try:
+        with open('stamp_mapping.json', 'r') as f:
+            stamp_mapping = json.load(f)
+        stamp_options = [
+            {'value': key, 'label': value['prepared_name']} for key, value in stamp_mapping.items()
+        ]
+    except Exception as e:
+        print(f"Error loading stamp mapping: {e}")
+        stamp_options = [{'value': 'SAO', 'label': 'Sao Lip Zhou'}]
+    return render_template('hydrotest.html', stamp_options=stamp_options)
 
 @app.route('/excel-converter')
 def excel_converter():
@@ -455,7 +493,16 @@ def cleanup_temp():
 
 @app.route('/valvecert')
 def valvecert():
-    return render_template('valvecert.html')
+    try:
+        with open('stamp_mapping.json', 'r') as f:
+            stamp_mapping = json.load(f)
+        stamp_options = [
+            {'value': key, 'label': value['prepared_name']} for key, value in stamp_mapping.items()
+        ]
+    except Exception as e:
+        print(f"Error loading stamp mapping: {e}")
+        stamp_options = [{'value': 'SAO', 'label': 'Sao Lip Zhou'}]
+    return render_template('valvecert.html', stamp_options=stamp_options)
 
 @app.route('/generate-valvecert', methods=['POST'])
 def generate_valvecert():

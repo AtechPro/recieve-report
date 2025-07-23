@@ -145,7 +145,9 @@
                 <div class="form-group">
                     <label for="stamp_selection">Stamp Selection:</label>
                     <select id="stamp_selection">
-                        <option value="SAO">SAO</option>
+                        {% for opt in stamp_options %}
+                        <option value="{{ opt.value }}">{{ opt.label }}</option>
+                        {% endfor %}
                     </select>
                 </div>
             </div>

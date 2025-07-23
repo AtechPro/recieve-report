@@ -124,6 +124,15 @@ def load_valve_data(identifier, user_data=None, override_mode=False):
     
     return mapped_data
 
+def load_stamp_mapping(json_path='stamp_mapping.json'):
+    """Load the stamp mapping from a JSON file."""
+    try:
+        with open(json_path, 'r') as f:
+            return json.load(f)
+    except Exception as e:
+        print(f"Error loading stamp mapping: {e}")
+        return {}
+
 class PDF(FPDF):
     FONT_FAMILY = 'helvetica'
     FONT_SIZE = 6
@@ -523,13 +532,8 @@ def generate_pdf(identifier, user_data=None, stamp_selection=None, date_value=No
     pdf.additional_comment()
     pdf.detailed_picture()
     pdf.signature_block()
-    # Map stamp selection to stamp path and prepared name
-    stamp_mapping = {
-        'SAO': {
-            'stamp_path': 'stamp/sao.png',
-            'prepared_name': 'Sao Lip Zhou'
-        }
-    }
+    # Load stamp mapping from JSON
+    stamp_mapping = load_stamp_mapping()
     if stamp_selection and stamp_selection in stamp_mapping:
         stamp_info = stamp_mapping[stamp_selection]
         pdf.stamp(stamp_info['stamp_path'], stamp_info['prepared_name'], date_value)

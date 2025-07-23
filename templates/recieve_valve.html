@@ -326,8 +326,9 @@
             <div class="valve-selector" style="margin-top: 20px;">
                 <label for="stamp_selection">Stamp & Prepared By</label>
                 <select id="stamp_selection" style="width: 100%; padding: 12px 16px; border: 2px solid var(--light-gray-2); border-radius: 8px; font-size: 16px; transition: all 0.3s ease;">
-                    <option value="SAO">Sao Lip Zhou</option>
-                    <!-- Add more options here as needed -->
+                    {% for opt in stamp_options %}
+                    <option value="{{ opt.value }}">{{ opt.label }}</option>
+                    {% endfor %}
                 </select>
             </div>
             
