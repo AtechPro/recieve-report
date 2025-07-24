@@ -142,15 +142,15 @@
             <div class="form-grid">
                 <div class="form-group">
                     <label for="client_name">Client Name:</label>
-                    <input type="text" id="client_name" class="form-control" required>
+                    <input type="text" id="client_name" class="form-control" value="PETRONAS CHEMICALS FERTILISER SABAH SDN BHD" placeholder="PETRONAS CHEMICALS FERTILISER SABAH SDN BHD" required>
                 </div>
                 <div class="form-group">
                     <label for="project_name">Project Name:</label>
-                    <input type="text" id="project_name" class="form-control" required>
+                    <input type="text" id="project_name" class="form-control" value="Provision of Valve Repacking and Maintenance Services For PCFS TA2025" placeholder="Provision of Valve Repacking and Maintenance Services For PCFS TA2025" required>
                 </div>
                 <div class="form-group">
                     <label for="location">Location:</label>
-                    <input type="text" id="location" class="form-control" required>
+                    <input type="text" id="location" class="form-control" value="Sipitang Sabah" placeholder="Sipitang, Sabah" required>
                 </div>
                 <div class="form-group">
                     <label for="date_in">Date In:</label>
@@ -244,11 +244,22 @@
             <div class="form-grid">
                 <div class="form-group">
                     <label for="pretest_type">Type Test:</label>
-                    <input type="text" id="pretest_type" class="form-control">
+                    <select id="pretest_type" class="form-control">
+                        <option value="">-- Select Test Type --</option>
+                        <option value="HYDROTEST">Hydro Test</option>
+                        <option value="GRAVITY TEST">Gravity Test</option>
+                        <option value="LEAK">Leak</option>
+                    </select>
                 </div>
                 <div class="form-group">
                     <label for="pretest_medium">Test Medium:</label>
-                    <input type="text" id="pretest_medium" class="form-control">
+                    <select id="pretest_medium" class="form-control">
+                        <option value="">-- Select Test Medium --</option>
+                        <option value="WATER">Water</option>
+                        <option value="NITROGEN">Nitrogen</option>
+                        <option value="AIR">Air</option>
+                        <option value="OTHER">Other</option>
+                    </select>
                 </div>
             </div>
             <div class="test-section">
@@ -264,7 +275,11 @@
                     </div>
                     <div class="form-group">
                         <label for="pretest_shell_result">Result & Remarks:</label>
-                        <input type="text" id="pretest_shell_result" class="form-control">
+                        <select id="pretest_shell_result" class="form-control">
+                            <option value="NO LEAK & ACCEPTED">NO LEAK & ACCEPTED</option>
+                            <option value="LEAKED">LEAKED</option>
+                            <option value="MINOR LEAKED & ACCEPTED">MINOR LEAKED & ACCEPTED</option>
+                        </select>
                     </div>
                 </div>
             </div>
@@ -281,7 +296,11 @@
                     </div>
                     <div class="form-group">
                         <label for="pretest_backseat_result">Result & Remarks:</label>
-                        <input type="text" id="pretest_backseat_result" class="form-control">
+                        <select id="pretest_backseat_result" class="form-control">
+                            <option value="NO LEAK & ACCEPTED">NO LEAK & ACCEPTED</option>
+                            <option value="LEAKED">LEAKED</option>
+                            <option value="MINOR LEAKED & ACCEPTED">MINOR LEAKED & ACCEPTED</option>
+                        </select>
                     </div>
                 </div>
             </div>
@@ -298,13 +317,21 @@
                     </div>
                     <div class="form-group">
                         <label for="pretest_seat_result">Result & Remarks:</label>
-                        <input type="text" id="pretest_seat_result" class="form-control">
+                        <select id="pretest_seat_result" class="form-control">
+                            <option value="NO LEAK & ACCEPTED">NO LEAK & ACCEPTED</option>
+                            <option value="LEAKED">LEAKED</option>
+                            <option value="MINOR LEAKED & ACCEPTED">MINOR LEAKED & ACCEPTED</option>
+                        </select>
                     </div>
                 </div>
             </div>
             <div class="form-group">
                 <label for="pretest_accordance">Test Accordance To:</label>
-                <input type="text" id="pretest_accordance" class="form-control">
+                <select id="pretest_accordance" class="form-control">
+                    <option value="API 2000">API 2000</option>
+                    <option value="CLIENT REQUEST PRESSURE">CLIENT REQUEST PRESSURE</option>
+                    <option value="API 598">API 598</option>
+                </select>
             </div>
         </div>
 
@@ -320,11 +347,22 @@
             <div class="form-grid">
                 <div class="form-group">
                     <label for="posttest_type">Type Test:</label>
-                    <input type="text" id="posttest_type" class="form-control">
+                    <select id="posttest_type" class="form-control">
+                        <option value="">-- Select Test Type --</option>
+                        <option value="HYDROTEST">Hydro Test</option>
+                        <option value="GRAVITY TEST">Gravity Test</option>
+                        <option value="LEAK">Leak</option>
+                    </select>
                 </div>
                 <div class="form-group">
                     <label for="posttest_medium">Test Medium:</label>
-                    <input type="text" id="posttest_medium" class="form-control">
+                    <select id="posttest_medium" class="form-control">
+                        <option value="">-- Select Test Medium --</option>
+                        <option value="WATER">Water</option>
+                        <option value="NITROGEN">Nitrogen</option>
+                        <option value="AIR">Air</option>
+                        <option value="OTHER">Other</option>
+                    </select>
                 </div>
             </div>
             <div class="test-section">
@@ -340,7 +378,11 @@
                     </div>
                     <div class="form-group">
                         <label for="posttest_shell_result">Result & Remarks:</label>
-                        <input type="text" id="posttest_shell_result" class="form-control">
+                        <select id="posttest_shell_result" class="form-control">
+                            <option value="NO LEAK & ACCEPTED">NO LEAK & ACCEPTED</option>
+                            <option value="LEAKED">LEAKED</option>
+                            <option value="MINOR LEAKED & ACCEPTED">MINOR LEAKED & ACCEPTED</option>
+                        </select>
                     </div>
                 </div>
             </div>
@@ -357,7 +399,11 @@
                     </div>
                     <div class="form-group">
                         <label for="posttest_backseat_result">Result & Remarks:</label>
-                        <input type="text" id="posttest_backseat_result" class="form-control">
+                        <select id="posttest_backseat_result" class="form-control">
+                            <option value="NO LEAK & ACCEPTED">NO LEAK & ACCEPTED</option>
+                            <option value="LEAKED">LEAKED</option>
+                            <option value="MINOR LEAKED & ACCEPTED">MINOR LEAKED & ACCEPTED</option>
+                        </select>
                     </div>
                 </div>
             </div>
@@ -374,13 +420,21 @@
                     </div>
                     <div class="form-group">
                         <label for="posttest_seat_result">Result & Remarks:</label>
-                        <input type="text" id="posttest_seat_result" class="form-control">
+                        <select id="posttest_seat_result" class="form-control">
+                            <option value="NO LEAK & ACCEPTED">NO LEAK & ACCEPTED</option>
+                            <option value="LEAKED">LEAKED</option>
+                            <option value="MINOR LEAKED & ACCEPTED">MINOR LEAKED & ACCEPTED</option>
+                        </select>
                     </div>
                 </div>
             </div>
             <div class="form-group">
                 <label for="posttest_accordance">Test Accordance To:</label>
-                <input type="text" id="posttest_accordance" class="form-control">
+                <select id="posttest_accordance" class="form-control">
+                    <option value="API 2000">API 2000</option>
+                    <option value="CLIENT REQUEST PRESSURE">CLIENT REQUEST PRESSURE</option>
+                    <option value="API 598">API 598</option>
+                </select>
             </div>
         </div>
 

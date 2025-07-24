@@ -448,6 +448,20 @@ body {
     margin: 30px 0;
 }
 
+.form-section {
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  padding: 24px 20px;
+  margin-bottom: 32px;
+}
+.form-section h2 {
+  margin-top: 0;
+  color: #167E66;
+  font-size: 1.3rem;
+  margin-bottom: 18px;
+}
+
 @media (max-width: 768px) {
     .container {
         padding: 15px;

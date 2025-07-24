@@ -18,16 +18,14 @@
         
 
 
-        <div class="upload-section">
-            <h2>Client Information</h2>
-            <p>Customize the client information that appears in your PDF report. Leave fields blank to use default values.</p>
-
+        <div class="form-section">
+            <h2>1. Client & Project Information</h2>
+            <!-- Manual override and WO search remain above -->
             <div id="wo_section" class="valve-selector">
                 <label for="valve_wo">Search by Work Order (WO)</label>
                 <input list="valve_wo_list" id="valve_wo" name="valve_wo" placeholder="Enter work order number (WO)...">
                 <datalist id="valve_wo_list"></datalist>
             </div>
-
             <div class="valve-selector" style="margin-top: 20px;">
                 <label>
                     <input type="checkbox" id="override_mode" onchange="toggleOverrideMode()">
@@ -49,6 +47,39 @@
                 <div class="form-group"><label for="manual_valve_operated_type">Valve Operated Type</label><input type="text" id="manual_valve_operated_type"></div>
             </div>
 
+            <div class="upload-section">
+                <h2 style="display:none;">Client Information</h2>
+                <p>Customize the client information that appears in your PDF report. Leave fields blank to use default values.</p>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="client_name">Client Name:</label>
+                        <input type="text" id="client_name" value="PETRONAS CHEMICALS FERTILISER SABAH SDN BHD" placeholder="PETRONAS CHEMICALS FERTILISER SABAH SDN BHD" >
+                    </div>
+                    <div class="form-group">
+                        <label for="project_name">Project Name:</label>
+                        <input type="text" id="project_name" value="Provision of Valve Repacking and Maintenance Services For PCFS TA2025" placeholder="VALVE MProvision of Valve Repacking and Maintenance Services For PCFS TA2025" >
+                    </div>
+                    <div class="form-group">
+                        <label for="location">Location:</label>
+                        <input type="text" id="location" value="Sipitang, Sabah" placeholder="Sipitang, Sabah" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="date_in">Date In (dd/mm/yyyy):</label>
+                        <div class="date-input-group">
+                            <input type="text" id="date_in" placeholder="07/08/2025" onchange="updateCalendarFromText()">
+                            <input type="date" id="date_in_calendar" onchange="updateDateInput()">
+                            <button type="button" class="btn" style="padding: 8px 12px; font-size: 12px; white-space: nowrap; margin-left: 8px;" onclick="setCurrentDate()">📅 Today</button>
+                        </div>
+                        <small style="color: #666; font-size: 0.8rem; margin-top: 4px; display: block;">
+                            Use the calendar above or "Today" button to set the date
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-section">
+            <h2>2. Service Options</h2>
             <div class="valve-selector" style="margin-top: 20px;">
                 <label>Service Options (Select multiple)</label>
                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-top: 10px;">
@@ -73,32 +104,10 @@
                     Select one or more service options that apply to this valve report
                 </small>
             </div>
+        </div>
 
-            <div class="form-group">
-                <label for="client_name">Client Name</label>
-                <input type="text" id="client_name" placeholder="PETRONAS CHEMICALS FERTILISER SABAH SDN BHD" required>
-            </div>
-            <div class="form-group">
-                <label for="project_name">Project Name</label>
-                <input type="text" id="project_name" placeholder="VALVE MAINTENANCE PROJECT 2025" required>
-            </div>
-            <div class="form-group">
-                <label for="location">Location</label>
-                <input type="text" id="location" placeholder="Sipitang" required>
-            </div>
-            <div class="form-group">
-                <label for="date_in">Date In (dd/mm/yyyy)</label>
-                <div style="display: flex; gap: 10px; align-items: center;">
-                    <input type="date" id="date_in_calendar" style="flex: 1; padding: 12px 16px; border: 2px solid var(--light-gray-2); border-radius: 8px; font-size: 14px; transition: all 0.3s ease; background: var(--pure-white);" onchange="updateDateInput()">
-                    <button type="button" class="btn" style="padding: 8px 12px; font-size: 12px; white-space: nowrap;" onclick="setCurrentDate()">
-                        📅 Today
-                    </button>
-                </div>
-                <input type="text" id="date_in" placeholder="07/08/2025" style="margin-top: 8px;" onchange="updateCalendarFromText()">
-                <small style="color: #666; font-size: 0.8rem; margin-top: 4px; display: block;">
-                    Use the calendar above or "Today" button to set the date
-                </small>
-            </div>
+        <div class="form-section">
+            <h2>3. Transport & Packaging</h2>
             <div class="form-grid">   
                 <div class="form-group">
                     <label for="transport_mode">Transport Mode</label>
@@ -209,60 +218,65 @@
             </div>
         </div>
 
-        <div class="upload-section">
-            <h2>AS RECEIVED VALVE Images</h2>
-            <p>Upload up to 3 images for the "AS RECEIVED VALVE" section. You can upload fewer than 3 images if needed.</p>
-            <p style="font-size: 0.9rem; color: var(--medium-teal); background: rgba(44, 161, 132, 0.1); padding: 10px; border-radius: 6px; border-left: 3px solid var(--medium-teal);">
-                📱 <strong>Mobile Users:</strong> Tap any image field to open your camera and take photos directly!
-            </p>
-            
-            <div class="image-upload">
-                <label>AS RECEIVED VALVE Image 1</label>
-                <button type="button" onclick="triggerCameraInput(1)">📷 Photo</button>
-                <button type="button" onclick="triggerGalleryInput(1)">🖼️ Gallery</button>
-                <input type="file" id="camera_input_1" accept="image/*" capture="environment" style="display:none" onchange="uploadReceivedValveImage(1, this)">
-                <input type="file" id="gallery_input_1" accept="image/*" style="display:none" onchange="uploadReceivedValveImage(1, this)">
-                <div id="received_valve_1_status"></div>
-                <div class="image-preview-container" id="received_valve_1_container" style="display: none;">
-                    <img id="received_valve_1_preview" class="image-preview">
-                    <button type="button" class="delete-image-btn" onclick="deleteReceivedValveImage(1)" title="Delete image">×</button>
+        <div class="form-section">
+            <h2>5. AS RECEIVED VALVE Images</h2>
+            <div class="upload-section">
+                <h2>AS RECEIVED VALVE Images</h2>
+                <p>Upload up to 3 images for the "AS RECEIVED VALVE" section. You can upload fewer than 3 images if needed.</p>
+                <p style="font-size: 0.9rem; color: var(--medium-teal); background: rgba(44, 161, 132, 0.1); padding: 10px; border-radius: 6px; border-left: 3px solid var(--medium-teal);">
+                    📱 <strong>Mobile Users:</strong> Tap any image field to open your camera and take photos directly!
+                </p>
+                
+                <div class="image-upload">
+                    <label>AS RECEIVED VALVE Image 1</label>
+                    <button type="button" onclick="triggerCameraInput(1)">📷 Photo</button>
+                    <button type="button" onclick="triggerGalleryInput(1)">🖼️ Gallery</button>
+                    <input type="file" id="camera_input_1" accept="image/*" capture="environment" style="display:none" onchange="uploadReceivedValveImage(1, this)">
+                    <input type="file" id="gallery_input_1" accept="image/*" style="display:none" onchange="uploadReceivedValveImage(1, this)">
+                    <div id="received_valve_1_status"></div>
+                    <div class="image-preview-container" id="received_valve_1_container" style="display: none;">
+                        <img id="received_valve_1_preview" class="image-preview">
+                        <button type="button" class="delete-image-btn" onclick="deleteReceivedValveImage(1)" title="Delete image">×</button>
+                    </div>
                 </div>
-            </div>
 
-            <div class="image-upload">
-                <label>AS RECEIVED VALVE Image 2</label>
-                <button type="button" onclick="triggerCameraInput(2)">📷 Photo</button>
-                <button type="button" onclick="triggerGalleryInput(2)">🖼️ Gallery</button>
-                <input type="file" id="camera_input_2" accept="image/*" capture="environment" style="display:none" onchange="uploadReceivedValveImage(2, this)">
-                <input type="file" id="gallery_input_2" accept="image/*" style="display:none" onchange="uploadReceivedValveImage(2, this)">
-                <div id="received_valve_2_status"></div>
-                <div class="image-preview-container" id="received_valve_2_container" style="display: none;">
-                    <img id="received_valve_2_preview" class="image-preview">
-                    <button type="button" class="delete-image-btn" onclick="deleteReceivedValveImage(2)" title="Delete image">×</button>
+                <div class="image-upload">
+                    <label>AS RECEIVED VALVE Image 2</label>
+                    <button type="button" onclick="triggerCameraInput(2)">📷 Photo</button>
+                    <button type="button" onclick="triggerGalleryInput(2)">🖼️ Gallery</button>
+                    <input type="file" id="camera_input_2" accept="image/*" capture="environment" style="display:none" onchange="uploadReceivedValveImage(2, this)">
+                    <input type="file" id="gallery_input_2" accept="image/*" style="display:none" onchange="uploadReceivedValveImage(2, this)">
+                    <div id="received_valve_2_status"></div>
+                    <div class="image-preview-container" id="received_valve_2_container" style="display: none;">
+                        <img id="received_valve_2_preview" class="image-preview">
+                        <button type="button" class="delete-image-btn" onclick="deleteReceivedValveImage(2)" title="Delete image">×</button>
+                    </div>
                 </div>
-            </div>
 
-            <div class="image-upload">
-                <label>AS RECEIVED VALVE Image 3</label>
-                <button type="button" onclick="triggerCameraInput(3)">📷 Photo</button>
-                <button type="button" onclick="triggerGalleryInput(3)">🖼️ Gallery</button>
-                <input type="file" id="camera_input_3" accept="image/*" capture="environment" style="display:none" onchange="uploadReceivedValveImage(3, this)">
-                <input type="file" id="gallery_input_3" accept="image/*" style="display:none" onchange="uploadReceivedValveImage(3, this)">
-                <div id="received_valve_3_status"></div>
-                <div class="image-preview-container" id="received_valve_3_container" style="display: none;">
-                    <img id="received_valve_3_preview" class="image-preview">
-                    <button type="button" class="delete-image-btn" onclick="deleteReceivedValveImage(3)" title="Delete image">×</button>
+                <div class="image-upload">
+                    <label>AS RECEIVED VALVE Image 3</label>
+                    <button type="button" onclick="triggerCameraInput(3)">📷 Photo</button>
+                    <button type="button" onclick="triggerGalleryInput(3)">🖼️ Gallery</button>
+                    <input type="file" id="camera_input_3" accept="image/*" capture="environment" style="display:none" onchange="uploadReceivedValveImage(3, this)">
+                    <input type="file" id="gallery_input_3" accept="image/*" style="display:none" onchange="uploadReceivedValveImage(3, this)">
+                    <div id="received_valve_3_status"></div>
+                    <div class="image-preview-container" id="received_valve_3_container" style="display: none;">
+                        <img id="received_valve_3_preview" class="image-preview">
+                        <button type="button" class="delete-image-btn" onclick="deleteReceivedValveImage(3)" title="Delete image">×</button>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <div class="upload-section">
-            <h2>Detailed Images</h2>
-            <p>Upload images for different sections. If no image is uploaded for a section, the cell will remain empty.</p>
-            <p style="font-size: 0.9rem; color: var(--medium-teal); background: rgba(44, 161, 132, 0.1); padding: 10px; border-radius: 6px; border-left: 3px solid var(--medium-teal);">
-                📱 <strong>Mobile Users:</strong> Tap any image field to open your camera and take photos directly!
-            </p>
-            
+        <div class="form-section">
+            <h2>6. Detailed Images</h2>
+            <div class="upload-section">
+                <h2>Detailed Images</h2>
+                <p>Upload images for different sections. If no image is uploaded for a section, the cell will remain empty.</p>
+                <p style="font-size: 0.9rem; color: var(--medium-teal); background: rgba(44, 161, 132, 0.1); padding: 10px; border-radius: 6px; border-left: 3px solid var(--medium-teal);">
+                    📱 <strong>Mobile Users:</strong> Tap any image field to open your camera and take photos directly!
+                </p>
+                
                     <div class="image-upload">
             <label for="inlet_connection">Inlet Connection Image</label>
             <button type="button" onclick="triggerCameraInput('inlet_connection')">📷 Photo</button>
@@ -315,45 +329,49 @@
             </div>
         </div>
         </div>
+        </div>
 
-        <div class="upload-section">
-            <h2>Generate PDF Report</h2>
-            
-            <!-- Search by WO -->
+        <div class="form-section">
+            <h2>7. Generate PDF Report</h2>
+            <div class="upload-section">
+                <h2>Generate PDF Report</h2>
+                
+                <!-- Search by WO -->
 
-            
-            <!-- Stamp Selection -->
-            <div class="valve-selector" style="margin-top: 20px;">
-                <label for="stamp_selection">Stamp & Prepared By</label>
-                <select id="stamp_selection" style="width: 100%; padding: 12px 16px; border: 2px solid var(--light-gray-2); border-radius: 8px; font-size: 16px; transition: all 0.3s ease;">
-                    {% for opt in stamp_options %}
-                    <option value="{{ opt.value }}">{{ opt.label }}</option>
-                    {% endfor %}
-                </select>
-            </div>
-            
-            <!-- Service Selection -->
-            
-            
-            <!-- Date Selection -->
-            <div class="valve-selector" style="margin-top: 20px;">
-                <label for="stamp_date">Stamp Date (dd/mm/yyyy)</label>
-                <div style="display: flex; gap: 10px; align-items: center;">
-                    <input type="date" id="stamp_date_calendar" style="flex: 1; padding: 12px 16px; border: 2px solid var(--light-gray-2); border-radius: 8px; font-size: 14px; transition: all 0.3s ease; background: var(--pure-white);" onchange="updateStampDateInput()">
-                    <button type="button" class="btn" style="padding: 8px 12px; font-size: 12px; white-space: nowrap;" onclick="setCurrentStampDate()">
-                        📅 Today
-                    </button>
+                
+                <!-- Stamp Selection -->
+                <div class="valve-selector" style="margin-top: 20px;">
+                    <label for="stamp_selection">Stamp & Prepared By</label>
+                    <select id="stamp_selection" style="width: 100%; padding: 12px 16px; border: 2px solid var(--light-gray-2); border-radius: 8px; font-size: 16px; transition: all 0.3s ease;">
+                        {% for opt in stamp_options %}
+                        <option value="{{ opt.value }}">{{ opt.label }}</option>
+                        {% endfor %}
+                    </select>
                 </div>
-                <input type="text" id="stamp_date" placeholder="07/08/2025" style="margin-top: 8px;" onchange="updateCalendarFromStampDate()">
-                <small style="color: #666; font-size: 0.8rem; margin-top: 4px; display: block;">
-                    Use the calendar above or "Today" button to set the stamp date
-                </small>
+                
+                <!-- Service Selection -->
+                
+                
+                <!-- Date Selection -->
+                <div class="valve-selector" style="margin-top: 20px;">
+                    <label for="stamp_date">Stamp Date (dd/mm/yyyy)</label>
+                    <div style="display: flex; gap: 10px; align-items: center;">
+                        <input type="date" id="stamp_date_calendar" style="flex: 1; padding: 12px 16px; border: 2px solid var(--light-gray-2); border-radius: 8px; font-size: 14px; transition: all 0.3s ease; background: var(--pure-white);" onchange="updateStampDateInput()">
+                        <button type="button" class="btn" style="padding: 8px 12px; font-size: 12px; white-space: nowrap;" onclick="setCurrentStampDate()">
+                            📅 Today
+                        </button>
+                    </div>
+                    <input type="text" id="stamp_date" placeholder="07/08/2025" style="margin-top: 8px;" onchange="updateCalendarFromStampDate()">
+                    <small style="color: #666; font-size: 0.8rem; margin-top: 4px; display: block;">
+                        Use the calendar above or "Today" button to set the stamp date
+                    </small>
+                </div>
+                
+                <div style="margin-top: 20px;">
+                    <button class="btn" onclick="generatePDF()">Generate PDF Report</button>
+                </div>
+                <div id="pdf_status"></div>
             </div>
-            
-            <div style="margin-top: 20px;">
-                <button class="btn" onclick="generatePDF()">Generate PDF Report</button>
-            </div>
-            <div id="pdf_status"></div>
         </div>
 
         <div class="upload-section" id="pdf_viewer_section" style="display: none;">
