@@ -11,7 +11,8 @@ services:
       - FLASK_ENV=production
       - PYTHONUNBUFFERED=1
     volumes:
-      - .:/app
+      - ./static/temp_images:/app/static/temp_images
+      - ./static/temp_excel:/app/static/temp_excel
     restart: unless-stopped
 
   caddy:
