@@ -29,9 +29,6 @@ RUN apt-get update && apt-get install -y \
     curl \
     && rm -rf /var/lib/apt/lists/*
 
-# Create a non-root user for security
-RUN useradd -m -u 1000 appuser
-
 # Copy requirements first for better caching
 COPY requirements.txt .
 
@@ -47,7 +44,7 @@ RUN mkdir -p static/temp_images \
     static/images \
     generated_pdfs \
     stamp && \
-    chown -R appuser:appuser static/temp_images static/temp_excel static/images generated_pdfs stamp
+    chown -R root:root static/temp_images static/temp_excel static/images generated_pdfs stamp
 
 # Set environment variables
 ENV FLASK_APP=recweb.py
@@ -56,8 +53,6 @@ ENV PYTHONUNBUFFERED=1
 
 # Expose port
 EXPOSE 5300
-
-USER appuser
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 \
