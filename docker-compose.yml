@@ -11,8 +11,18 @@ services:
       - FLASK_ENV=production
       - PYTHONUNBUFFERED=1
     volumes:
+      # Persist uploaded/generated images
       - ./static/temp_images:/app/static/temp_images
+      # Persist Excel uploads/exports
       - ./static/temp_excel:/app/static/temp_excel
+      # Persist stamp images
+      - ./stamp:/app/stamp
+      # Persist generated PDF files
+      - ./generated_pdfs:/app/generated_pdfs
+      # Persist stamp mapping JSON file
+      - ./stamp_mapping.json:/app/stamp_mapping.json
+      # Persist extracted data JSON file
+      - ./extracted_data.json:/app/extracted_data.json
     restart: unless-stopped
 
   caddy:
