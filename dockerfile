@@ -38,12 +38,13 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy application code
 COPY . .
 
-# Create necessary directories
+# Create necessary directories and set ownership to appuser
 RUN mkdir -p static/temp_images \
     static/temp_excel \
     static/images \
     generated_pdfs \
-    stamp
+    stamp && \
+    chown -R appuser:appuser static/temp_images static/temp_excel static/images generated_pdfs stamp
 
 # Set environment variables
 ENV FLASK_APP=recweb.py
