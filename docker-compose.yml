@@ -1,0 +1,26 @@
+version: '3.8'
+
+services:
+  app:
+    build: .
+    container_name: valverec_app
+    expose:
+      - "5300"
+    environment:
+      - FLASK_APP=recweb.py
+      - FLASK_ENV=production
+      - PYTHONUNBUFFERED=1
+    volumes:
+      - .:/app
+    restart: unless-stopped
+
+  caddy:
+    image: caddy:2-alpine
+    container_name: valverec_caddy
+    ports:
+      - "8080:8080"
+    depends_on:
+      - app
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile
+    restart: unless-stopped 
